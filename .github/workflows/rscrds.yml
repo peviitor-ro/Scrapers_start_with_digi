@@ -31,5 +31,4 @@ jobs:
         pip3 install -r requirements.txt
     - name: Runing RCSRDS Scraper
       run: |
-        python3 scrapers_forzza/rcsrds_scraper.py
-        python3 scraper_forzza/rcsrds_post_peviitor.py
+        python3 main_sync_scrapers.py
