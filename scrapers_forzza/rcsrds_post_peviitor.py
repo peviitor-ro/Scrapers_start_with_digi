@@ -2,27 +2,32 @@
 #
 #
 import requests
-import json 
+import json
 
 
-API_KEY = '3686bc-c0b-7f5c-e152-c1718c25867'
-CLEAN_URL = 'https://api.peviitor.ro/v4/clean/'
+def update_rcsrds():
+    """
+    Update data on api peviitor.
+    """
 
-clean_header = {
-    'Content-Type': 'application/x-www-form-urlencoded',
-    'apikey': API_KEY
-    }
+    API_KEY = '3686bc-c0b-7f5c-e152-c1718c25867'
+    CLEAN_URL = 'https://api.peviitor.ro/v4/clean/'
 
-clean_request = requests.post(CLEAN_URL, headers=clean_header, data={'company': 'rcsrds'})
-print(clean_request.status_code)
+    clean_header = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'apikey': API_KEY
+        }
 
-post_header = {
-    'Content-Type': 'appliction/json',
-    'apikey': API_KEY
-    }
+    clean_request = requests.post(CLEAN_URL, headers=clean_header, data={'company': 'rcsrds'})
+    print(clean_request.status_code)
 
-with open('data_digi.json', 'r') as file:
-    data = json.load(file)
+    post_header = {
+        'Content-Type': 'appliction/json',
+        'apikey': API_KEY
+        }
 
-post_request_to_server = requests.post('https://api.peviitor.ro/v4/update/', headers=post_header, data=json.dumps(data))
-print(post_request_to_server)
+    with open('data_digi.json', 'r') as file:
+        data = json.load(file)
+
+    post_request_to_server = requests.post('https://api.peviitor.ro/v4/update/', headers=post_header, data=json.dumps(data))
+    print(post_request_to_server)

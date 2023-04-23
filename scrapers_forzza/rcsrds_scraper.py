@@ -164,12 +164,8 @@ def rcsrds_scrape():
 
     lst_with_data_post = scrape_data_from_digi(cities=tuple_jobs_cities[0], jobs=tuple_jobs_cities[1], session=session)
 
-    with open('data_digi.json', 'w') as file:
+    with open('scrapers_forzza/data_digi.json', 'w') as file:
         json.dump(lst_with_data_post, file)
 
     finish_time = time.time() - start_time
     print(f"Script execute in {int(finish_time) / 60}")
-
-
-if __name__ == "__main__":
-    rcsrds_scrape()
