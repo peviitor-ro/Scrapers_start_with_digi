@@ -3,9 +3,9 @@
 #
 # Main fail ---> Run all Scripts here.
 #
-from scrapers_forzza import rcsrds_scrape, rcsrds_post_peviitor
+from scrapers_forzza import rcsrds_scrape, update_rcsrds
 
 
 if __name__ == "__main__":
     rcsrds_scrape()
-    rcsrds_post_peviitor()
+    update_rcsrds()
