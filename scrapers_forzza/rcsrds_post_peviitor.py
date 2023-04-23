@@ -26,7 +26,7 @@ def update_rcsrds():
         'apikey': API_KEY
         }
 
-    with open('data_digi.json', 'r') as file:
+    with open('scrapers_forzza/data_digi.json', 'r') as file:
         data = json.load(file)
 
     post_request_to_server = requests.post('https://api.peviitor.ro/v4/update/', headers=post_header, data=json.dumps(data))
