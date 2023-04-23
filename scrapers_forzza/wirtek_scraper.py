@@ -5,6 +5,7 @@
 #
 import requests
 from bs4 import BeautifulSoup
+import uuid
 #
 import json
 
@@ -23,7 +24,7 @@ def set_headers():
     return HEADERS
 
 
-def wirtek_scrape():
+def data_scrape_from_wirtek():
     """
     This func() is about scrape wirtek.
     """
@@ -32,10 +33,31 @@ def wirtek_scrape():
     soup = BeautifulSoup(response.text, 'lxml')
 
     job_grid = soup.find_all('div', class_='careers-grid__job')
-    
+
+    lst_with_jobs_data = []
     for job in job_grid:
-        
+        link_job = job.a['href']
+        title_job = job.find('div', class_='careers-grid__job-name').text.strip()
+
+        lst_with_jobs_data.append({
+            "id": str(uuid.uuid4()),
+            "job_title": title_job,
+            "job_link":  link_job,
+            "company": "wirtek",
+            "country": "Romania",
+            "city": "Romania"
+            })
+
+    return lst_with_jobs_data
 
 
+def wirtek_scrape():
+    """
+    This func() is about logic of all code.
+    """
 
-wirtek_scrape()
+    lst_with_scraped_jobs = data_scrape_from_wirtek()
+
+    # save data to json
+    with open('scrapers_forzza/data_wirtek.json', 'w') as file_data:
+        json.dump(lst_with_scraped_jobs, file_data)
