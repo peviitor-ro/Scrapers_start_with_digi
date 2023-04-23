@@ -33,4 +33,3 @@ jobs:
       run: |
         python3 scraper_forzza/rcsrds_scraper.py
         python3 scraper_forzza/rcsrds_post_peviitor.py
-
