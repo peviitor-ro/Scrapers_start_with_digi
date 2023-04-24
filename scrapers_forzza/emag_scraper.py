@@ -111,3 +111,5 @@ def emag_scrape():
     # save data to json file
     with open('scrapers_forzza/data_emag.json', 'w') as json_file:
         json.dump(lst_for_json_data, json_file)
+
+    print('Emag ---> Done!')
