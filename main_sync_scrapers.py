@@ -19,4 +19,5 @@ if __name__ == "__main__":
     # pdate_rcsrds()
 
     # scrape emag
-
+    emag_scrape()
+    update_emag()
