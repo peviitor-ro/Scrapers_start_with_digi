@@ -111,10 +111,3 @@ def emag_scrape():
     # save data to json file
     with open('scrapers_forzza/data_emag.json', 'w') as json_file:
         json.dump(lst_for_json_data, json_file)
-
-
-emag_scrape()
-
-
-# https://lde.tbe.taleo.net/lde02/ats/careers/v2/viewRequisition?org=EMAG&cws=37&rid=3303
-# https://lde.tbe.taleo.net/lde02/ats/careers/v2/viewRequisition?org=EMAG&amp;cws=37&amp;rid=3303
