@@ -7,3 +7,6 @@ from scrapers_forzza.rcsrds_post_peviitor import update_rcsrds
 #
 from scrapers_forzza.wirtek_scraper import wirtek_scrape
 from scrapers_forzza.wirtek_post_peviitor import update_wirtek
+#
+from scrapers_forzza.emag_scraper import emag_scrape
+from scrapers_forzza.emag_post_peviitor import update_emag
