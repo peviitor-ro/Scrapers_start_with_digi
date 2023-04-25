@@ -10,3 +10,6 @@ from scrapers_forzza.wirtek_post_peviitor import update_wirtek
 #
 from scrapers_forzza.emag_scraper import emag_scrape
 from scrapers_forzza.emag_post_peviitor import update_emag
+#
+from scrapers_forzza.mol_scraper import scrape_molTALEO
+from scrapers_forzza.mol_post_peviitor import update_molTaleo
