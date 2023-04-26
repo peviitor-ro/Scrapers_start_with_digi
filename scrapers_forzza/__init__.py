@@ -19,3 +19,7 @@ from scrapers_forzza.pmi_post_peviitor import update_pmi
 #
 from scrapers_forzza.ursus_scraper import scrape_ursus
 from scrapers_forzza.ursus_post_peviitor import update_ursus
+#
+from scrapers_forzza.tesla_scraper import scrape_tesla
+from scrapers_forzza.tesla_post_peviitor import update_tesla
+#

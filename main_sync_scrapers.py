@@ -9,6 +9,7 @@ from scrapers_forzza import emag_scrape, update_emag
 from scrapers_forzza import scrape_molTALEO, update_molTaleo
 from scrapers_forzza import scrape_pmi, update_pmi
 from scrapers_forzza import scrape_ursus, update_ursus
+from scrapers_forzza import scrape_tesla, update_tesla
 
 
 if __name__ == "__main__":
@@ -36,3 +37,7 @@ if __name__ == "__main__":
     # scrape ursus
     scrape_ursus()
     update_ursus()
+
+    # scrape_tesla
+    scrape_tesla()
+    update_tesla()
