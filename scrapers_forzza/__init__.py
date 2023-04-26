@@ -17,3 +17,5 @@ from scrapers_forzza.mol_post_peviitor import update_molTaleo
 from scrapers_forzza.pmi_scraper import scrape_pmi
 from scrapers_forzza.pmi_post_peviitor import update_pmi
 #
+from scrapers_forzza.ursus_scraper import scrape_ursus
+from scrapers_forzza.ursus_post_peviitor import update_ursus
