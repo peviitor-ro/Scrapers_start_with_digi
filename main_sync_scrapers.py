@@ -7,6 +7,7 @@
 from scrapers_forzza import wirtek_scrape, update_wirtek
 from scrapers_forzza import emag_scrape, update_emag
 from scrapers_forzza import scrape_molTALEO, update_molTaleo
+from scrapers_forzza import scrape_pmi, update_pmi
 
 
 if __name__ == "__main__":
@@ -26,3 +27,7 @@ if __name__ == "__main__":
     # scrape MolGroup Taleo
     scrape_molTALEO()
     update_molTaleo()
+
+    # scrape pmi.com!
+    scrape_pmi()
+    update_pmi()

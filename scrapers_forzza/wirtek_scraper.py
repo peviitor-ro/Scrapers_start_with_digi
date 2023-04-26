@@ -61,5 +61,3 @@ def wirtek_scrape():
     # save data to json
     with open('scrapers_forzza/data_wirtek.json', 'w') as file_data:
         json.dump(lst_with_scraped_jobs, file_data)
-
-    print('Wirtek - Done!')

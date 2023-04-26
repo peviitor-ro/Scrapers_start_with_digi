@@ -13,3 +13,7 @@ from scrapers_forzza.emag_post_peviitor import update_emag
 #
 from scrapers_forzza.mol_scraper import scrape_molTALEO
 from scrapers_forzza.mol_post_peviitor import update_molTaleo
+#
+from scrapers_forzza.pmi_scraper import scrape_pmi
+from scrapers_forzza.pmi_post_peviitor import update_pmi
+#

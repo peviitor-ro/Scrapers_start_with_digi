@@ -84,5 +84,3 @@ def scrape_molTALEO():
     # save it to json
     with open('scrapers_forzza/data_mol.json', 'w') as data_file:
         json.dump(json_list_with_jobs, data_file)
-
-    print(json_list_with_jobs)
