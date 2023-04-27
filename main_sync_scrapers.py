@@ -11,6 +11,7 @@ from scrapers_forzza import scrape_pmi, update_pmi
 from scrapers_forzza import scrape_ursus, update_ursus
 from scrapers_forzza import scrape_tesla, update_tesla
 from scrapers_forzza import sita_scrape, update_sita
+from scrapers_forzza import farmexim_scrape, update_farmexim
 
 
 if __name__ == "__main__":
@@ -46,3 +47,7 @@ if __name__ == "__main__":
     # scrape sita!
     sita_scrape()
     update_sita()
+
+    # scrape farmexim!
+    farmexim_scrape()
+    update_farmexim()
