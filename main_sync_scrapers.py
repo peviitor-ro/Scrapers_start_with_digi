@@ -52,3 +52,7 @@ if __name__ == "__main__":
     # scrape farmexim!
     farmexim_scrape()
     update_farmexim()
+
+    # scrape makita!
+    makita_scrape()
+    update_makita()
