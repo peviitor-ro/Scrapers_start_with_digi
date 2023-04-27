@@ -10,6 +10,7 @@ from scrapers_forzza import scrape_molTALEO, update_molTaleo
 from scrapers_forzza import scrape_pmi, update_pmi
 from scrapers_forzza import scrape_ursus, update_ursus
 from scrapers_forzza import scrape_tesla, update_tesla
+from scrapers_forzza import sita_scrape, update_sita
 
 
 if __name__ == "__main__":
@@ -41,3 +42,7 @@ if __name__ == "__main__":
     # scrape_tesla
     scrape_tesla()
     update_tesla()
+
+    # scrape sita!
+    sita_scrape()
+    update_sita()

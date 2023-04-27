@@ -23,3 +23,6 @@ from scrapers_forzza.ursus_post_peviitor import update_ursus
 from scrapers_forzza.tesla_scraper import scrape_tesla
 from scrapers_forzza.tesla_post_peviitor import update_tesla
 #
+from scrapers_forzza.sita_scraper import sita_scrape
+from scrapers_forzza.sita_post_peviitor import update_sita
+#

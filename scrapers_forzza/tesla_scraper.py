@@ -92,8 +92,6 @@ def scrape_tesla():
 
     lst_final = return_links_with_jobs()
 
-    print(lst_final)
-
     # save to json()
     with open('scrapers_forzza/data_tesla.json', 'w') as new_file:
         json.dump(lst_final, new_file)
