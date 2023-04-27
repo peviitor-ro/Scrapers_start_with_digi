@@ -12,6 +12,7 @@ from scrapers_forzza import scrape_ursus, update_ursus
 from scrapers_forzza import scrape_tesla, update_tesla
 from scrapers_forzza import sita_scrape, update_sita
 from scrapers_forzza import farmexim_scrape, update_farmexim
+from scrapers_forzza import makita_scrape, update_makita
 
 
 if __name__ == "__main__":

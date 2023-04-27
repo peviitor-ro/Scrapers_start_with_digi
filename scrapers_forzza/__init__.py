@@ -28,3 +28,7 @@ from scrapers_forzza.sita_post_peviitor import update_sita
 #
 from scrapers_forzza.farmexim_scraper import farmexim_scrape
 from scrapers_forzza.farmexim_post_peviitor import update_farmexim
+#
+from scrapers_forzza.makita_scraper import makita_scrape
+from scrapers_forzza.makita_post_peviitor import update_makita
+#
