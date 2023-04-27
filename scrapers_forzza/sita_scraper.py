@@ -45,7 +45,7 @@ def collect_data_from_site(url: str) -> list:
             "id": str(uuid.uuid4()),
             "job_title": title_job,
             "job_link":  link_job,
-            "company": "wirtek",
+            "company": "sita",
             "country": "Romania",
             "city": "Romania"
             })
