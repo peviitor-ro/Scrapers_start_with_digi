@@ -20,7 +20,7 @@ from scrapers_forzza import jti_scrape, update_jti
 
 if __name__ == "__main__":
 
-#     # update wirtek
+    #     # update wirtek
 #     wirtek_scrape()
 #     update_wirtek()
 # 
@@ -63,12 +63,11 @@ if __name__ == "__main__":
      # scraper proctergamble!
      proctergamble_scrape()
      update_proctergamble()
-    
-    # scrape threatconnect!
-    threatconnect_scrape()
-    update_threatconnect()
-    
-    # scrape jti!
-    jti_scrape()
-    update_jti()
 
+     # scrape threatconnect!
+     threatconnect_scrape()
+     update_threatconnect()
+
+     # scrape jti!
+     jti_scrape()
+     update_jti()
