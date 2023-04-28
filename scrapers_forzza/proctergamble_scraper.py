@@ -121,7 +121,7 @@ def proctergamble_scrape():
     lst_with_jobs = get_total_nums_of_jobs()
 
     # save data to json
-    with open('data_proctergamble.json', 'w') as new_file:
+    with open('scrapers_forzza/data_proctergamble.json', 'w') as new_file:
         json.dump(lst_with_jobs, new_file)
 
     print('Procter & Gamble ---> Done!')

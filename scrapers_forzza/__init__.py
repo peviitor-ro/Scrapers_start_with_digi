@@ -35,3 +35,6 @@ from scrapers_forzza.makita_post_peviitor import update_makita
 from scrapers_forzza.proctergamble_scraper import proctergamble_scrape
 from scrapers_forzza.proctergamble_post_peviitor import update_proctergamble
 #
+from scrapers_forzza.threatconnect_scraper import threatconnect_scrape
+from scrapers_forzza.threatconnect_post_peviitor import update_threatconnect
+#
