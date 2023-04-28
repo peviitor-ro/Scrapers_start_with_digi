@@ -20,54 +20,54 @@ from scrapers_forzza import jti_scrape, update_jti
 
 if __name__ == "__main__":
 
-    #     # update wirtek
-#     wirtek_scrape()
-#     update_wirtek()
-# 
-#     # scrape DIGI
-#     # rcsrds_scrape()
-#     # pdate_rcsrds()
-# 
-#     # scrape emag
-#     emag_scrape()
-#     update_emag()
-# 
-#     # scrape MolGroup Taleo
-#     scrape_molTALEO()
-#     update_molTaleo()
-# 
-#     # scrape pmi.com!
-#     scrape_pmi()
-#     update_pmi()
-# 
-#     # scrape ursus
-#     scrape_ursus()
-#     update_ursus()
-# 
-#     # scrape_tesla
-#     scrape_tesla()
-#     update_tesla()
-# 
-#     # scrape sita!
-#     sita_scrape()
-#     update_sita()
-# 
-#     # scrape farmexim!
-#     farmexim_scrape()
-#     update_farmexim()
-# 
-#     # scrape makita!
-#     makita_scrape()
-#     update_makita()
-# 
-     # scraper proctergamble!
-     proctergamble_scrape()
-     update_proctergamble()
+    # update wirtek
+    wirtek_scrape()
+    update_wirtek()
 
-     # scrape threatconnect!
-     threatconnect_scrape()
-     update_threatconnect()
+    # scrape DIGI
+    # rcsrds_scrape()
+    # pdate_rcsrds()
 
-     # scrape jti!
-     jti_scrape()
-     update_jti()
+    # scrape emag
+    emag_scrape()
+    update_emag()
+
+    # scrape MolGroup Taleo
+    scrape_molTALEO()
+    update_molTaleo()
+
+    # scrape pmi.com!
+    scrape_pmi()
+    update_pmi()
+
+    # scrape ursus
+    scrape_ursus()
+    update_ursus()
+
+    # scrape_tesla
+    scrape_tesla()
+    update_tesla()
+
+    # scrape sita!
+    sita_scrape()
+    update_sita()
+
+    # scrape farmexim!
+    farmexim_scrape()
+    update_farmexim()
+
+    # scrape makita!
+    makita_scrape()
+    update_makita()
+
+    # scraper proctergamble!
+    proctergamble_scrape()
+    update_proctergamble()
+
+    # scrape threatconnect!
+    threatconnect_scrape()
+    update_threatconnect()
+
+    # scrape jti!
+    jti_scrape()
+    update_jti()
