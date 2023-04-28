@@ -32,3 +32,6 @@ from scrapers_forzza.farmexim_post_peviitor import update_farmexim
 from scrapers_forzza.makita_scraper import makita_scrape
 from scrapers_forzza.makita_post_peviitor import update_makita
 #
+from scrapers_forzza.proctergamble_scraper import proctergamble_scrape
+from scrapers_forzza.proctergamble_post_peviitor import update_proctergamble
+#

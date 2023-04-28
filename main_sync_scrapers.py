@@ -13,6 +13,7 @@ from scrapers_forzza import scrape_tesla, update_tesla
 from scrapers_forzza import sita_scrape, update_sita
 from scrapers_forzza import farmexim_scrape, update_farmexim
 from scrapers_forzza import makita_scrape, update_makita
+from scrapers_forzza import proctergamble_scrape, update_proctergamble
 
 
 if __name__ == "__main__":
@@ -56,3 +57,7 @@ if __name__ == "__main__":
     # scrape makita!
     makita_scrape()
     update_makita()
+
+    # scraper proctergamble!
+    proctergamble_scrape()
+    update_proctergamble()
