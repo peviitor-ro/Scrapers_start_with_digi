@@ -15,12 +15,12 @@ from math import ceil
 import time
 
 
-def set_global_headers(page_num: str):
+def set_global_headers(page_num: int):
     """
     Set global headers for multiple requests.
     """
 
-    url = 'https://www.pgcareers.com/search-jobs/results?ActiveFacetID=0&CurrentPage=2&RecordsPerPage=20&Distance=50&RadiusUnitType=0&Keywords=&Location=Romania&ShowRadius=False&IsPagination=False&CustomFacetName=&FacetTerm=&FacetType=0&FacetFilters%5B0%5D.ID=798549&FacetFilters%5B0%5D.FacetType=2&FacetFilters%5B0%5D.Count=37&FacetFilters%5B0%5D.Display=Romania&FacetFilters%5B0%5D.IsApplied=true&FacetFilters%5B0%5D.FieldName=&FacetFilters%5B1%5D.ID=English&FacetFilters%5B1%5D.FacetType=5&FacetFilters%5B1%5D.Count=37&FacetFilters%5B1%5D.Display=English&FacetFilters%5B1%5D.IsApplied=true&FacetFilters%5B1%5D.FieldName=custom_fields.Language&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=6&PostalCode=&ResultsType=0&fc=&fl=&fcf=&afc=&afl=&afcf='
+    url = f'https://www.pgcareers.com/search-jobs/results?ActiveFacetID=0&CurrentPage={page_num}&RecordsPerPage=20&Distance=50&RadiusUnitType=0&Keywords=&Location=Romania&ShowRadius=False&IsPagination=False&CustomFacetName=&FacetTerm=&FacetType=0&FacetFilters%5B0%5D.ID=798549&FacetFilters%5B0%5D.FacetType=2&FacetFilters%5B0%5D.Count=37&FacetFilters%5B0%5D.Display=Romania&FacetFilters%5B0%5D.IsApplied=true&FacetFilters%5B0%5D.FieldName=&FacetFilters%5B1%5D.ID=English&FacetFilters%5B1%5D.FacetType=5&FacetFilters%5B1%5D.Count=37&FacetFilters%5B1%5D.Display=English&FacetFilters%5B1%5D.IsApplied=true&FacetFilters%5B1%5D.FieldName=custom_fields.Language&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=6&PostalCode=&ResultsType=0&fc=&fl=&fcf=&afc=&afl=&afcf='
 
     headers = {
         'authority': 'www.pgcareers.com',
@@ -119,6 +119,8 @@ def proctergamble_scrape():
     """
 
     lst_with_jobs = get_total_nums_of_jobs()
+
+    print(len(lst_with_jobs))
 
     # save data to json
     with open('scrapers_forzza/data_proctergamble.json', 'w') as new_file:

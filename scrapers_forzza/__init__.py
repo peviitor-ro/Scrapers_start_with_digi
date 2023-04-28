@@ -38,3 +38,6 @@ from scrapers_forzza.proctergamble_post_peviitor import update_proctergamble
 from scrapers_forzza.threatconnect_scraper import threatconnect_scrape
 from scrapers_forzza.threatconnect_post_peviitor import update_threatconnect
 #
+from scrapers_forzza.jti_scraper import jti_scrape
+from scrapers_forzza.jti_post_peviitor import update_jti
+#

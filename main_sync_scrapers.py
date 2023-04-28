@@ -15,6 +15,7 @@ from scrapers_forzza import farmexim_scrape, update_farmexim
 from scrapers_forzza import makita_scrape, update_makita
 from scrapers_forzza import proctergamble_scrape, update_proctergamble
 from scrapers_forzza import threatconnect_scrape, update_threatconnect
+from scrapers_forzza import jti_scrape, update_jti
 
 
 if __name__ == "__main__":
@@ -59,10 +60,15 @@ if __name__ == "__main__":
 #     makita_scrape()
 #     update_makita()
 # 
-#     # scraper proctergamble!
-#     proctergamble_scrape()
-#     update_proctergamble()
+     # scraper proctergamble!
+     proctergamble_scrape()
+     update_proctergamble()
     
     # scrape threatconnect!
     threatconnect_scrape()
     update_threatconnect()
+    
+    # scrape jti!
+    jti_scrape()
+    update_jti()
+
