@@ -10,8 +10,6 @@ from bs4 import BeautifulSoup
 import uuid
 import json
 #
-import re
-#
 import time
 from random import randint
 #
@@ -25,9 +23,9 @@ def set_headers():
 
     headers = {
         'Accept': 'text/html, */*; q=0.01',
-        'Accept-Language': 'en-US,en;q=0.6',
+        'Accept-Language': 'en-US,en;q=0.7',
         'Connection': 'keep-alive',
-        'Cookie': 'JSESSIONID=A20086F84DF0456922BDEC3CDDC02AC0; CookieConsent={stamp:%27q9oRCI730pMVBXyjzJozvyzLXlN/NiLtwTgKrmwaFNVqcGtyzk9BxA==%27%2Cnecessary:true%2Cpreferences:true%2Cstatistics:true%2Cmarketing:true%2Cmethod:%27explicit%27%2Cver:1%2Cutc:1682358188456%2Cregion:%27ro%27}; ak_bmsc=425A0036809D3401D7FA1BB346BE3550~000000000000000000000000000000~YAAQDpNOUpk10KCHAQAAb0lktBMfPshgdX7wquz1tRa993E7nKLN4mZRIEF8pgN1shEt2lGa/KgpRTZU2uwEGaTnmlnHckErf1+uls363nmppVMRU/gBdT2dXs0v1UbZ9ahij+H9ycuq7mOqTPU8nrIyH6s7DnXfgNpXQo6pKZY73I1+gv5FOwiZJFvq1e9TVR0/URG/78OGgTOB3tp7+TezhAIPL2gQPOdSRrwZbzqgbVff82kZIjZLqhXquzedmGGl52+bchyJKnBGJ/uHU9Pm7dMTu1EdgKnYSm++ocP9EkV25veGl2gLTR5MRA3v84POylIzJzLWGVNSBWDuPNKr4MgrRTzr/xBACUYBXLULh7CxR5iWtVk26CQrgKb9qA==; ADRUM_BTa="R:0|g:247cbab2-6c23-4d56-9851-7c4019c6e012|n:customer1_cc2551bb-5a3a-4515-b658-a61e16e64999"; ADRUM_BT1="R:0|i:112|e:123"; bm_sv=42175CF5B5847D78296D882670FE4DFB~YAAQDpNOUsew0KCHAQAAo3eXtBP/WBBdNW+GuOPZ4cd+35YlLuEgehkGuz3kda9eDRAC8Ogwt2VUtWhmUmmJHlLWc/kdGTrwc14WvLRGvrELMrXde4c/AWQz1Levya+4yGTt7QccDa0YBh7mq5V5qLz6urzAjplf8kjZrLrQsV2uBZggrhnX2in4rHvhKf01lJw8utTc2WQ4FA8VzusFL23f8yTzxHzbljUqVVeUUhEQ2CcYzZEtQaDmKf3aUr/t762LYA==~1',
+        'Cookie': 'JSESSIONID=AAF269AA89A8A450240C292FD0D04BA9; CookieConsent={stamp:%27q9oRCI730pMVBXyjzJozvyzLXlN/NiLtwTgKrmwaFNVqcGtyzk9BxA==%27%2Cnecessary:true%2Cpreferences:true%2Cstatistics:true%2Cmarketing:true%2Cmethod:%27explicit%27%2Cver:1%2Cutc:1682358188456%2Cregion:%27ro%27}; ak_bmsc=218CD526E93B665ECCACFD0DAEB6F7A4~000000000000000000000000000000~YAAQDpNOUmGu/6CHAQAAFBOOzhOnDaWkkyXVeTJ2zhtVB7/aPi9N+n7oU5TWoEidnu5AgeOHmriJITvPCvdYMTWp2CCYUw/IATsG+D4iZS4IjQa2EbeVd3hvegqbfFg/tVDTvO5hipOF3JMN6KcevXVGJfpiqoklvkqx/dugCaS5O6fkMGIx5z5VIMMkWsq9Y+EWPUC6l5JQc5rjk2bqgIv1ofyDhaQ1aob0HpfnGYhoSy+G5cFkBFmgTSJ2EQTCxHUyB+7gzRElHsZbNnLUYdZgItM0LB0L7mVWDayLxTkMXS6jAtDnIinjuqYDbwf4iz5Vdgp/qf9M0gN0+uaR7nxffjGb+Pjffmd78+FyTII1qsILhSBJwx5MfFV76Hpd9w==; bm_sv=93579EB54DA0B94079041FF50B6B4312~YAAQDpNOUim3/6CHAQAAjMuQzhOoKOHOdxuPcVnLzRRixy64Y+kc2E/4qTJsZy0RjjN+KBkpoLsKoruqyU1rZn0P7Ac/adK/U07zre8teWVTw/A9XFx6bbNkRPtViYDAi5jJX9nVmGIYJISTDD7yENv0eu7KNsvKqQH8wwWEDCWGfLVh0V7kIMB17xe7VaNIt2VyFPcZxeNK5yfZtmrTEmjRThagYRjyVFYe9A7O6KGnycxG/JU+JKTm6+6tOuBvEgUh~1',
         'Referer': 'https://lde.tbe.taleo.net/lde02/ats/careers/v2/searchResults?org=EMAG&cws=37',
         'Sec-Fetch-Dest': 'empty',
         'Sec-Fetch-Mode': 'cors',
@@ -38,22 +36,9 @@ def set_headers():
         'sec-ch-ua': '"Chromium";v="112", "Brave";v="112", "Not:A-Brand";v="99"',
         'sec-ch-ua-mobile': '?0',
         'sec-ch-ua-platform': '"Linux"'
-    }
+        }
 
     return headers
-
-
-def return_num_of_pages():
-    """
-    ... this func is about return a nums of pages.
-    """
-    response_pages = requests.get('https://lde.tbe.taleo.net/lde02/ats/careers/v2/viewRequisition?org=EMAG&cws=37&rid=3303', headers=set_headers())
-    soup_pages = BeautifulSoup(response_pages.content, 'lxml')
-
-    values = soup_pages.find('input', class_='form-control')
-    page_num = values['value'].split()[-1]
-
-    return page_num
 
 
 def get_data_from_emag(page_num: int) -> None:
@@ -65,28 +50,35 @@ def get_data_from_emag(page_num: int) -> None:
     url = f'https://lde.tbe.taleo.net/lde02/ats/careers/v2/searchResults?next&rowFrom={page_num}&act=null&sortColumn=null&sortOrder=null&currentTime=1682362037768'
 
     response = requests.get(url, headers=set_headers())
+
+    # check if it return something
     soup = BeautifulSoup(response.content, 'lxml')
 
-    soup_data = soup.find_all('h4', class_='oracletaleocwsv2-head-title')
+    # make with morj operator
+    if (soup_data := soup.find_all('h4', class_='oracletaleocwsv2-head-title')):
 
-    lst_clean_data = []
-    for dirty_data in soup_data:
-        dirty_link = dirty_data.a['href']
-        clean_title = dirty_data.text
 
-        # clean link
-        easy_clean_link = dirty_link.replace('amp;', '').replace('amp;', '')
+        lst_clean_data = []
+        for dirty_data in soup_data:
+            dirty_link = dirty_data.a['href']
+            clean_title = dirty_data.text
 
-        lst_clean_data.append({
-            "id": str(uuid.uuid4()),
-            "job_title": clean_title,
-            "job_link":  easy_clean_link,
-            "company": "emag",
-            "country": "Romania",
-            "city": "Romania"
-            })
+            # clean link
+            easy_clean_link = dirty_link.replace('amp;', '').replace('amp;', '')
 
-    return lst_clean_data
+            lst_clean_data.append({
+                "id": str(uuid.uuid4()),
+                "job_title": clean_title,
+                "job_link":  easy_clean_link,
+                "company": "emag",
+                "country": "Romania",
+                "city": "Romania"
+                })
+
+        return lst_clean_data
+
+    else:
+        return 'Error_err'
 
 
 def emag_scrape():
@@ -95,18 +87,25 @@ def emag_scrape():
     ... push to peviitor.ro server.
     """
 
-    # start scrape all data from this server emag
-    pages = int(return_num_of_pages())
-    time.sleep(0.7)
-
     lst_for_json_data = []
-    for req in range(0, pages, 10):
-        all_data = get_data_from_emag(req)
-        lst_for_json_data.extend(all_data)
 
-        print(f'Scraping pe pagina {req}')
+    count = 0
+    flag = ''
+    while flag != 'Error_err':
+        all_data = get_data_from_emag(count)
 
-        time.sleep(randint(2, 5))
+        # check data ####################
+        if all_data == 'Error_err':
+            flag = all_data
+        #################################
+        else:
+            lst_for_json_data.extend(all_data)
+
+            print(f'Scraping pe pagina {count}')
+
+            time.sleep(randint(2, 3))
+
+            count += 10
 
     # save data to json file
     with open('scrapers_forzza/data_emag.json', 'w') as json_file:
