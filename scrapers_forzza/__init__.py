@@ -41,6 +41,3 @@ from scrapers_forzza.threatconnect_post_peviitor import update_threatconnect
 from scrapers_forzza.jti_scraper import jti_scrape
 from scrapers_forzza.jti_post_peviitor import update_jti
 #
-from scrapers_forzza.delgazgrid_scraper import scrape_delgazgrid
-from scrapers_forzza.delgazgrid_post_peviitor import update_delgazgrid
-#
