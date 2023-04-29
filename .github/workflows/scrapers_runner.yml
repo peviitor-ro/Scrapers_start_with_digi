@@ -8,7 +8,7 @@ name: General point run Scrapers
 
 on:
   push:
-    branches: [ main ]
+   branches: [ main ]
   schedule:
     - cron: '00 19 * * *'
 
