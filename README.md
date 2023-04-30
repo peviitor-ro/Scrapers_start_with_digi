@@ -1,5 +1,5 @@
 
-# Peviitor.ro Search Scraper
+# Peviitor.ro Search Scrapers
 
 Acesta este un proiect de scraping pentru motorul de căutare Peviitor.ro. Scopul proiectului este de a ajuta oamenii să-și găsească mai ușor un loc de muncă în diverse domenii. Rezultatele căutării se salvează în format JSON.
 
