@@ -41,3 +41,6 @@ from scrapers_forzza.threatconnect_post_peviitor import update_threatconnect
 from scrapers_forzza.jti_scraper import jti_scrape
 from scrapers_forzza.jti_post_peviitor import update_jti
 #
+from scrapers_forzza.cec_scraper import cec_scrape
+from scrapers_forzza.cec_update_peviitor import update_cec
+#

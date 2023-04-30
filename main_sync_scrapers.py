@@ -16,6 +16,7 @@ from scrapers_forzza import makita_scrape, update_makita
 from scrapers_forzza import proctergamble_scrape, update_proctergamble
 from scrapers_forzza import threatconnect_scrape, update_threatconnect
 from scrapers_forzza import jti_scrape, update_jti
+from scrapers_forzza import cec_scrape, update_cec
 
 
 if __name__ == "__main__":
@@ -71,3 +72,7 @@ if __name__ == "__main__":
     # scrape jti!
     jti_scrape()
     update_jti()
+
+    # scrape cec!
+    cec_scrape()
+    update_cec()
