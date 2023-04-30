@@ -18,6 +18,8 @@ from scrapers_forzza import threatconnect_scrape, update_threatconnect
 from scrapers_forzza import jti_scrape, update_jti
 from scrapers_forzza import cec_scrape, update_cec
 
+# here import scripts from scrapers_forzza_2
+from scrapers_forzza_2 import egger_scraper, update_egger
 
 if __name__ == "__main__":
 
@@ -76,3 +78,7 @@ if __name__ == "__main__":
     # scrape cec!
     cec_scrape()
     update_cec()
+
+    # from scrapers_forzza_2
+    egger_scraper()
+    update_egger()
