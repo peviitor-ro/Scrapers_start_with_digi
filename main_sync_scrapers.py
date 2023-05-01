@@ -26,7 +26,8 @@ from autototal_update_peviitor import update_autototal
 from scrapers_forzza_2 import egger_scraper, update_egger
 from scrapers_forzza_2 import scrape_eastmen, update_eastmen
 from scrapers_forzza_2 import scrape_axintor, update_axintor
-from scrapers_forzza_2 import scrapep_jumbo, update_jumbo
+from scrapers_forzza_2 import scrape_jumbo, update_jumbo
+from scrapers_forzza_2 import scrape_scania, update_scania
 
 
 if __name__ == "__main__":
@@ -104,5 +105,9 @@ if __name__ == "__main__":
     update_axintor()
 
     # update jumbo
-    scrapep_jumbo()
+    scrape_jumbo()
     update_jumbo()
+
+    # update scrape!
+    scrape_scania()
+    update_scania()

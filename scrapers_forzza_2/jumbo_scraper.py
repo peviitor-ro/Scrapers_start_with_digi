@@ -53,7 +53,7 @@ def get_data_from_jumbo(url: str) -> list:
     return lst_with_data
 
 
-def scrapep_jumbo() -> None:
+def scrape_jumbo() -> None:
     """
     ... this func() is about scraping data.
     """
