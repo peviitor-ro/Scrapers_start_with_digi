@@ -18,6 +18,7 @@ from scrapers_forzza import threatconnect_scrape, update_threatconnect
 from scrapers_forzza import jti_scrape, update_jti
 from scrapers_forzza import cec_scrape, update_cec
 
+# this scripts have turbo with bash
 from autototal_scraper import scrape_autototal
 from autototal_update_peviitor import update_autototal
 
@@ -25,6 +26,7 @@ from autototal_update_peviitor import update_autototal
 from scrapers_forzza_2 import egger_scraper, update_egger
 from scrapers_forzza_2 import scrape_eastmen, update_eastmen
 from scrapers_forzza_2 import scrape_axintor, update_axintor
+from scrapers_forzza_2 import scrapep_jumbo, update_jumbo
 
 
 if __name__ == "__main__":
@@ -100,3 +102,7 @@ if __name__ == "__main__":
     # axintor
     scrape_axintor()
     update_axintor()
+
+    # update jumbo
+    scrapep_jumbo()
+    update_jumbo()
