@@ -27,7 +27,7 @@ def update_autototal():
         'apikey': API_KEY
         }
 
-    with open('scrapers_forzza_2/data_autototal.json', 'r') as file:
+    with open('data_autototal.json', 'r') as file:
         data = json.load(file)
 
     post_request_to_server = requests.post('https://api.peviitor.ro/v4/update/', headers=post_header, data=json.dumps(data))

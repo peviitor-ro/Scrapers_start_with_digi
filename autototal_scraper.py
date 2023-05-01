@@ -64,7 +64,7 @@ def scrape_autototal():
 
     final_list_data = get_data_from_bash()
 
-    with open('scrapers_forzza_2/data_autototal.json', 'w') as n_file:
+    with open('data_autototal.json', 'w') as n_file:
         json.dump(final_list_data, n_file)
 
     print('Autototal ---> Done!')
