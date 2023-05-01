@@ -22,7 +22,7 @@ from scrapers_forzza import cec_scrape, update_cec
 from scrapers_forzza_2 import egger_scraper, update_egger
 from scrapers_forzza_2 import scrape_autototal, update_autototal
 from scrapers_forzza_2 import scrape_eastmen, update_eastmen
-#
+from scrapers_forzza_2 import scrape_axintor, update_axintor
 
 
 if __name__ == "__main__":
@@ -94,3 +94,7 @@ if __name__ == "__main__":
     # eastmen
     scrape_eastmen()
     update_eastmen()
+
+    # axintor
+    scrape_axintor()
+    update_axintor()
