@@ -20,6 +20,10 @@ from scrapers_forzza import cec_scrape, update_cec
 
 # here import scripts from scrapers_forzza_2
 from scrapers_forzza_2 import egger_scraper, update_egger
+from scrapers_forzza_2 import scrape_autototal, update_autototal
+from scrapers_forzza_2 import scrape_eastmen, update_eastmen
+#
+
 
 if __name__ == "__main__":
 
@@ -82,3 +86,11 @@ if __name__ == "__main__":
     # from scrapers_forzza_2
     egger_scraper()
     update_egger()
+
+    # autototal.ro
+    scrape_autototal()
+    update_autototal()
+
+    # eastmen
+    scrape_eastmen()
+    update_eastmen()
