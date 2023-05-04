@@ -4,11 +4,11 @@
 # New Scraper for CEC Bank
 # ... link for this site: https://www.cec.ro/cariere
 #
-import requests
+from A_OO_get_post_soup_update_dec import update_peviitor_api
 from bs4 import BeautifulSoup
+import requests
 #
 import uuid
-import json
 
 
 def set_global_headers():
@@ -85,15 +85,16 @@ def collect_data_post_requests():
     return lst_with_data
 
 
-def cec_scrape():
+# update data on peviitor!
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
     """
-    This is final function for scraping. It store data to json.
+    Update data on peviitor API!
     """
 
-    final_data = collect_data_post_requests()
+    return data_list
 
-    # save data to json!
-    with open('scrapers_forzza/data_cec.json', 'w') as new_file:
-        json.dump(final_data, new_file)
 
-    print('CEC Bank ---> Done!')
+company_name = 'cec'
+data_list = collect_data_post_requests()
+scrape_and_update_peviitor(company_name, data_list)

@@ -4,11 +4,11 @@
 # New scraper for MOL site...!
 # Link here ---> https://molgroup.taleo.net/careersection/external/jobsearch.ftl?lang=en&location=4505100397
 #
+from A_OO_get_post_soup_update_dec import update_peviitor_api
+#
 import requests
-from bs4 import BeautifulSoup
 #
 import uuid
-import json
 #
 #
 
@@ -74,13 +74,15 @@ def colect_data_from_mol_json():
     return lst_with_jobs_data
 
 
-def scrape_molTALEO():
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
     """
-    This general func() is about scraping MolTaleo group.
+    Update data on peviitor API!
     """
 
-    json_list_with_jobs = colect_data_from_mol_json()
+    return data_list
 
-    # save it to json
-    with open('scrapers_forzza/data_mol.json', 'w') as data_file:
-        json.dump(json_list_with_jobs, data_file)
+
+company_name = 'MOL'
+data_list = colect_data_from_mol_json()
+scrape_and_update_peviitor(company_name, data_list)

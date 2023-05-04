@@ -4,36 +4,23 @@
 # New Scraper for PeViitor
 # Link to job portal ---> https://www.axintor.be/ro/locuri-de-munca?sector=&jobtitle=&sortorder=asc&searchterm=
 #
+from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
+#
 import requests
 from bs4 import BeautifulSoup
 #
 import uuid
-import json
 #
 import re
 
 
-def set_global_headers() -> dict:
-    """
-    Standard headers for request axintor website.
-    """
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_8_8; like Mac OS X) AppleWebKit/535.14 (KHTML, like Gecko) Chrome/49.0.3028.253 Mobile Safari/603.0',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Refer': 'https://google.com',
-        'DNT': '1'
-    }
-
-    return headers
-
-
+# collect data from axintor
 def collect_data_from_axintor(url: str) -> list:
     """
     Collect data from Axintor and return a list with json data.
     """
 
-    response = requests.get(url=url, headers=set_global_headers())
+    response = requests.get(url=url, headers=DEFAULT_HEADERS)
     soup = BeautifulSoup(response.text, 'lxml')
 
     soup_data = soup.find_all('a')
@@ -76,17 +63,16 @@ def collect_data_from_axintor(url: str) -> list:
     return lst_with_json
 
 
-def scrape_axintor() -> None:
+# update data on peviitor
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
     """
-    Scrape data from website Axintor and store all data to json.
+    Update data on peviitor API!
     """
 
-    all_json_data = collect_data_from_axintor(
-            'https://www.axintor.be/ro/locuri-de-munca?sector=&jobtitle=&sortorder=asc&searchterm='
-            )
+    return data_list
 
-    # save data to josn!
-    with open('scrapers_forzza_2/data_axintor.json', 'w') as new_file:
-        json.dump(all_json_data, new_file)
 
-    print('Axintor ---> Done!')
+company_name = 'axintor'
+data_list = collect_data_from_axintor('https://www.axintor.be/ro/locuri-de-munca?sector=&jobtitle=&sortorder=asc&searchterm=')
+scrape_and_update_peviitor(company_name, data_list)

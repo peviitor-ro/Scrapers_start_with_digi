@@ -4,11 +4,12 @@
 # Scrape new site - Procter & Gamble
 # Link to this site ---> https://www.pgcareers.com/search-jobs?ascf=[{%27key%27:%27custom_fields.Language%27,%27value%27:%27English%27},]&alp=798549&alt=2
 #
+from A_OO_get_post_soup_update_dec import update_peviitor_api
+#
 import requests
 from bs4 import BeautifulSoup
 #
 import uuid
-import json
 #
 import re
 from math import ceil
@@ -76,7 +77,7 @@ def get_all_num_jobs():
     return int(jobs_num)
 
 
-def get_total_nums_of_jobs():
+def get_jobs_dict():
     """
     Return number of jobs on site Procter & Gamble.
     """
@@ -113,17 +114,15 @@ def get_total_nums_of_jobs():
     return job_list
 
 
-def proctergamble_scrape():
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
     """
-    This function is about scrape all data form Procter & Gamble.
+    Update data on peviitor API!
     """
 
-    lst_with_jobs = get_total_nums_of_jobs()
+    return data_list
 
-    print(len(lst_with_jobs))
 
-    # save data to json
-    with open('scrapers_forzza/data_proctergamble.json', 'w') as new_file:
-        json.dump(lst_with_jobs, new_file)
-
-    print('Procter & Gamble ---> Done!')
+company_name = 'proctergamble'
+data_list = get_jobs_dict()
+scrape_and_update_peviitor(company_name, data_list)

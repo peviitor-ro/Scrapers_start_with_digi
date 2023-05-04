@@ -4,26 +4,13 @@
 # New Scraper for Eastemn.ro
 # link to this site is ---> https://www.eastmen.ro/locuri-de-munca/
 #
+from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS
+from A_OO_get_post_soup_update_dec import update_peviitor_api
+#
 import requests
 from bs4 import BeautifulSoup
 #
-import json
 import uuid
-
-
-def set_global_headers() -> dict:
-    """
-    ... this is a new headers for request to eastmen.ro
-    """
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_8_8; like Mac OS X) AppleWebKit/535.14 (KHTML, like Gecko) Chrome/49.0.3028.253 Mobile Safari/603.0',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Refer': 'https://google.com',
-        'DNT': '1'
-        }
-
-    return headers
 
 
 def get_request_eastmen(url: str) -> list:
@@ -31,7 +18,7 @@ def get_request_eastmen(url: str) -> list:
     ... this func() is about make a request to Eastmen and collect all data in a list.
     """
 
-    response = requests.get(url=url, headers=set_global_headers())
+    response = requests.get(url=url, headers=DEFAULT_HEADERS)
     soup = BeautifulSoup(response.content, 'lxml')
 
     soup_data = soup.find_all('h2')
@@ -54,16 +41,16 @@ def get_request_eastmen(url: str) -> list:
     return lst_with_links
 
 
-def scrape_eastmen() -> None:
+# update data on peviitor!
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
     """
-    This func() is about save data in Json format for
-    sending it to peviitor.ro.
+    Update data on peviitor API!
     """
 
-    data_final_list = get_request_eastmen('https://www.eastmen.ro/locuri-de-munca/')
+    return data_list
 
-    # save data to json!
-    with open('scrapers_forzza_2/data_eastmen.json', 'w') as new_file:
-        json.dump(data_final_list, new_file)
 
-    print('Eastmen ---> Done!')
+company_name = 'eastmen'
+data_list = get_request_eastmen('https://www.eastmen.ro/locuri-de-munca/')
+scrape_and_update_peviitor(company_name, data_list)

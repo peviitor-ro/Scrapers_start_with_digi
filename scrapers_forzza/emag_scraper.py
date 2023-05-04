@@ -4,11 +4,12 @@
 # Scrap emag job data.
 # Link to data ---> https://lde.tbe.taleo.net/lde02/ats/careers/v2/searchResults?org=EMAG&cws=37
 #
+from A_OO_get_post_soup_update_dec import update_peviitor_api
+#
 import requests
 from bs4 import BeautifulSoup
 #
 import uuid
-import json
 #
 import time
 from random import randint
@@ -56,7 +57,6 @@ def get_data_from_emag(page_num: int) -> None:
 
     # make with morj operator
     if (soup_data := soup.find_all('h4', class_='oracletaleocwsv2-head-title')):
-
 
         lst_clean_data = []
         for dirty_data in soup_data:
@@ -107,8 +107,19 @@ def emag_scrape():
 
             count += 10
 
-    # save data to json file
-    with open('scrapers_forzza/data_emag.json', 'w') as json_file:
-        json.dump(lst_for_json_data, json_file)
+    return lst_for_json_data
 
-    print('Emag ---> Done!')
+
+# update date pe viitor
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
+    """
+    Update data on peviitor API!
+    """
+
+    return data_list
+
+
+company_name = 'emag'
+data_list = emag_scrape()
+scrape_and_update_peviitor(company_name, data_list)

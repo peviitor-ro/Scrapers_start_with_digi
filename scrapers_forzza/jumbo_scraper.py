@@ -4,26 +4,12 @@
 # New scraper for peviitor.ro!
 # Link to this jobs ---> https://corporate.e-jumbo.gr/ro/job-opportunities/theseis-ergasias/
 #
+from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
+#
 import requests
 from bs4 import BeautifulSoup
 #
 import uuid
-import json
-
-
-def set_global_headers() -> dict:
-    """
-    Set global headers for this new site -> Jumbo!
-    """
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_8_8; like Mac OS X) AppleWebKit/535.14 (KHTML, like Gecko) Chrome/49.0.3028.253 Mobile Safari/603.0',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Refer': 'https://google.com',
-        'DNT': '1'
-        }
-
-    return headers
 
 
 def get_data_from_jumbo(url: str) -> list:
@@ -31,7 +17,7 @@ def get_data_from_jumbo(url: str) -> list:
     This func() return data from jumbo page.
     """
 
-    response = requests.get(url=url, headers=set_global_headers())
+    response = requests.get(url=url, headers=DEFAULT_HEADERS)
     soup = BeautifulSoup(response.text, 'lxml')
 
     soup_data = soup.find_all('article', class_='x-control x-box x-article-box careers-article')
@@ -53,16 +39,15 @@ def get_data_from_jumbo(url: str) -> list:
     return lst_with_data
 
 
-def scrape_jumbo() -> None:
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
     """
-    ... this func() is about scraping data.
+    Update data on peviitor API!
     """
 
-    final_list_jobs = get_data_from_jumbo(
-            'https://corporate.e-jumbo.gr/ro/job-opportunities/theseis-ergasias/'
-            )
+    return data_list
 
-    with open('scrapers_forzza_2/data_jumbo.json', 'w') as new_file:
-        json.dump(final_list_jobs, new_file)
 
-    print('Jumbo ---> Done')
+company_name = 'jumbo'
+data_list = get_data_from_jumbo('https://corporate.e-jumbo.gr/ro/job-opportunities/theseis-ergasias/')
+scrape_and_update_peviitor(company_name, data_list)

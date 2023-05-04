@@ -4,6 +4,8 @@
 # Scrape new website ---> Autototal
 # ----> Link to this website ----------> https://www.autototal.ro/cariere/
 #
+from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
+#
 from bs4 import BeautifulSoup
 #
 import uuid
@@ -57,17 +59,16 @@ def get_data_from_bash():
     return lst_with_data
 
 
-def scrape_autototal():
+# update data on peviitor
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
     """
-    This func() is about scrap autototal. Final function. Important!
+    Update data on peviitor API!
     """
 
-    final_list_data = get_data_from_bash()
-
-    with open('data_autototal.json', 'w') as n_file:
-        json.dump(final_list_data, n_file)
-
-    print('Autototal ---> Done!')
+    return data_list
 
 
-scrape_autototal()
+company_name = 'autototal'
+data_list = get_data_from_bash()
+scrape_and_update_peviitor(company_name, data_list)

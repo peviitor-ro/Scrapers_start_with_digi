@@ -4,29 +4,13 @@
 # Scraper for pmi.com!
 # Link to this domain careers -> https://www.pmi.com/careers/explore-our-job-opportunities?title=&locations=Romania&departments=&contracts=&page=1
 #
+from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
+#
 import requests
 from bs4 import BeautifulSoup
 #
 import uuid
-import json
 #
-import time
-from random import randint
-
-
-def set_headers():
-    """
-    Set headers for request to pmi.com!
-    """
-
-    HEADERS = {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_8_8; like Mac OS X) AppleWebKit/535.14 (KHTML, like Gecko) Chrome/49.0.3028.253 Mobile Safari/603.0',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Refer': 'https://google.com',
-        'DNT': '1'
-    }
-
-    return HEADERS
 
 
 def get_data_from_pmi(url: str):
@@ -34,7 +18,7 @@ def get_data_from_pmi(url: str):
     This func() sent requests direct to url. Wait html response.
     """
 
-    response = requests.get(url=url, headers=set_headers())
+    response = requests.get(url=url, headers=DEFAULT_HEADERS)
     soup = BeautifulSoup(response.text, 'lxml')
 
     # get all needed data from html
@@ -85,8 +69,18 @@ def scrape_pmi():
         else:
             break
 
-    # save data to json!
-    with open('scrapers_forzza/data_pmi.json', 'w') as new_file:
-        json.dump(all_job_data_from_pmi, new_file)
+    return all_job_data_from_pmi
 
-    print("... pmi ---> Done!")
+
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
+    """
+    Update data on peviitor API!
+    """
+
+    return data_list
+
+
+company_name = 'pmi'
+data_list = scrape_pmi()
+scrape_and_update_peviitor(company_name, data_list)

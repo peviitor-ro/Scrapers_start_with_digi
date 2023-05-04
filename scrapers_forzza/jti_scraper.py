@@ -4,11 +4,12 @@
 # Scrape J.T. INTERNATIONAL (ROMANIA) SRL
 # Link to data ---> https://jobs.jti.com/search/?createNewAlert=false&q=&optionsFacetsDD_country=RO&optionsFacetsDD_customfield1=&optionsFacetsDD_customfield2=
 #
+from A_OO_get_post_soup_update_dec import update_peviitor_api
+#
 import requests
 from bs4 import BeautifulSoup
 #
 import uuid
-import json
 from math import ceil
 import time
 
@@ -111,8 +112,19 @@ def jti_scrape():
         page += 25
         time.sleep(1)
 
-    # save data to json
-    with open('scrapers_forzza/data_jti.json', 'w') as new_file:
-        json.dump(lst_with_jobs, new_file)
+    return lst_with_jobs
 
-    print('JTI ---> Done!')
+
+# update data peviitor!
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
+    """
+    Update data on peviitor API!
+    """
+
+    return data_list
+
+
+company_name = 'jti'
+data_list = jti_scrape()
+scrape_and_update_peviitor(company_name, data_list)

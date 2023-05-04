@@ -4,6 +4,8 @@
 # Scrap this new site - Makita!
 # Link to this site ---> https://makitajobs.ro/locuri-de-munca/
 #
+from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
+#
 import requests
 from bs4 import BeautifulSoup
 #
@@ -11,27 +13,12 @@ import uuid
 import json
 
 
-def set_headers():
-    """
-    This func() is about setting headers for new requests.
-    """
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_8_8; like Mac OS X) AppleWebKit/535.14 (KHTML, like Gecko) Chrome/49.0.3028.253 Mobile Safari/603.0',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Refer': 'https://google.com',
-        'DNT': '1'
-    }
-
-    return headers
-
-
 def collect_data_from_makita(url: str) -> list:
     """
     Collect data from makita and return a list with dicts.
     """
 
-    response = requests.get(url=url, headers=set_headers())
+    response = requests.get(url=url, headers=DEFAULT_HEADERS)
     soup = BeautifulSoup(response.text, 'lxml')
 
     soup_data = soup.find_all('div', class_='box-right')
@@ -53,14 +40,15 @@ def collect_data_from_makita(url: str) -> list:
     return lst_with_data
 
 
-def makita_scrape():
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
     """
-    This func is about scrape makita website. Return all data in json.
+    Update data on peviitor API!
     """
 
-    final_data = collect_data_from_makita('https://makitajobs.ro/locuri-de-munca/')
+    return data_list
 
-    with open('scrapers_forzza/data_makita.json', 'w') as data_file:
-        json.dump(final_data, data_file)
 
-    print('Makita --> Done')
+company_name = 'makita'
+data_list = collect_data_from_makita('https://makitajobs.ro/locuri-de-munca/')
+scrape_and_update_peviitor(company_name, data_list)

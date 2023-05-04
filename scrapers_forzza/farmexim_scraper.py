@@ -4,26 +4,11 @@
 # New Scraper for Pirelli!
 # Link for this job page ---> https://www.farmexim.ro/posturi-vacante-26.html
 #
+from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
 import requests
 from bs4 import BeautifulSoup
 #
 import uuid
-import json
-
-
-def set_headers():
-    """
-    Set headers for farmexim. Go and Scrape this!
-    """
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_8_8; like Mac OS X) AppleWebKit/535.14 (KHTML, like Gecko) Chrome/49.0.3028.253 Mobile Safari/603.0',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Refer': 'https://google.com',
-        'DNT': '1'
-    }
-
-    return headers
 
 
 def collect_data_from_farmexim(url: str) -> list:
@@ -31,7 +16,7 @@ def collect_data_from_farmexim(url: str) -> list:
     Collect data from farmexim. All data from this site in one lst with dicts.
     """
 
-    response = requests.get(url=url, headers=set_headers())
+    response = requests.get(url=url, headers=DEFAULT_HEADERS)
     soup = BeautifulSoup(response.text, 'lxml')
 
     soup_data = soup.find_all('div', class_='service-block-desc')
@@ -53,14 +38,16 @@ def collect_data_from_farmexim(url: str) -> list:
     return lst_with_jobs
 
 
-def farmexim_scrape():
+# update date pe viitor
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
     """
-    Scrape data from farmexim site.
+    Update data on peviitor API!
     """
 
-    final_lst = collect_data_from_farmexim('https://www.farmexim.ro/posturi-vacante-26.html')
+    return data_list
 
-    with open('scrapers_forzza/data_farmexim.json', 'w') as data_file:
-        json.dump(final_lst, data_file)
 
-    print('Farmexim ---> Done!')
+company_name = 'farmexim'
+data_list = collect_data_from_farmexim('https://www.farmexim.ro/posturi-vacante-26.html')
+scrape_and_update_peviitor(company_name, data_list)

@@ -4,6 +4,8 @@
 # New scraper for sita!
 # Link for scrape is ---> https://globalhub-sita.icims.com/jobs/search?ss=1&searchLocation=13526--Bucharest
 #
+from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
+#
 import requests
 from bs4 import BeautifulSoup
 #
@@ -11,27 +13,12 @@ import uuid
 import json
 
 
-def set_headers():
-    """
-    Set default headers for scrap this site.
-    """
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_8_8; like Mac OS X) AppleWebKit/535.14 (KHTML, like Gecko) Chrome/49.0.3028.253 Mobile Safari/603.0',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Refer': 'https://google.com',
-        'DNT': '1'
-    }
-
-    return headers
-
-
 def collect_data_from_site(url: str) -> list:
     """
     This func() is about scraping data from sita job site.
     """
 
-    response = requests.get(url=url, headers=set_headers())
+    response = requests.get(url=url, headers=DEFAULT_HEADERS)
     soup = BeautifulSoup(response.text, 'lxml')
 
     all_data = soup.find_all('div', class_='col-xs-12 title')
@@ -53,14 +40,15 @@ def collect_data_from_site(url: str) -> list:
     return lst_with_sita_data
 
 
-def sita_scrape():
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
     """
-    This func() is base of all functions. Its logic of all code.
+    Update data on peviitor API!
     """
 
-    final_data = collect_data_from_site('https://globalhub-sita.icims.com/jobs/search?ss=1&searchLocation=13526--Bucharest')
+    return data_list
 
-    with open('scrapers_forzza/data_sita.json', 'w') as new_file:
-        json.dump(final_data, new_file)
 
-    print('Sita ---> Done!')
+company_name = 'sita'
+data_list= collect_data_from_site('https://globalhub-sita.icims.com/jobs/search?ss=1&searchLocation=13526--Bucharest')
+scrape_and_update_peviitor(company_name, data_list)

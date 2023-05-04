@@ -3,25 +3,12 @@
 #
 # Scrape data from wirtek.com/compile
 #
+from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
+#
 import requests
 from bs4 import BeautifulSoup
-import uuid
 #
-import json
-
-
-def set_headers():
-    """
-    This func() is about create headers for requests.
-    """
-    HEADERS = {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_8_8; like Mac OS X) AppleWebKit/535.14 (KHTML, like Gecko) Chrome/49.0.3028.253 Mobile Safari/603.0',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Refer': 'https://google.com',
-        'DNT': '1'
-    }
-
-    return HEADERS
+import uuid
 
 
 def data_scrape_from_wirtek():
@@ -29,7 +16,7 @@ def data_scrape_from_wirtek():
     This func() is about scrape wirtek.
     """
 
-    response = requests.get('https://www.wirtek.com/careers', headers=set_headers())
+    response = requests.get('https://www.wirtek.com/careers', headers=DEFAULT_HEADERS)
     soup = BeautifulSoup(response.text, 'lxml')
 
     job_grid = soup.find_all('div', class_='careers-grid__job')
@@ -51,13 +38,15 @@ def data_scrape_from_wirtek():
     return lst_with_jobs_data
 
 
-def wirtek_scrape():
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
     """
-    This func() is about logic of all code.
+    Update data on peviitor API!
     """
 
-    lst_with_scraped_jobs = data_scrape_from_wirtek()
+    return data_list
 
-    # save data to json
-    with open('scrapers_forzza/data_wirtek.json', 'w') as file_data:
-        json.dump(lst_with_scraped_jobs, file_data)
+
+company_name = 'wirtek'
+data_list = data_scrape_from_wirtek()
+scrape_and_update_peviitor(company_name, data_list)
