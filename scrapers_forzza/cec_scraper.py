@@ -8,6 +8,9 @@ from A_OO_get_post_soup_update_dec import update_peviitor_api
 from bs4 import BeautifulSoup
 import requests
 #
+from json2html import *
+import json
+#
 import uuid
 
 
@@ -63,9 +66,9 @@ def collect_data_post_requests():
     """
 
     post_data = set_global_headers()
-    response = requests.post(url=post_data[0], headers=post_data[1], data=post_data[2])
 
-    soup_json_data = BeautifulSoup(response.json()[2]['data'], 'lxml')
+    response = requests.post(url=post_data[0], headers=post_data[1], data=post_data[2])
+    soup_json_data = BeautifulSoup(response.json()[4]['data'], 'lxml')
     new_data = soup_json_data.find_all('h2', class_='h4')
 
     lst_with_data = []
