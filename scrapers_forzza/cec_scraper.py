@@ -8,7 +8,6 @@ from A_OO_get_post_soup_update_dec import update_peviitor_api
 from bs4 import BeautifulSoup
 import requests
 #
-from json2html import *
 import json
 #
 import uuid
