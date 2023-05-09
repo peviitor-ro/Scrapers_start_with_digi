@@ -6,6 +6,8 @@
 #
 from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
 #
+from L_00_logo import update_logo
+#
 import requests
 from bs4 import BeautifulSoup
 #
@@ -53,3 +55,5 @@ def scrape_and_update_peviitor(company_name, data_list):
 company_name = 'daisler'
 data_list = collect_data_from_daisler()
 scrape_and_update_peviitor(company_name, data_list)
+
+print(update_logo('daisler', 'https://www.daisler.ro/skin/frontend/daisler/default/images/logo.png'))

@@ -6,6 +6,8 @@
 #
 from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
 #
+from L_00_logo import update_logo
+#
 import requests
 from bs4 import BeautifulSoup
 #
@@ -82,3 +84,5 @@ def scrape_and_update_peviitor(company_name, data_list):
 company_name = 'ausy'
 data_list = scrape_all_data()
 scrape_and_update_peviitor(company_name, data_list)
+
+print(update_logo('ausy', 'https://www.ausy.com/sites/ausy-com/modules/custom/rbd_ausy_com/assets/img/logo.svg'))

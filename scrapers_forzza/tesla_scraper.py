@@ -15,7 +15,6 @@ from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
 import requests
 #
 import uuid
-import json
 
 
 def return_response_from_api(url: str, headers: dict):
@@ -34,7 +33,7 @@ def return_all_dict_data_jobs():
     """
 
     data = return_response_from_api('https://www.tesla.com/cua-api/apps/careers/state', DEFAULT_HEADERS)
-    all_l_nums = data['geo'][1]['sites'][24]['cities']['București']
+    all_l_nums = data['geo'][1]['sites'][23]['cities']['București']
 
     lst_with_dict_data = []
     for data in data['listings']:

@@ -6,6 +6,8 @@
 #
 from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
 #
+from L_00_logo import update_logo
+#
 import requests
 from bs4 import BeautifulSoup
 #
@@ -81,3 +83,5 @@ def scrape_and_update_peviitor(company_name, data_list):
 company_name = 'webhelp'
 data_list = scrape_all_data_from_webhelp()
 scrape_and_update_peviitor(company_name, data_list)
+
+print(update_logo('webhelp', 'https://job.webhelp.ro/ro/offre-emploi?job=0&city=0&sector=0&language=0&page=1'))

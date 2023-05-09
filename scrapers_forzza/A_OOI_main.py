@@ -7,7 +7,13 @@ import os
 import subprocess
 
 # exclude files
-exclude = ['__init__.py', 'A_OO_get_post_soup_update_dec.py', 'A_OOI_main.py', "rcsrds_scraper.py", "elektrobit_scraper.py"]
+exclude = ['__init__.py',
+           'A_OO_get_post_soup_update_dec.py',
+           'A_OOI_main.py',
+           "rcsrds_scraper.py",
+           "elektrobit_scraper.py",
+           "webhelp_scraper.py"]
+
 path = os.path.dirname(os.path.abspath(__file__))
 
 for site in os.listdir(path):

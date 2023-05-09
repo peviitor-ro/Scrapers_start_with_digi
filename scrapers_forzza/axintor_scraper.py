@@ -6,6 +6,8 @@
 #
 from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
 #
+from L_00_logo import update_logo
+#
 import requests
 from bs4 import BeautifulSoup
 #
@@ -76,3 +78,5 @@ def scrape_and_update_peviitor(company_name, data_list):
 company_name = 'axintor'
 data_list = collect_data_from_axintor('https://www.axintor.be/ro/locuri-de-munca?sector=&jobtitle=&sortorder=asc&searchterm=')
 scrape_and_update_peviitor(company_name, data_list)
+
+print(update_logo('axintor', 'https://www.axintor.be/img/logo.svg'))

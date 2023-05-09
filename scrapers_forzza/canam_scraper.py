@@ -6,6 +6,8 @@
 #
 from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
 #
+from L_00_logo import update_logo
+#
 import requests
 from bs4 import BeautifulSoup
 #
@@ -53,3 +55,6 @@ def scrape_and_update_peviitor(company_name, data_list):
 company_name = 'canam'
 data_list = collect_data_from_canam()
 scrape_and_update_peviitor(company_name, data_list)
+
+# update Logo
+print(update_logo('canam', 'https://www.canam.com/wp-content/themes/canam/dist/img/logo-canam.png'))

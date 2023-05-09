@@ -6,6 +6,8 @@
 #
 from A_OO_get_post_soup_update_dec import update_peviitor_api
 #
+from L_00_logo import update_logo
+#
 import requests
 from bs4 import BeautifulSoup
 #
@@ -100,3 +102,5 @@ def scrape_and_update_peviitor(company_name, data_list):
 company_name = 'bertrandtgroup'
 data_list = collect_data_from_site()
 scrape_and_update_peviitor(company_name, data_list)
+
+print(update_logo('bertrandtgroup', 'https://content.prescreen.io/company/logo/2zflb91e9rc4s8gskgco4g84gss0kgw.jpg'))
