@@ -1,0 +1,58 @@
+#
+#
+#
+# Start scrape ---> softserveinc
+# link to this jobs ---> https://career.softserveinc.com/en-us/vacancy/set/VekcaEPFwBJOh45xeZpwhqX8HG35b10BIeS1Vnss
+#
+from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
+from L_00_logo import update_logo
+#
+import requests
+#
+import uuid
+
+
+def set_headers():
+    """
+    Personalized headers.
+    """
+
+    url = 'https://career.softserveinc.com/en-us/vacancy/byHash/VekcaEPFwBJOh45xeZpwhqX8HG35b10BIeS1Vnss' \
+
+    headers = {
+        'authority': 'career.softserveinc.com',
+        'accept': 'application/json, text/plain, */*',
+        'accept-language': 'en-US,en;q=0.5',
+        'cookie': 'visid_incap_2401886=Mf26viBiS2qRkGUZz74bZiVDYWQAAAAAQUIPAAAAAADzMMlwjOq8m/BLj3c8Tadn; incap_ses_1173_2401886=fRWnEl3m1AGAqXuKKFZHECVDYWQAAAAAc0Tf7ldvjsMZxfKPQugfNA==; softserve-marketing=eyJpdiI6IkdwaG5xb09nNUpnM3NYdVhNVGlQcnc9PSIsInZhbHVlIjoidGlNdnd6aTJycHdPWUI2Zi9wTEhkU1IyRnRsaGZwUjJBK3hkUHdXNW5UVUxtSW1wUDZEUnZhcFJneWMydGJyUUxHelVjZ3U1NkVSVWJSVFdtdEZtZmsvRlFLWDRTaUhCSFplUGZ2VXFsN1JTUU9Lbm5JS2ZtMFM1TlZSVDZsK1REU2c1RTB1NW9TMENhZXMxc3hJTXAvQUxWWkhnVU9mSXF6Y1Q2MHpiQmJaTjdwSk5pWHB1aXdzNTRybE9HM2NCIiwibWFjIjoiMDAxYmY4NWM2ZjE5NjVmNzU2OGI2MWIzZThkZWRiODQ0NmIyYzVkNDFjNTY4ZDZkMTYwYmZkZTUxNTNiYWY2OSIsInRhZyI6IiJ9; visid_incap_2401544=BuJgIlO9SkW/4bq1kEnN2U5DYWQAAAAAQUIPAAAAAAA+MdFRT5DX9109jllvzLUd; incap_ses_1173_2401544=dLdcUDoVLnFp3nuKKFZHEE5DYWQAAAAAaEKLSH1xhOIx8G0xMZc1Lg==; nlbi_2401544=WgT6X9MbWkwe3iwGsg0INwAAAADMiX3ieUhU7UnqWyu9b5lI; XSRF-TOKEN=eyJpdiI6IkZsVEN6T2tEUmlHSmkraDl5dTRSbHc9PSIsInZhbHVlIjoiQ3lXRlFrcFVOL1VXaGlEbXpHdE9TQ0dNVlNPKzU2WDN6YjFpMVZxNjJ0YkRtZXkxUXZWbGMwVW5uVHIwbzJyS1RNWFpqcnAzdnNqQngwUUlQa3M3OC9yVmxDTTQ2ZS9tZ0lOVDhqMjFzUWdqMmo1WkpBdUxTbStDZVc2cTlkWUMiLCJtYWMiOiJkMTNjNTU5MDU5YjYzZjc2OTVhZjUxOGY5NGU3M2Y1ZjkyOGM2ZTNiN2E3NTgyZGFmOTEwMWFjMzhlYTYzNTI0IiwidGFnIjoiIn0%3D; softserve_session=eyJpdiI6IkZMRS9OektsRXNFYndjbm92NXRROWc9PSIsInZhbHVlIjoiOVFhWVJvejZFUXhuUkZRNTE3eTdUOTkwTlJEd21EK1c1UFYzU2hxWCt1eFZNaDRxa3BwaTMvc0FSMDRGN2NZZjFYSXNiQy9NSXZHWHRXR1NFbGViRVJEVVN2THVTZTZiRSthN0tUMHozRUpXMWF6ZW16SUorcXhDUzk4WVVtZm4iLCJtYWMiOiI2OWMwNGFhNmNjN2Y0MDAzNmNkODRlYjY3M2NjNjRmOWJkMDg5NjgxNTc3NDQ0OGQ4ZjNmMDRiMWNmMzE0YTViIiwidGFnIjoiIn0%3D',
+        'referer': 'https://career.softserveinc.com/en-us/vacancy/set/VekcaEPFwBJOh45xeZpwhqX8HG35b10BIeS1Vnss',
+        'sec-ch-ua': '"Brave";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Linux"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
+        'sec-gpc': '1',
+        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36'
+        }
+
+    return url, headers
+
+
+def collect_data_from_site() -> list:
+    """
+    Collect data with one function.
+    """
+
+    #
+    data = set_headers()
+
+    response = requests.get(url=data[0],
+                            headers=data[1]
+                            )
+
+    data = response.json()['data']
+
+    return data
+
+
+print(collect_data_from_site())
