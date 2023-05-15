@@ -5,6 +5,7 @@
 # Link to this Company ---> https://careers.agilefreaks.com/jobs
 #
 from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
+from L_00_logo import update_logo
 #
 import requests
 from bs4 import BeautifulSoup
@@ -52,3 +53,7 @@ def scrape_and_update_peviitor(company_name, data_list):
 company_name = 'agilefreaks'
 data_list = collect_data_from_site()
 scrape_and_update_peviitor(company_name, data_list)
+
+print(update_logo('agilefreaks',
+                  'https://www.agilefreaks.com/sites/default/files/agile-freaks-logo%20%281%29%20%281%29.png'
+                  ))
