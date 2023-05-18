@@ -49,9 +49,11 @@ def collect_data_from_globalLogic() -> list:
     """
 
     # jobs num from site
-    num_jobs = get_jobs_num('https://www.globallogic.com/ro/career-search-page/page/1/?keywords&experience&locations=bucharest&c')
+    num_jobs = get_jobs_num('https://www.globallogic.com/ro/career-search-page/?keywords=&experience=&locations=romania&c=')
+    print(num_jobs)
 
     page = 1
+    jobs_count = 0
 
     # StopIteration
     stop_page = int(num_jobs / 10)
@@ -59,7 +61,7 @@ def collect_data_from_globalLogic() -> list:
     lst_with_data = []
     while page <= stop_page + 1:
 
-        soup = get_soup_object(f"https://www.globallogic.com/ro/career-search-page/page/{page}/?keywords&experience&locations=bucharest&c")
+        soup = get_soup_object("https://www.globallogic.com/ro/career-search-page/?keywords=&experience=&locations=romania&c=")
 
         # get data from site
         soup_data = soup.find_all('div', class_='col-12 col-lg-6')
@@ -78,11 +80,21 @@ def collect_data_from_globalLogic() -> list:
                     "city": "Romania"
                     })
 
+            # increment jobs
+            jobs_count += 1
+
+            # check jobs count!
+            if jobs_count == num_jobs:
+                break
+
         # increment page, go in depth
+        print(page)
         page += 1
 
         # sleep time between requests
         time.sleep(randint(1, 3))
+
+    print(len(lst_with_data))
 
     return lst_with_data
 
