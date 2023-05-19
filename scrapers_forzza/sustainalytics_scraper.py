@@ -37,7 +37,7 @@ def make_post_request() -> tuple:
             'sec-ch-ua-platform': '"Linux"'
         }
 
-    payload = '{"appliedFacets": {"locations": ["0e19b52288b501a1c52ad54eda00f640"]}, "limit": 20, "offset": 0, "searchText": ""}'
+    payload = '{"appliedFacets": {"locations": ["0e19b52288b501a1c52ad54eda00f640","0e19b52288b5019ff735e44eda00fe40"]}, "limit": 20, "offset": 0, "searchText": ""}'
 
     return url, headers, payload
 
@@ -67,6 +67,8 @@ def collect_data_from_morningstar() -> list:
             "city": "Romania"
             })
 
+    # print data to terminal
+    print(f'Sustainalytics - Numarul total de joburi ---> {len(lst_with_data)}')
     return lst_with_data
 
 

@@ -39,7 +39,7 @@ def collect_data_from_page(url: str) -> tuple:
             flag = False
 
             # stop collect data!
-            break
+            continue
 
         lst_with_data.append({
                 "id": str(uuid.uuid4()),
@@ -74,6 +74,8 @@ def collect_fresh_data_from_thecoders() -> list:
 
         page += 1
 
+    # total jobs num
+    print(f'---> Thecoders - Numarul total de joburi -> {len(jobs_list_data)}')
     return jobs_list_data
 
 

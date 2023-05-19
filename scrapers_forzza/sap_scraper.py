@@ -72,6 +72,9 @@ def collect_data_from_sap() -> list:
 
         count += 25
 
+    # print jobs num
+    print(f'Jobs on SAP == {len(lst_with_data)}')
+
     return lst_with_data
 
 
