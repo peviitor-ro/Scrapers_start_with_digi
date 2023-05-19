@@ -4,8 +4,7 @@
 # Make new Scraper for bertrandtgroup --->
 # Link to this Company ---> https://bertrandtgroup.onlyfy.jobs/
 #
-from A_OO_get_post_soup_update_dec import update_peviitor_api
-#
+from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
 from L_00_logo import update_logo
 #
 import requests
@@ -16,36 +15,19 @@ import time
 from random import randint
 
 
-def set_headers():
+def return_soup(url: str):
     """
-    Set special headers for requests to https://bertrandtgroup.onlyfy.jobs/.
+    ... return soup object from link.
     """
-
-    headers = {
-            'authority': 'bertrandtgroup.onlyfy.jobs',
-            'accept': 'text/html, */*; q=0.01',
-            'accept-language': 'en-US,en;q=0.5',
-            'referer': 'https://bertrandtgroup.onlyfy.jobs/',
-            'sec-ch-ua': '"Brave";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
-            'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
-            'x-requested-with': 'XMLHttpRequest'
-        }
-
-    return headers
+    response = requests.get(
+            url=
 
 
-# RETURN SOUP DATA
-def get_soup_data(url: str):
+def get_soup_data(url: str) -> int:
     """
-    Return Soup Data from site requests.
+    Return total nums of jobs from Bertrandtgroup
     """
-
-    session = requests.Session()
-    session.cookies = None
-
-    response = session.get(url, headers=headers)
-
-    print(response.content.decode())
+    
 
 
 def collect_data_from_site() -> list:

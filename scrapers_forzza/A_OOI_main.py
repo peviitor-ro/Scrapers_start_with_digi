@@ -12,7 +12,6 @@ exclude = ['__init__.py',
            'A_OOI_main.py',
            'L_00_logo.py',
            "rcsrds_scraper.py",
-           "elektrobit_scraper.py",
            "bertrandtgroup_scraper.py"]
 
 path = os.path.dirname(os.path.abspath(__file__))
