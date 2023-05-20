@@ -11,11 +11,6 @@ import requests
 from bs4 import BeautifulSoup
 #
 import uuid
-import time
-from random import randint
-import re
-
-pattern = re.compile(r'(?<=\().+?(?=\))')
 
 
 def return_soup(url: str):
@@ -83,4 +78,18 @@ def collect_data_from_site() -> list:
     return lst_with_data
 
 
-print(collect_data_from_site())
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
+    """
+    Update data on peviitor API!
+    """
+
+    return data_list
+
+
+company_name = 'bertrandtgroup'
+data_list = collect_data_from_site()
+scrape_and_update_peviitor(company_name, data_list)
+
+# update Logo
+print(update_logo('bertrandtgroup', 'https://content.prescreen.io/company/logo/2zflb91e9rc4s8gskgco4g84gss0kgw.jpg'))
