@@ -13,14 +13,19 @@ from bs4 import BeautifulSoup
 import uuid
 import time
 from random import randint
+import re
+
+pattern = re.compile(r'(?<=\().+?(?=\))')
 
 
 def return_soup(url: str):
     """
     ... return soup object from link.
     """
-    response = requests.get(
-            url=
+    response = requests.get(url=url, headers=DEFAULT_HEADERS)
+    soup = BeautifulSoup(response.text, 'lxml')
+
+    return soup
 
 
 def get_soup_data(url: str) -> int:
@@ -35,55 +40,45 @@ def collect_data_from_site() -> list:
     This func() return all data from site.
     """
 
-    page = 1
-    flag = None
-
     # collect data!
     lst_with_data = []
-    while flag != 'no_data':
 
-        soup = get_soup_data(url=f'https://bertrandtgroup.onlyfy.jobs/candidate/job/ajax_list?display_length=10&page={page}&sort=matching&sort_dir=DESC&_=1684168027359')
+    #facem request la pagina principala si extragem csrf_token
+    soup = return_soup(url=f'https://bertrandtgroup.onlyfy.jobs')
+    csrf_token = soup.find('meta', attrs={'name': 'csrf-token'})['content']
 
-        # collect all data from sites
-        soup_data_1 = soup.find_all('div', class_='row row-table row-24 collapsed row-table-condensed')
-        soup_data_2 = soup.find_all('div', class_='row row-table row-24 collapsed even row-table-condensed')
+    #setam un header nou cu csrf_token
+    session = requests.Session()
 
-        # all data in list!
-        lst_with_data = []
-        for sd in soup_data_1:
-            link = sd.find('div', class_='inner').find('a')['href']
-            title = sd.find('div', class_='inner').find('a').text
+    params = {
+        "candidate_center_filter[country]":"RO",
+        "candidate_center_filter[hasCityCluster]":0,
+        "csrf_token": csrf_token
+    }
 
-            # first data!
-            lst_with_data.append({
-                    "id": str(uuid.uuid4()),
-                    "job_title": title,
-                    "job_link":  'https://bertrandtgroup.onlyfy.jobs' + link,
-                    "company": "bertrandtgroup",
-                    "country": "Romania",
-                    "city": "Romania"
-                })
+    #facem un post request cu parametrii de mai sus
+    first_call = session.post(url='https://bertrandtgroup.onlyfy.jobs/candidate/job/filter?search=', data=params, headers=DEFAULT_HEADERS)
 
-        for sd_2 in soup_data_2:
-            link_2 = sd_2.find('div', class_='inner').find('a')['href']
-            title_2 = sd_2.find('div', class_='inner').find('a').text
+    #facem un get request pentru a lua toate joburile
+    last_call = session.get(url='https://bertrandtgroup.onlyfy.jobs/candidate/job/ajax_list?display_length=200&page=1&sort=matching&sort_dir=DESC&_=1684168027359', headers=DEFAULT_HEADERS)
 
-            # second data
-            lst_with_data.append({
-                    "id": str(uuid.uuid4()),
-                    "job_title": title_2,
-                    "job_link":  'https://bertrandtgroup.onlyfy.jobs' + link_2,
-                    "company": "bertrandtgroup",
-                    "country": "Romania",
-                    "city": "Romania"
-                })
+    soup = BeautifulSoup(last_call.text, 'lxml')
 
-        next_page = soup.find('div', class_='row navigation pagination-next-container text-center')
-        if next_page is not None:
-            page += 1
-        else:
-            print('Scraper do all work!')
-            flag = 'no_data'
+    jobs = soup.find_all('div', class_='row')
+
+    for job in jobs:
+        link = job.find('div', class_='inner').find('a')['href']
+        title = job.find('div', class_='inner').find('a').text
+        city = job.find_all('div', class_='inner')[1].text.strip()
+
+        lst_with_data.append({
+                "id": str(uuid.uuid4()),
+                "job_title": title,
+                "job_link":  'https://bertrandtgroup.onlyfy.jobs' + link,
+                "company": "bertrandtgroup",
+                "country": "Romania",
+                "city": city
+            })
 
     return lst_with_data
 
