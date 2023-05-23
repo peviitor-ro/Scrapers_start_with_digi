@@ -24,12 +24,13 @@ def collect_data_from_orion() -> list:
     soup = BeautifulSoup(response.text, 'lxml')
 
     # data from here
-    soup_data = soup.find_all('div', class_='wrapper')
+    soup_data = soup.find_all('article', class_='teaser teaser-search col-12')
 
     lst_with_data = []
     for sd in soup_data:
-        link = sd.find('a')['href']
-        title = sd.find('a').text
+
+        link = sd.find('a', class_='article-title')['href']
+        title = sd.find('a', class_='article-title').text
 
         lst_with_data.append({
             "id": str(uuid.uuid4()),
@@ -39,6 +40,8 @@ def collect_data_from_orion() -> list:
             "country": "Romania",
             "city": "Romania"
             })
+
+    print(len(lst_with_data))
 
     return lst_with_data
 

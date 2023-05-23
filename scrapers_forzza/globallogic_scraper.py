@@ -59,7 +59,7 @@ def collect_data_from_globalLogic() -> list:
     stop_page = int(num_jobs / 10)
 
     lst_with_data = []
-    while page <= stop_page + 1:
+    while page <= stop_page:
 
         soup = get_soup_object("https://www.globallogic.com/ro/career-search-page/?keywords=&experience=&locations=romania&c=")
 

@@ -27,6 +27,7 @@ def collect_data_frot_htss() -> list:
 
     lst_with_data = []
     for sd in soup_data:
+        print(sd)
         link = sd['href'].strip()
         title = sd.text.strip()
 
