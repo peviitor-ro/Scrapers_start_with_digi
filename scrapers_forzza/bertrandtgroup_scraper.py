@@ -11,8 +11,6 @@ import requests
 from bs4 import BeautifulSoup
 #
 import uuid
-import time
-from random import randint
 
 
 #
@@ -109,4 +107,8 @@ data_list = collect_data_from_site()
 scrape_and_update_peviitor(company_name, data_list)
 
 # update Logo
+<<<<<<< HEAD
 print(update_logo('bertrandtgroup', 'https://content.prescreen.io/company/logo/2zflb91e9rc4s8gskgco4g84gss0kgw.jpg'))
+=======
+print(update_logo('bertrandtgroup', 'https://content.prescreen.io/company/logo/2zflb91e9rc4s8gskgco4g84gss0kgw.jpg'))
+>>>>>>> 87df1e5893a46722624c07a7341cae294d8dbe4f
