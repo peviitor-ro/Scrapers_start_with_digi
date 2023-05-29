@@ -17,7 +17,7 @@ def get_data_from_seedblink():
     This script collect data from Simtel.
     """
 
-    response = requests.get('https://seedblink.com/_next/data/KB-umt_VS-r-H9P1BQ3bO/en/careers.json').json()
+    response = requests.get('https://seedblink.com/_next/data/rGjEvZhprv2fds61EJcH_/en/careers.json').json()
 
     data = response['pageProps']['allJobs']
 
