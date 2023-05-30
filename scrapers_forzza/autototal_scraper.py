@@ -14,7 +14,6 @@ from bs4 import BeautifulSoup
 from datetime import date
 #
 import uuid
-import json
 
 
 def get_post_requests():
