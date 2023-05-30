@@ -5,6 +5,7 @@
 # ----> Link to this website ----------> https://www.autototal.ro/cariere/
 #
 from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
+from L_00_logo import update_logo
 #
 import requests
 import urllib.parse
@@ -72,10 +73,40 @@ def make_post_requests():
         summary = dt.find('div', class_='post-text').find('div', class_='summary')
         if summary:
             expiration_date = summary.text.split()[1]
-            month = summary.text.split()[2]
-            print(link, title, expiration_date, month)
+            month = summary.text.split()[2].lower()
+
+            # here check if conditions
+            if int(expiration_date) > today_date and autototal_months[month] == current_month or \
+                    autototal_months[month] > current_month:
+                lst_with_data.append({
+                    "id": str(uuid.uuid4()),
+                    "job_title": title,
+                    "job_link":  link,
+                    "company": "autototal",
+                    "country": "Romania",
+                    "city": "Romania"
+                    })
+            else:
+                print('Not more...')
+                #
+                break
 
     return lst_with_data
 
 
-print(make_post_requests())
+# update data on peviitor
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
+    """
+    Update data on peviitor API!
+    """
+
+    return data_list
+
+
+company_name = 'autototal'
+data_list = make_post_requests()
+scrape_and_update_peviitor(company_name, data_list)
+
+print(update_logo('autototal',
+                  'https://www.autototal.ro/wp-content/uploads/thegem-logos/logo_f7149358a9d89410af13364be85f4883_1x.png'))
