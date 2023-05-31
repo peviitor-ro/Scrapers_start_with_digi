@@ -12,12 +12,30 @@ import requests
 import uuid
 
 
-def get_data_from_seedblink():
-    """
-    This script collect data from Simtel.
-    """
+def get_path_for_request():
+    '''
+    ... path for requests. Path is new code for
+    new succesful requests.
+    '''
 
-    response = requests.get('https://seedblink.com/_next/data/rGjEvZhprv2fds61EJcH_/en/careers.json').json()
+    resp = requests.get('https://seedblink.com/careers')
+
+    etag = resp.headers['etag']
+
+    headers = {
+        'if-none-match': f'{etag}',
+    }
+
+    return headers
+
+
+def make_requests_and_collect_data():
+    '''
+    ... colect data from seedblink.
+    '''
+
+    new_header = get_path_for_request()
+    response = requests.get('https://seedblink.com/_next/data/aFcruLbbSP7T-VBhoC49q/en/careers.json', headers=new_header).json()
 
     data = response['pageProps']['allJobs']
 
@@ -28,7 +46,7 @@ def get_data_from_seedblink():
         title = dt['data']['title']
         city = dt['data']['location']
 
-        if city in ['Remote', 'Bucharest']:
+        if city in ['Remote', 'Bucharest'] and 'fake' not in title.lower():
             lst_with_data.append({
                     "id": str(uuid.uuid4()),
                     "job_title": title,
@@ -52,7 +70,7 @@ def scrape_and_update_peviitor(company_name, data_list):
 
 
 company_name = 'seedblink'
-data_list = get_data_from_seedblink()
+data_list = make_requests_and_collect_data()
 scrape_and_update_peviitor(company_name, data_list)
 
 print(update_logo('seedblink',

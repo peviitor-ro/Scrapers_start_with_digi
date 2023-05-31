@@ -15,18 +15,27 @@ import time
 from random import randint
 #
 
+def return_id_cookie():
+    '''
+    ... return id cookie for new requests.
+    '''
+
+    resp = requests.get('https://lde.tbe.taleo.net/lde02/ats/careers/v2/searchResults?org=EMAG&cws=37')
+
+    return resp.headers['Set-Cookie'].split()[0]
 
 def set_headers():
     """
     This func() is about set_headers for futures requests.
     ... need page_num 0..10..20 etc.
     """
+    new_cookie = return_id_cookie()
 
     headers = {
         'Accept': 'text/html, */*; q=0.01',
         'Accept-Language': 'en-US,en;q=0.7',
         'Connection': 'keep-alive',
-        'Cookie': 'JSESSIONID=F46DB2BB6E95367E47CA616FAFBA4838; CookieConsent={stamp:%27J99FH2S7j/82Ra9L4U+TlOL9EcWDDFksypv5/+OyCOgbv0vL0r/+Fg==%27%2Cnecessary:true%2Cpreferences:true%2Cstatistics:true%2Cmarketing:true%2Cmethod:%27explicit%27%2Cver:1%2Cutc:1684522150518%2Cregion:%27ro%27}; ak_bmsc=55A1603D58E113824390C0E333A9A7C1~000000000000000000000000000000~YAAQDpNOUoyFNQSIAQAAg0FZNROa78dxEJGhrJT1ChGW0zGiWYJXxXsGQJVx4Ggscnb6dk3hEdpxG0o6h9p3ZC6EbUe8lduEao9jf9iUTD7erS+7p89wOCCh4rW09a/zFvQsPL0H36enA32vvdpzAJbzEVQCySjF9y4OeZj0sJ0xcQvKtnsWZDzamT3/UE7pmmZML7YainlI2KPRuIG1t/JrToI3uQAac0QD6Zd4Zq3gTKyOrMHfT+u9F8o8dUsI4ntggIb7Jn7mfaA74Ot2kIyCOeqf4cAZj4DRArccvRgISLZY4muFWCCODbsgDc+cUqWk8/pY2Icn2P+JCLlakLRa3SdaBSYFfHZYW/QAb2eJL4ud/tPlkw5bCXMZxKSH; ADRUM_BTa="R:0|g:2f24ca57-3988-4668-a20e-5cc6ff8df5d1|n:customer1_cc2551bb-5a3a-4515-b658-a61e16e64999"; ADRUM_BT1="R:0|i:112|e:684"; bm_sv=A86E59E97463411939FD1E8E8E3B42D4~YAAQDpNOUgOGNQSIAQAA45tZNRMAXPsR36xXSMsjy+1PLAi55HHo2DmQhiTQd6FPhPeMidjWeA10obnGDtakWYPbkjofPTvqGSDI55k9JUkBdDOY0vHbn+5ik5DUiBhr868bkPkOlSf81B+aoBXFGSiWJ96+wGYUknz58hWLaRTUpVJoPV5jsHGYQqGRxHPYEFYCs5WxtCt3v4YUvROOP/zyat/L4Sh2uNp7iOj3bYQoZiha+6Yu9Xf4yjJMZtnJEmrF~1',
+        'Cookie': f'{new_cookie};' + 'CookieConsent={stamp:%27J99FH2S7j/82Ra9L4U+TlOL9EcWDDFksypv5/+OyCOgbv0vL0r/+Fg==%27%2Cnecessary:true%2Cpreferences:true%2Cstatistics:true%2Cmarketing:true%2Cmethod:%27explicit%27%2Cver:1%2Cutc:1684522150518%2Cregion:%27ro%27}; ak_bmsc=55A1603D58E113824390C0E333A9A7C1~000000000000000000000000000000~YAAQDpNOUoyFNQSIAQAAg0FZNROa78dxEJGhrJT1ChGW0zGiWYJXxXsGQJVx4Ggscnb6dk3hEdpxG0o6h9p3ZC6EbUe8lduEao9jf9iUTD7erS+7p89wOCCh4rW09a/zFvQsPL0H36enA32vvdpzAJbzEVQCySjF9y4OeZj0sJ0xcQvKtnsWZDzamT3/UE7pmmZML7YainlI2KPRuIG1t/JrToI3uQAac0QD6Zd4Zq3gTKyOrMHfT+u9F8o8dUsI4ntggIb7Jn7mfaA74Ot2kIyCOeqf4cAZj4DRArccvRgISLZY4muFWCCODbsgDc+cUqWk8/pY2Icn2P+JCLlakLRa3SdaBSYFfHZYW/QAb2eJL4ud/tPlkw5bCXMZxKSH; ADRUM_BTa="R:0|g:2f24ca57-3988-4668-a20e-5cc6ff8df5d1|n:customer1_cc2551bb-5a3a-4515-b658-a61e16e64999"; ADRUM_BT1="R:0|i:112|e:684"; bm_sv=A86E59E97463411939FD1E8E8E3B42D4~YAAQDpNOUgOGNQSIAQAA45tZNRMAXPsR36xXSMsjy+1PLAi55HHo2DmQhiTQd6FPhPeMidjWeA10obnGDtakWYPbkjofPTvqGSDI55k9JUkBdDOY0vHbn+5ik5DUiBhr868bkPkOlSf81B+aoBXFGSiWJ96+wGYUknz58hWLaRTUpVJoPV5jsHGYQqGRxHPYEFYCs5WxtCt3v4YUvROOP/zyat/L4Sh2uNp7iOj3bYQoZiha+6Yu9Xf4yjJMZtnJEmrF~1',
         'Referer': 'https://lde.tbe.taleo.net/lde02/ats/careers/v2/searchResults?org=EMAG&cws=37',
         'Sec-Fetch-Dest': 'empty',
         'Sec-Fetch-Mode': 'cors',
