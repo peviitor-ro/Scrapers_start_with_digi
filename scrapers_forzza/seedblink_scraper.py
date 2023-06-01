@@ -35,7 +35,7 @@ def make_requests_and_collect_data():
     '''
 
     new_header = get_path_for_request()
-    response = requests.get('https://seedblink.com/_next/data/aFcruLbbSP7T-VBhoC49q/en/careers.json', headers=new_header).json()
+    response = requests.get('https://seedblink.com/_next/data/_30HAlIUUDMNuPus0sNCD/en/careers.json', headers=new_header).json()
 
     data = response['pageProps']['allJobs']
 
