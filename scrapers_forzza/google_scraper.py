@@ -56,4 +56,3 @@ scrape_and_update_peviitor(company_name, data_list)
 print(update_logo('google',
                   'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/250px-Google_2015_logo.svg.png'
                   ))
-print(get_data_from_google())
