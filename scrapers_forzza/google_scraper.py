@@ -24,13 +24,16 @@ def get_data_from_google():
     lst_with_data = []
     for dt in response:
         title = dt['title']
-        link = dt['apply_url']
+        id_link = dt['id'][5:]
         city = dt['locations'][0]['city']
+
+        # prepare link here
+        new_title = title.replace(',', '').replace('(', '').replace(')', '').lower().split()
 
         lst_with_data.append({
                     "id": str(uuid.uuid4()),
                     "job_title": title,
-                    "job_link":  link,
+                    "job_link":  f"https://careers.google.com/jobs/results/{id_link}-{'-'.join(new_title)}/?location=Romania",
                     "company": "google",
                     "country": "Romania",
                     "city": city
