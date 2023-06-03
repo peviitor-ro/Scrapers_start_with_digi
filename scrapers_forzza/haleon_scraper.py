@@ -23,7 +23,7 @@ def collect_data_from_haleon():
 
     lst_with_data = []
     for dt in response['jobs']:
-        link = dt['data']['apply_url']
+        slug_link = dt['data']['slug']
         title = dt['data']['title']
         location = dt['data']['country_code']
 
@@ -34,7 +34,7 @@ def collect_data_from_haleon():
         lst_with_data.append({
                     "id": str(uuid.uuid4()),
                     "job_title": title,
-                    "job_link":  link,
+                    "job_link":  f"https://careers.haleon.com/en-gb/jobs/{slug_link}?lang=en-us&previousLocale=en-US",
                     "company": "haleon",
                     "country": "Romania",
                     "city": location
