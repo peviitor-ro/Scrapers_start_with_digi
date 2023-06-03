@@ -33,7 +33,7 @@ def get_data_from_google():
         lst_with_data.append({
                     "id": str(uuid.uuid4()),
                     "job_title": title,
-                    "job_link":  f"https://careers.google.com/jobs/results/{id_link}-{'-'.join(new_title)}/?location=Romania",
+                    "job_link": f"https://careers.google.com/jobs/results/{id_link}-{'-'.join(new_title)}/?location=Romania",
                     "company": "google",
                     "country": "Romania",
                     "city": city
