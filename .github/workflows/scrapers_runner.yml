@@ -11,6 +11,7 @@ on:
   #    branches: [ main ]
   schedule:
     - cron: '00 19 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: read
