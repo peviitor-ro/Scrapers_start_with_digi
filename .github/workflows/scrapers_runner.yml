@@ -16,9 +16,6 @@ on:
 permissions:
   contents: read
 
-env:
-  API_KEY: ${{ secrets.APY_KEY }}
-
 jobs:
   build:
 
@@ -36,5 +33,7 @@ jobs:
         pip3 install -r requirements.txt
         sudo apt-get install curl
     - name: All scrapers runs
+      env:
+        API_KEY: ${{ secrets.APY_KEY }}
       run: |
         python3 scrapers_forzza/verifone_scraper.py
