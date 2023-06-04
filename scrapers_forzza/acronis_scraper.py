@@ -57,7 +57,7 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'acronis'
+company_name = 'acronis'  # add test comment
 data_list = req_and_collect_data()
 scrape_and_update_peviitor(company_name, data_list)
 
