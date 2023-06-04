@@ -62,7 +62,38 @@ def get_data_from_post_req() -> list:
 
     response = requests.post(url=url, headers=headers, json=data_raw).json()
 
-    return response
+    lst_with_data = []
+    for dt in response['results'][0]['hits']:
+        title = dt['title']
+        link = dt['link']
+        city = dt['city']
+
+        lst_with_data.append({
+                "id": str(uuid.uuid4()),
+                "job_title": title,
+                "job_link":  link,
+                "company": "ubisoft",
+                "country": "Romania",
+                "city": city
+                })
+
+    return lst_with_data
 
 
-print(get_data_from_post_req())
+# update data on peviitor!
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
+    """
+    Update data on peviitor API!
+    """
+
+    return data_list
+
+
+company_name = 'ubisoft'
+data_list = get_data_from_post_req()
+scrape_and_update_peviitor(company_name, data_list)
+
+print(update_logo('ubisoft',
+                  'https://c.smartrecruiters.com/sr-company-logo-prod-aws-dc1/56be0df1e4b043c434798ee2/huge?r=s3&_1499175978307'
+                  ))
