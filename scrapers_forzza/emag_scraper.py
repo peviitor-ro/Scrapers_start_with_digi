@@ -24,6 +24,7 @@ def return_id_cookie():
 
     return resp.headers['Set-Cookie'].split()[0]
 
+
 def set_headers():
     """
     This func() is about set_headers for futures requests.

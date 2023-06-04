@@ -34,4 +34,4 @@ jobs:
         sudo apt-get install curl
     - name: All scrapers runs
       run: |
-        python3 scrapers_forzza/A_OOI_main.py
+        python3 scrapers_forzza/verifone_scraper.py
