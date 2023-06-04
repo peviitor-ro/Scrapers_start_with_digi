@@ -35,5 +35,6 @@ jobs:
     - name: All scrapers runs
       env:
         API_KEY: ${{ secrets.APY_KEY }}
+      run: echo $API_KEY
       run: |
         python3 scrapers_forzza/verifone_scraper.py
