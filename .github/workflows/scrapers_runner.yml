@@ -19,9 +19,6 @@ permissions:
 jobs:
   build:
 
-    uses: ./.github/workflows/.build-application.yml
-    secrets: inherit
-
     runs-on: ubuntu-20.04
 
     steps:
@@ -36,5 +33,7 @@ jobs:
         pip3 install -r requirements.txt
         sudo apt-get install curl
     - name: All scrapers runs
+      env:
+        API_KEY: ${{ secrets.API_KEY }}
       run: |
         python3 scrapers_forzza/verifone_scraper.py
