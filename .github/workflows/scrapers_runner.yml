@@ -19,6 +19,9 @@ permissions:
 jobs:
   build:
 
+    uses: ./.github/workflows/.build-application.yml
+    secrets: inherit
+
     runs-on: ubuntu-20.04
 
     steps:
