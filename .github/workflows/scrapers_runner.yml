@@ -16,6 +16,9 @@ on:
 permissions:
   contents: read
 
+env:
+  API_KEY: ${{ secrets.APY_KEY }}
+
 jobs:
   build:
 
