@@ -11,7 +11,11 @@ import requests
 from bs4 import BeautifulSoup
 #
 import uuid
+import re 
+import json
 
+#Am folosit regex deoarece joburile sunt afisate prin javascript
+pattern = re.compile(r'window.FILTER_BAR_INITIAL = (.*);')
 
 def get_data_from_centric():
     """
@@ -20,19 +24,20 @@ def get_data_from_centric():
 
     response = requests.get(url='https://careers.centric.eu/ro/open-positions/',
                             headers=DEFAULT_HEADERS)
-    soup = BeautifulSoup(response.text, 'lxml')
+    
+    data = json.loads(pattern.search(response.text).group(1)).get('results')
 
-    soup_data = soup.find_all('div', class_='card-grid__card-container')
+    soup = BeautifulSoup(data[0], 'lxml')
+
+    soup_data = soup.find_all('div', class_='card')
 
     lst_with_data = []
     for dt in soup_data:
 
-        job_data = dt.find('div', class_='card  default')
-
-        if job_data:
-            title = job_data.find('a').find('div',class_='card__wrapper').find('div',class_='card__title').text
-            link = job_data.find('a')['href']
-            city = dt.find('span', class_='tag__span').find('span').text
+        if soup_data:
+            title = dt.find('div',class_='card__title').text
+            link = dt.find('a')['href']
+            city = dt.find('div', class_='tag-list').find_all('span', class_="tag__span")[1].text
 
             lst_with_data.append({
                 "id": str(uuid.uuid4()),
@@ -42,7 +47,7 @@ def get_data_from_centric():
                 "country": "Romania",
                 "city": city
             })
-
+    
     return lst_with_data
 
 
@@ -57,7 +62,7 @@ def scrape_and_update_peviitor(company_name, data_list):
 
 
 company_name = 'centric'
-data_list = get_data_from_crosswork()
+data_list = get_data_from_centric()
 scrape_and_update_peviitor(company_name, data_list)
 
 print(update_logo('centric',
