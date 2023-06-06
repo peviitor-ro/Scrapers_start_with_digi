@@ -57,7 +57,7 @@ def scrape_and_update_peviitor(company_name, data_list):
 
 
 company_name = 'centric'
-data_list = get_data_from_crosswork()
+data_list = get_data_from_centric()
 scrape_and_update_peviitor(company_name, data_list)
 
 print(update_logo('centric',
