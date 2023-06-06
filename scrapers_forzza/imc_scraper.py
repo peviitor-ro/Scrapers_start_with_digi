@@ -5,6 +5,7 @@
 # Link to this -> 
 #
 from A_OO_get_post_soup_update_dec import update_peviitor_api
+from L_00_logo import update_logo
 #
 import requests
 from bs4 import BeautifulSoup
@@ -81,3 +82,7 @@ def scrape_and_update_peviitor(company_name, data_list):
 company_name = 'imc'
 data_list = collect_data_from_imc()
 scrape_and_update_peviitor(company_name, data_list)
+
+print(update_logo('imc',
+                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgMERA2UEWcjsDuh1YsmPozwdgUlRNOP5xev4jwtSt&s'
+                  ))
