@@ -47,7 +47,7 @@ def get_data_from_centric():
                 "country": "Romania",
                 "city": city
             })
-    
+
     return lst_with_data
 
 
