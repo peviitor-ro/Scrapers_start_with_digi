@@ -10,12 +10,44 @@ from L_00_logo import update_logo
 import requests
 #
 import uuid
+import re
+
+
+def get_cookie_and_csrfToken() -> tuple:
+    """
+    Get new data for requests: Cookie and Token.
+    """
+
+    response = requests.head('https://morningstar.wd5.myworkdayjobs.com/Sustainalytics').headers
+
+    cookie = str(response['Set-Cookie'])
+
+    # regex
+    new_dict = dict(wday_vps_cookie=r'wday_vps_cookie=([^;]+)',
+                    PLAY_SESSION='PLAY_SESSION=([^;]+)',
+                    TS014c1515='TS014c1515=([^;]+)',
+                    wd_broser_id='wd-browser-id=([^;]+)',
+                    CALYPSO_CSRF_TOKEN='CALYPSO_CSRF_TOKEN=([^;]+)')
+
+    # catch data from requests and store it in new dict
+    regex_dict = dict()
+    for key, value in new_dict.items():
+        match = re.search(value, cookie)
+        if match:
+            regex_form = match.group(1)
+            regex_dict[key] = regex_form
+
+    return regex_dict
 
 
 def make_post_request() -> tuple:
     """
     ... data for post requests.
     """
+
+    # data for requests to this site
+    data = get_cookie_and_csrfToken()
+
     url = 'https://morningstar.wd5.myworkdayjobs.com/wday/cxs/morningstar/Sustainalytics/jobs'
 
     headers = {
@@ -23,21 +55,22 @@ def make_post_request() -> tuple:
             'Accept-Language': 'en-US',
             'Connection': 'keep-alive',
             'Content-Type': 'application/json',
-            'Cookie': 'PLAY_SESSION=757c64e983e1c932f509c553206ce2d95923d851-morningstar_pSessionId=nj5mvehdpknrcmvc3s2bpsited&instance=wd5prvps0004h; wday_vps_cookie=2938515978.6195.0000; timezoneOffset=-180; TS014c1515=018b6354fee20d4e77b4e9eecc8b3a757d95f412d360c4527c7276a83e9f232e03c160134c6d8bf920c3e62b34a9d6440902e4d826; wd-browser-id=1c1030b1-db9f-4c80-b186-1bbe94033d44; CALYPSO_CSRF_TOKEN=4bd3af53-32c0-4379-97b5-79a18144fe4b',
+            'Cookie': f"wday_vps_cookie{data['wday_vps_cookie']}; PLAY_SESSION={data['PLAY_SESSION']} TS014c1515={data['TS014c1515']}; timezoneOffset=-180; wd-browser-id={data['wd_broser_id']}; CALYPSO_CSRF_TOKEN={data['CALYPSO_CSRF_TOKEN']}",
             'Origin': 'https://morningstar.wd5.myworkdayjobs.com',
-            'Referer': 'https://morningstar.wd5.myworkdayjobs.com/en-US/Sustainalytics/jobs?locations=0e19b52288b501a1c52ad54eda00f640',
+            'Referer': 'https://morningstar.wd5.myworkdayjobs.com/Sustainalytics',
+            'Referer':'https://morningstar.wd5.myworkdayjobs.com/en-US/Sustainalytics/jobs?locations=0e19b52288b501a1c52ad54eda00f640',
             'Sec-Fetch-Dest': 'empty',
             'Sec-Fetch-Mode': 'cors',
             'Sec-Fetch-Site': 'same-origin',
             'Sec-GPC': '1',
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
-            'X-CALYPSO-CSRF-TOKEN': '4bd3af53-32c0-4379-97b5-79a18144fe4b',
+            'X-CALYPSO-CSRF-TOKEN': f"{data['CALYPSO_CSRF_TOKEN']}",
             'sec-ch-ua': '"Brave";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '"Linux"'
         }
 
-    payload = '{"appliedFacets": {"locations": ["0e19b52288b501a1c52ad54eda00f640","0e19b52288b5019ff735e44eda00fe40"]}, "limit": 20, "offset": 0, "searchText": ""}'
+    payload = '{"appliedFacets":{},"limit":20,"offset":0,"searchText":""}'
 
     return url, headers, payload
 

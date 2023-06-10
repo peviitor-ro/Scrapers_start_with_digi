@@ -47,7 +47,7 @@ class TestEngine:
     def test_scrapers(self):
         """
         """
-        print('In function')
+        print('Test Runs...')
 
         for site in os.listdir(self.return_path_data()):
             if site.endswith('.py') and site not in TestEngine.exclude:
@@ -56,6 +56,9 @@ class TestEngine:
                     errors = action.stderr.decode('utf-8')
                     print("Error in " + site)
                     print(errors)
+
+                    # append domain name to down scraper list!
+                    DownScrapers.down_scrapers_list.append(site)
                 else:
                     print(action)
 
@@ -64,6 +67,10 @@ if __name__ == "__main__":
 
     new_test = TestEngine()
     print(new_test.test_scrapers())
+
+    # print down scrapers
+    down = DownScrapers.down_scrapers_list
+    print(f'Scrapers down -> {down}')
 
 
 IDEEA = """
