@@ -13,7 +13,7 @@ import uuid
 import re
 
 
-def get_cookie_and_csrfToken() -> tuple:
+def get_cookie_and_csrfToken() -> dict:
     """
     Get new data for requests: Cookie and Token.
     """

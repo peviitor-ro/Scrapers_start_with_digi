@@ -62,6 +62,9 @@ class TestEngine:
                 else:
                     print(action)
 
+            # deci, aici mai trebuie un selenium care sa verifice pe site-ul celalalt. Trebue un dict cu site-urile datele site-ului,
+            # ... si un alt dict care sa preia comenzile pentru Selenium
+
 
 if __name__ == "__main__":
 
@@ -71,23 +74,3 @@ if __name__ == "__main__":
     # print down scrapers
     down = DownScrapers.down_scrapers_list
     print(f'Scrapers down -> {down}')
-
-
-IDEEA = """
-Deci ---> trebuie sa import toti scraperii cu "import os".
-sa le scot decoratorii... dar asta ar insemna ca trebuie sa-i
-bag intr-un al folderz4 de test? ... ?
-
-Apoi, dupa ce import scraperii, sa incept testele...
-
--> evident va trebui de creat un dict in care key: name_scraper.py - valoare: {link: link_catre_site,
-                                                                               search_elem: class, id or xpath,
-                                                                               html_data: id_name, class_name}
-
---------------> Dupa aia, testele sa fie rulate intr-o singura clasa, intr-un -> for loop <-
-
--> o variabila care stocheaza numarul de joburi de la companie (aceasta variabila introdusa intr-o lista aparte pentru data visialization)
--> o functie in care selenium ia link-ul din dict-ul scraperului, merge si cauta dupa datele din html, sau le calculeaza si Selenium inca o data.
--> dupa care, un request merge prin toate cu head si verifica daca merge ok. # optional
--> numarul de joburi de stocat in data_visualization_jobs pentru vizualizare.
-"""
