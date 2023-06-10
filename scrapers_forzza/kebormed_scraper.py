@@ -58,5 +58,5 @@ data_list = get_data_from_site()
 scrape_and_update_peviitor(company_name, data_list)
 
 print(update_logo('kebormed',
-                  'https://kebormed.com/images/logo.svg
+                  'https://kebormed.com/images/logo.svg'
                   ))

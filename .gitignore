@@ -4,3 +4,4 @@
 /__pycache__/
 /scrapers_forzza/000_delete_api_data.py
 /browser_test_scraper/__pycache__/
+/test_scrapers/
