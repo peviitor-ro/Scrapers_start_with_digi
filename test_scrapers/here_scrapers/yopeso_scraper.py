@@ -1,0 +1,42 @@
+#
+#
+#
+# Company -> yopeso
+# Link -> https://careers.yopeso.com/
+#
+from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
+from L_00_logo import update_logo
+#
+import requests
+from bs4 import BeautifulSoup
+#
+import uuid
+
+
+def run_scraper() -> tuple:
+    """
+    ... return a list with data from yopeso with one requests.
+    """
+
+    response = requests.get(url='https://careers.yopeso.com/',
+                            headers=DEFAULT_HEADERS)
+    soup = BeautifulSoup(response.text, 'lxml')
+
+    soup_data = soup.find_all('div', class_='u0th15-1 lnmHBb')
+
+    lst_with_data = []
+    for dt in soup_data:
+        title = dt.find('a', class_='sc-1543tgf-1 hUFAVu').text
+        link = dt.find('a', class_='sc-1543tgf-1 hUFAVu')['href']
+        city = dt.find('span', class_='custom-css-style-job-location-city').text
+
+        lst_with_data.append({
+            "id": str(uuid.uuid4()),
+            "job_title": title,
+            "job_link":  "https://careers.yopeso.com/" + link,
+            "company": "yopeso",
+            "country": "Romania",
+            "city": city
+            })
+
+    return lst_with_data, len(lst_with_data)

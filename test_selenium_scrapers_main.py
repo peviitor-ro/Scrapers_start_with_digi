@@ -11,7 +11,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 #
 import os
-import subprocess
+import importlib
 import sys
 
 
@@ -36,34 +36,24 @@ class TestEngine:
     # exclude files
     exclude = ['__init__.py', 'A_OO_get_post_soup_update_dec.py', 'L_00_logo.py',]
 
-    def return_path_data(self):
-        """
-        """
-        test_scrapers_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "test_scrapers"))
-        sys.path.append(test_scrapers_path)
-
-        return test_scrapers_path
-
     def test_scrapers(self):
-        """
-        """
-        print('Test Runs...')
+        test_data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "test_scrapers/here_scrapers"))
+        sys.path.append(test_data_path)
 
-        for site in os.listdir(self.return_path_data()):
-            if site.endswith('.py') and site not in TestEngine.exclude:
-                action = subprocess.run(['python', os.path.join(self.return_path_data(), site)], capture_output=True)
-                if action.returncode != 0:
-                    errors = action.stderr.decode('utf-8')
-                    print("Error in " + site)
-                    print(errors)
+        for filename in os.listdir(test_data_path):
+            if filename.endswith('.py') and filename not in TestEngine.exclude:
+                module_name = f"test_scrapers.here_scrapers.{filename[:-3]}"
+                module = importlib.import_module(module_name)
 
-                    # append domain name to down scraper list!
-                    DownScrapers.down_scrapers_list.append(site)
+                data_run = module.run_scraper()
+
+                if data_run:
+                    print(f'{filename} -> {data_run[1]}')
                 else:
-                    print(action)
+                    DownScrapers.down_scrapers_list.append(filename)
 
-            # deci, aici mai trebuie un selenium care sa verifice pe site-ul celalalt. Trebue un dict cu site-urile datele site-ului,
-            # ... si un alt dict care sa preia comenzile pentru Selenium
+        # deci, aici mai trebuie un selenium care sa verifice pe site-ul celalalt. Trebue un dict cu site-urile datele site-ului,
+        # ... si un alt dict care sa preia comenzile pentru Selenium
 
 
 if __name__ == "__main__":
@@ -71,6 +61,5 @@ if __name__ == "__main__":
     new_test = TestEngine()
     print(new_test.test_scrapers())
 
-    # print down scrapers
     down = DownScrapers.down_scrapers_list
     print(f'Scrapers down -> {down}')
