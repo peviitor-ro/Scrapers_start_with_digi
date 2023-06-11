@@ -4,14 +4,16 @@
 # New scraper for -> Eurofins
 # Acronis job page -> https://careers.eurofins.com/ro/
 # Acronis API call -> https://atsintegration.eurofins.com/ATSWebService.asmx/GetJobs?language=ro
-url ='https://atsintegration.eurofins.com/ATSWebService.asmx/GetJobs?language=ro'
-company = 'eurofins'
-
+#
 from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
 from L_00_logo import update_logo
 #
 import requests
 import uuid
+
+
+url ='https://atsintegration.eurofins.com/ATSWebService.asmx/GetJobs?language=ro'
+company = 'eurofins'
 
 
 def eurofins():
