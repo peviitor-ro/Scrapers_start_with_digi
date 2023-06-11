@@ -24,8 +24,14 @@ class DownScrapers:
     down_scrapers_list = []
     data_visualization_jobs = []
 
+    # def visualization ---> for data jobs visualitation
+
     # + o functie de data visualization -> sa vedem care companie are cele mai multe joburi
     # and another methods for manipulate
+
+
+class TestEngineScrapers:
+    pass
 
 
 class TestEngine:
