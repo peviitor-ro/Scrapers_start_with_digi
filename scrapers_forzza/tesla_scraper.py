@@ -33,13 +33,24 @@ def return_all_dict_data_jobs():
     """
 
     data = return_response_from_api('https://www.tesla.com/cua-api/apps/careers/state', DEFAULT_HEADERS)
-    all_l_nums = data['geo'][1]['sites'][23]['cities']['București']
+
+    data_lst = []
+    ###
+    try:
+        all_l_nums = data['geo'][1]['sites'][24]['cities']
+        for dl in all_l_nums:
+            data_lst.extend(all_l_nums[dl])
+    except:
+        all_l_nums = data['geo'][1]['sites'][23]['cities']
+        for dl in all_l_nums:
+            data_lst.extend(all_l_nums[dl])
+    ###
 
     lst_with_dict_data = []
     for data in data['listings']:
         cod = data['l']
 
-        if cod in all_l_nums:
+        if cod in data_lst:
             lst_with_dict_data.append(data)
 
     return lst_with_dict_data
