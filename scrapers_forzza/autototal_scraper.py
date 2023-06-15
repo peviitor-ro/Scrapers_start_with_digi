@@ -71,8 +71,8 @@ def make_post_requests():
 
         summary = dt.find('div', class_='post-text').find('div', class_='summary')
         if summary:
-            expiration_date = summary.text.split()[1]
-            month = summary.text.split()[2].lower()
+            expiration_date = summary.text.replace('-', '').replace('IASI', '').split()[1]
+            month = summary.text.replace('-', '').replace('IASI', '').split()[2].lower()
 
             # here check if conditions
             if int(expiration_date) > today_date and autototal_months[month] == current_month or \
