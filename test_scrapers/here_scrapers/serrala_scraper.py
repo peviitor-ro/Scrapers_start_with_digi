@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def run_scraper() -> tuple:
+def get_data_serrala() -> list:
     '''
     Get data with one requests.
     '''
@@ -40,4 +40,23 @@ def run_scraper() -> tuple:
             "city": city
             })
 
-    return lst_with_data, len(lst_with_data)
+    return lst_with_data
+
+
+# update data on peviitor!
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
+    """
+    Update data on peviitor API!
+    """
+
+    return data_list
+
+
+company_name = 'serrala'
+data_list = get_data_serrala()
+scrape_and_update_peviitor(company_name, data_list)
+
+print(update_logo('serrala',
+                  'https://www.serrala.com/themes/custom/serrala/assets/images/serrala-logo-ruby.svg'
+                  ))
