@@ -59,4 +59,4 @@ class UpdateAPI:
 
         response = requests.post(url, headers=headers, data=data)
 
-        return f'Logo update ---> succesfuly {response.text}'
+        print(f'Logo update ---> succesfuly {response.text}')

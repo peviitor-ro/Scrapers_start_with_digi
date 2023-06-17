@@ -33,7 +33,7 @@ if __name__ == "__main__":
         update_api.update_logo(id_company='xogito', logo_link='https://xogito.wpenginepowered.com/wp-content/themes/xgrebranding/images/logo-w-tagline-on-dark.svg')
     else:
         print(f'Len scraped {len(scraped_xogito)} versus Len tested {len(xogito_test_result)}')
-        print('Test didn\'t passed...')
+        print('Test for -> Xogito <- didn\'t passed...')
     # END TEST XOGITO
 
     # quit browser

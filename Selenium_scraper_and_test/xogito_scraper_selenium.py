@@ -12,7 +12,6 @@ from bs4 import BeautifulSoup
 #
 import uuid
 import time
-import requests
 from random import randint
 
 
@@ -39,7 +38,7 @@ class ScraperXogito:
         # search items
         by_map = {
                 'ID': By.ID,
-                'NAME': By.NAME,
+                'TAG_NAME': By.TAG_NAME,
                 'CLASS_NAME': By.CLASS_NAME,
                 'CSS': By.CSS_SELECTOR
             }
@@ -59,9 +58,7 @@ class ScraperXogito:
 
         # find element for jobs div!
         elements_job = self.expected_c('CLASS_NAME', 'list-view')
-        data_html_jobs = elements_job.get_attribute('outerHTML')
-
-        return data_html_jobs
+        return elements_job.get_attribute('outerHTML')
 
     def store_in_list(self):
         '''
