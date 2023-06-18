@@ -45,6 +45,7 @@ def get_data_from_site() -> list:
             "city": city
             })
 
+    print(lst_with_data)
     return lst_with_data
 
 
@@ -62,6 +63,5 @@ company_name = 'aggranda'
 data_list = get_data_from_site()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('aggranda',
-                  'https://www.aggranda.com/wp-content/themes/Uprise/assets/logo-aggranda-dark.svg'
-                  ))
+update_logo('aggranda',
+                  'https://www.aggranda.com/wp-content/themes/Uprise/assets/logo-aggranda-dark.svg')
