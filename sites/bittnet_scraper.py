@@ -71,6 +71,7 @@ def make_post_request():
                 "city": city
             })
 
+    print(lst_with_data)
     return lst_with_data
 
 
@@ -88,5 +89,5 @@ company_name = 'bittnet'
 data_list = make_post_request()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('bittnet',
-                  'https://www.bittnet.jobs/img/logo_ro.png'))
+update_logo('bittnet',
+                  'https://www.bittnet.jobs/img/logo_ro.png')

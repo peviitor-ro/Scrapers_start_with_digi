@@ -38,7 +38,6 @@ def update_peviitor_api(original_function):
             }
 
         clean_request = requests.post(CLEAN_URL, headers=clean_header, data={'company': company_name})
-        print(f"{company_name} clean -> {clean_request.status_code}")
 
         post_header = {
             'Content-Type': 'application/json',
@@ -46,7 +45,6 @@ def update_peviitor_api(original_function):
             }
 
         post_request_to_server = requests.post('https://api.peviitor.ro/v4/update/', headers=post_header, data=json.dumps(data_list))
-        print(f"{company_name} post -> {post_request_to_server}")
 
         return original_function(*args, **kwargs)
 
