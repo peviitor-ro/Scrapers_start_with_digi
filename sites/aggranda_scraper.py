@@ -11,6 +11,7 @@ import requests
 from bs4 import BeautifulSoup
 #
 import uuid
+import json
 
 
 def get_data_from_site() -> list:
@@ -45,7 +46,7 @@ def get_data_from_site() -> list:
             "city": city
             })
 
-    print(lst_with_data)
+    print(json.dumps(lst_with_data))
     return lst_with_data
 
 
