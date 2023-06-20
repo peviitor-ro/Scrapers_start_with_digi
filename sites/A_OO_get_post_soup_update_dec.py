@@ -10,6 +10,7 @@ import requests
 import os  # I do not have API KEY
 #
 import json
+import time
 
 
 DEFAULT_HEADERS = {
@@ -38,6 +39,8 @@ def update_peviitor_api(original_function):
             }
 
         clean_request = requests.post(CLEAN_URL, headers=clean_header, data={'company': company_name})
+
+        time.sleep(0.2)
 
         post_header = {
             'Content-Type': 'application/json',

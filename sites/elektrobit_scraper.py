@@ -55,6 +55,7 @@ def collect_data_from_website(url: str) -> list:
             })
 
     # print num of all data
+    print(lst_with_jobs)
     print(f'Total nums of jobs from Elekrobit == {len(lst_with_jobs)}')
 
     return lst_with_jobs
@@ -70,7 +71,7 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'emia'
+company_name = 'elektrobit'
 data_list = collect_data_from_website(
         'https://jobs.elektrobit.com/job-offers.html?order%5Bdir%5D=asc&order%5Bfield%5D=stellenbezeichnung&filter[countr][]=Romania+-+Brasov&filter[countr][]=Romania+-+Oradea&filter[countr][]=Romania+-+Timisoara&filter[volltext]='
         )
