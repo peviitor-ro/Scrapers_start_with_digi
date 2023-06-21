@@ -84,6 +84,7 @@ def collect_data_post_requests():
             "city": "Romania"
         })
 
+    print(lst_with_data)
     return lst_with_data
 
 
