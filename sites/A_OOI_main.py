@@ -10,6 +10,7 @@ import subprocess
 exclude = ['__init__.py',
            'A_OO_get_post_soup_update_dec.py',
            'A_OOI_main.py',
+           '000_delete_api_data.py',
            'L_00_logo.py',
            'globallogic_scraper.py',
            'bittnet_scraper.py']
