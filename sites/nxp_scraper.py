@@ -25,15 +25,13 @@ def get_session_id_ts():
     ... return sessin id TS and more over.
     '''
 
-    response = s.get(url='https://nxp.wd3.myworkdayjobs.com/careers?locations=f2e609fe92974a55a05fc1cdc2852122',
+    response = requests.get(url='https://nxp.wd3.myworkdayjobs.com/careers?locations=f2e609fe92974a55a05fc1cdc2852122',
                              headers=DEFAULT_HEADERS)
-
-    print(response.headers)
 
     return response.headers['Set-Cookie']
 
 
-def prepare_headers_post_requests(offset_num: int) -> tuple:
+def prepare_headers_post_requests() -> tuple:
     '''
     ... here prepare post requests for scraping data.
     '''
@@ -61,14 +59,7 @@ def prepare_headers_post_requests(offset_num: int) -> tuple:
             'X-CALYPSO-CSRF-TOKEN': f"{calypso_split}",
         }
 
-    data = {
-          "appliedFacets": {"Location_Country": ["f2e609fe92974a55a05fc1cdc2852122"]},
-          "limit": 20,
-          "offset": f'{offset_num}',
-          "searchText": ""
-          }
-
-    return url, headers, data
+    return url, headers
 
 
 def collect_data_from_nxp() -> list[dict]:
@@ -77,16 +68,27 @@ def collect_data_from_nxp() -> list[dict]:
     '''
 
     # here catch a number of jobs.
-    data = prepare_headers_post_requests(0)
-    jobs_num = s.post(url=data[0], headers=data[1], json=data[2]).json()['total']
+    data = prepare_headers_post_requests()
+    jobs_num = s.post(url=data[0], headers=data[1],
+                      json={
+                          "appliedFacets": {"Location_Country": ["f2e609fe92974a55a05fc1cdc2852122"]},
+                          "limit": 20,
+                          "offset": 0,
+                          "searchText": ""
+                          }).json()['total']
 
     for_loop_offset = 0
     lst_with_data = []
     for _ in range(ceil(jobs_num / 20)):
-        data_post_loop = prepare_headers_post_requests(for_loop_offset)
 
         # make a post requests
-        jobs_post_data = s.post(url=data[0], headers=data[1], json=data[2]).json()
+        jobs_post_data = s.post(url=data[0], headers=data[1],
+                                json={
+                                      "appliedFacets": {"Location_Country": ["f2e609fe92974a55a05fc1cdc2852122"]},
+                                      "limit": 20,
+                                      "offset": f"{for_loop_offset}",
+                                      "searchText": ""
+                                      }).json()
 
         # collect data from json
         for i_jobs in jobs_post_data['jobPostings']:
@@ -125,5 +127,5 @@ data_list = collect_data_from_nxp()
 scrape_and_update_peviitor(company_name, data_list)
 
 print(update_logo('nxp',
-                  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/NXP_Semiconductors_Logo.svg/150px-NXP_Semiconductors_Logo.svg.png'
+                  'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/NXP-Logo.svg/618px-NXP-Logo.svg.png?20150315023951'
                   ))
