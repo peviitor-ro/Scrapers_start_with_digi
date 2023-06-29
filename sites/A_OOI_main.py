@@ -13,6 +13,7 @@ exclude = ['__init__.py',
            '000_delete_api_data.py',
            'L_00_logo.py',
            'globallogic_scraper.py',
+           'nxp_scraper.py',
            'bittnet_scraper.py']
 
 path = os.path.dirname(os.path.abspath(__file__))

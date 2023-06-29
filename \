@@ -16,19 +16,13 @@ from math import ceil
 from time import sleep
 
 
-# make a session for this site!
-s = requests.Session()
-
-
 def get_session_id_ts():
     '''
     ... return sessin id TS and more over.
     '''
 
-    response = s.get(url='https://nxp.wd3.myworkdayjobs.com/careers?locations=f2e609fe92974a55a05fc1cdc2852122',
+    response = requests.head(url='https://nxp.wd3.myworkdayjobs.com/careers?locations=f2e609fe92974a55a05fc1cdc2852122',
                              headers=DEFAULT_HEADERS)
-
-    print(response.headers)
 
     return response.headers['Set-Cookie']
 
@@ -53,8 +47,10 @@ def prepare_headers_post_requests(offset_num: int) -> tuple:
 
     headers = {
             'Accept': 'application/json',
+            'Accept-Language': 'en-US',
+            'Connection': 'keep-alive',
             'Content-Type': 'application/json',
-            'Cookie': f"{wday_vps_cookie};  timezoneOffset=-180; {play_session} {ts_id} {web_browser_id} {calypso}",
+            'Cookie': f"{wday_vps_cookie}; {play_session} {ts_id} {web_browser_id} {calypso}",
             'Origin': 'https://nxp.wd3.myworkdayjobs.com',
             'Referer': 'https://nxp.wd3.myworkdayjobs.com/careers?Location_Country=f2e609fe92974a55a05fc1cdc2852122',
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
@@ -64,7 +60,7 @@ def prepare_headers_post_requests(offset_num: int) -> tuple:
     data = {
           "appliedFacets": {"Location_Country": ["f2e609fe92974a55a05fc1cdc2852122"]},
           "limit": 20,
-          "offset": f'{offset_num}',
+          "offset": f'{int(offset_num)}',
           "searchText": ""
           }
 
@@ -78,15 +74,15 @@ def collect_data_from_nxp() -> list[dict]:
 
     # here catch a number of jobs.
     data = prepare_headers_post_requests(0)
-    jobs_num = s.post(url=data[0], headers=data[1], json=data[2]).json()['total']
+    jobs_num = requests.post(url=data[0], headers=data[1], json=data[2]).json()['total']
 
     for_loop_offset = 0
     lst_with_data = []
-    for _ in range(ceil(jobs_num / 20)):
+    for offset in range(ceil(jobs_num / 20)):
         data_post_loop = prepare_headers_post_requests(for_loop_offset)
 
         # make a post requests
-        jobs_post_data = s.post(url=data[0], headers=data[1], json=data[2]).json()
+        jobs_post_data = requests.post(url=data[0], headers=data[1], json=data[2]).json()
 
         # collect data from json
         for i_jobs in jobs_post_data['jobPostings']:
@@ -107,7 +103,18 @@ def collect_data_from_nxp() -> list[dict]:
         for_loop_offset += 20
         sleep(1)
 
-    return lst_with_data
+    lst_remove_duplicates = []
+    jobs_without_duplicates = []
+    for sd_job in lst_with_data:
+        if sd_job['job_title'] not in lst_remove_duplicates:
+
+            # for remove duplicates
+            lst_remove_duplicates.append(sd_job['job_title'])
+
+            # add to without duplicates
+            jobs_without_duplicates.append(sd_job)
+
+    return jobs_without_duplicates
 
 
 # update data on peviitor!
