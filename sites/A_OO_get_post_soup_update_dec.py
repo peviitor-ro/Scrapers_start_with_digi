@@ -31,7 +31,7 @@ def update_peviitor_api(original_function):
         company_name, data_list = args
         #
         API_KEY = os.environ.get('API_KEY')
-        # API_KEY =
+        # API_KEY = ''
         CLEAN_URL = 'https://api.peviitor.ro/v4/clean/'
 
         clean_header = {
