@@ -16,8 +16,7 @@ exclude = ['__init__.py',
            'proctergamble_scraper.py',
            'globallogic_scraper.py',
            'bittnet_scraper.py',
-           'kenvue_scraper.py',
-           'clevertech_scraper.py']
+           'kenvue_scraper.py']
 
 path = os.path.dirname(os.path.abspath(__file__))
 
