@@ -31,9 +31,7 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         pip3 install -r requirements.txt
-        sudo apt-get install curl
-    - name: All scrapers runs
       env:
         API_KEY: ${{ secrets.API_KEY }}
       run: |
-        python3 sites/A_OOI_main.py
+        python3 sites/fintechos_scraper.py
