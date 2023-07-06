@@ -39,7 +39,7 @@ def siemens():
                     "city": city
                     }
                 )
-    
+
     return payload
 
 
