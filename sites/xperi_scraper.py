@@ -114,11 +114,14 @@ def collect_data_from_xperi() -> list[dict]:
 
     # refresh list
     new_lst_jobs = []
+    non_repeat_links = []
     for dr in lst_with_data:
         if dr is not None:
-            new_lst_jobs.append(dr)
+            if dr['job_link'] not in non_repeat_links:
+                non_repeat_links.append(dr['job_link'])
+                new_lst_jobs.append(dr)
 
-    return new_lst_jobs, len(new_lst_jobs)
+    return new_lst_jobs
 
 
 # update data on peviitor!
