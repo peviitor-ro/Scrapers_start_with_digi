@@ -5,6 +5,7 @@
 import requests
 import os
 
+
 def clean_data(company_name: str) -> None:
 
     API_KEY = os.environ.get('API_KEY')
