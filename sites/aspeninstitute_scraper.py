@@ -2,8 +2,8 @@
 #
 #
 #
-# Company -> unilever
-# Link ----> https://careers.unilever.com/romania
+# Company -> aspeninstitute
+# Link ----> https://aspeninstitute.ro/careers/
 #
 from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
 from L_00_logo import update_logo
@@ -14,30 +14,29 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def collect_data_from_site() -> list[dict]:
+def get_data_from_site() -> list[dict]:
     '''
-    ... collect data with one requests.
+    ... collect all data from site.
     '''
 
-    response = requests.get(url='https://careers.unilever.com/romania',
+    response = requests.get(url='https://aspeninstitute.ro/careers/',
                             headers=DEFAULT_HEADERS)
     soup = BeautifulSoup(response.text, 'lxml')
 
-    soup_data = soup.find('section', attrs={'class': 'job-list'}).find_all('li')
+    soup_data = soup.find_all('a', attrs={'class': 'aspen-row-link'})
 
     lst_with_data = []
     for sd in soup_data:
-        link = sd.find('a')['href']
-        title = sd.text.split('\n')[1]
-        loc = sd.text.split('\n')[-2].split()[0].replace(',', '')
+        link = sd['href']
+        title = sd.find('h3').text
 
         lst_with_data.append({
                 "id": str(uuid.uuid4()),
                 "job_title": title,
-                "job_link":  'https://careers.unilever.com' + link,
-                "company": "unilever",
+                "job_link":  link,
+                "company": "aspeninstitute",
                 "country": "Romania",
-                "city": loc
+                "city": "Romania"
                 })
 
     return lst_with_data
@@ -53,10 +52,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'unilever'
-data_list = collect_data_from_site()
+company_name = 'aspeninstitute'
+data_list = get_data_from_site()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('unilever',
-                  'https://upload.wikimedia.org/wikipedia/en/thumb/e/e4/Unilever.svg/1200px-Unilever.svg.png'
+print(update_logo('aspeninstitute',
+                  'https://www.aspeninstitute.org/wp-content/uploads/2020/11/aspen-institute-logo-white-on-blue-1920x1080-1.png'
                   ))
