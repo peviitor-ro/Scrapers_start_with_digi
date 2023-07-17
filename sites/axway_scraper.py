@@ -11,6 +11,7 @@ import requests
 from bs4 import BeautifulSoup
 #
 import uuid
+from time import sleep
 
 
 def get_data_from_site():
@@ -20,42 +21,28 @@ def get_data_from_site():
 
     response = requests.get('https://careers-axway.icims.com/jobs/search?ss=1&searchLocation=13526--Bucharest',
                             headers=DEFAULT_HEADERS)
+    #
+    sleep(3)
     soup = BeautifulSoup(response.text, 'lxml')
 
-    soup_data = soup.find_all('div', class_='col-xs-12 title')
+    soup_data = soup.find_all('div', attrs={'class': 'row'})
 
     lst_with_data = []
     for dt in soup_data:
-        if 'href' in str(dt):
-            title = dt.find('h2').text.strip()
-            link = dt.find('a')['href'].strip()
+        print(dt)
+        title = dt.find('h2').text.strip()
+        link = dt.find('a')['href'].strip()
 
-            lst_with_data.append({
-                        "id": str(uuid.uuid4()),
-                        "job_title": title,
-                        "job_link":  link,
-                        "company": "axway",
-                        "country": "Romania",
-                        "city": "Romania"
-                    })
+        lst_with_data.append({
+                    "id": str(uuid.uuid4()),
+                    "job_title": title,
+                    "job_link":  link,
+                    "company": "axway",
+                    "country": "Romania",
+                    "city": "Bucharest"
+               })
 
     return lst_with_data
 
 
-# update data on peviitor!
-@update_peviitor_api
-def scrape_and_update_peviitor(company_name, data_list):
-    """
-    Update data on peviitor API!
-    """
-
-    return data_list
-
-
-company_name = 'axway'
-data_list = get_data_from_site()
-scrape_and_update_peviitor(company_name, data_list)
-
-print(update_logo('axway',
-                  'https://c-7055-20201030-www-axway-com.i.icims.com/themes/custom/axway2020/img/axway-logo-dark-gray.svg'
-                  ))
+print(get_data_from_site())
