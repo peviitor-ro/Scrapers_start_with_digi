@@ -62,5 +62,5 @@ data_list = req_and_collect_data()
 scrape_and_update_peviitor(company_name, data_list)
 
 print(update_logo('acronis',
-                  'https://kb.acronis.com/sites/all/themes/at_acronis/acronis_logo_2022.svg'
+                  'https://staticfiles.acronis.com/images/content/28234cac9b11c6179ff6460d2f01b448.jpg'
                   ))
