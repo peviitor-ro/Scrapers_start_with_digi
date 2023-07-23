@@ -41,8 +41,6 @@ def collect_data_from_orion() -> list:
             "city": "Romania"
             })
 
-    print(len(lst_with_data))
-
     return lst_with_data
 
 
