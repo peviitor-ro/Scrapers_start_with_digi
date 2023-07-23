@@ -80,15 +80,18 @@ def collect_data_from_blackline() -> list[dict]:
                 link_id = job['data']['slug']
                 title = job['data']['title']
                 city = job['data']['location_name']
+                print(city)
 
-                lst_with_data.append({
-                        "id": str(uuid.uuid4()),
-                        "job_title": title,
-                        "job_link":  f'https://careers.blackline.com/careers-home/jobs/{link_id}?lang=en-us',
-                        "company": "blackline",
-                        "country": "Romania",
-                        "city": city
-                    })
+                if 'bucharest' in city.lower():
+
+                    lst_with_data.append({
+                            "id": str(uuid.uuid4()),
+                            "job_title": title,
+                            "job_link":  f'https://careers.blackline.com/careers-home/jobs/{link_id}?lang=en-us',
+                            "company": "blackline",
+                            "country": "Romania",
+                            "city": city
+                        })
 
         else:
             flag = False
