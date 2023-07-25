@@ -22,4 +22,4 @@ def clean_data(company_name: str) -> None:
     print(f"{company_name} clean -> {clean_request.status_code}")
 
 
-print(clean_data('abricdata'))
+print(clean_data('bandainamco'))
