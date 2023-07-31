@@ -69,26 +69,26 @@ def make_post_requests():
         link = dt.find('a')['href']
         title = dt.find('span', class_='light').text
 
-        summary = dt.find('div', class_='post-text').find('div', class_='summary')
-        if summary:
-            expiration_date = summary.text.replace('-', '').replace('IASI', '').split()[1]
-            month = summary.text.replace('-', '').replace('IASI', '').split()[2].lower()
+        summary = dt.find('div', class_='post-text').find('div', class_='summary').text.lower().split()
 
-            # here check if conditions
-            if int(expiration_date) > today_date and autototal_months[month] == current_month or \
-                    autototal_months[month] > current_month:
-                lst_with_data.append({
-                    "id": str(uuid.uuid4()),
-                    "job_title": title,
-                    "job_link":  link,
-                    "company": "autototal",
-                    "country": "Romania",
-                    "city": "Romania"
-                    })
-            else:
-                print('Not more...')
-                #
-                break
+        # indexes of elements
+        summary_sort = summary[summary.index('expiră'):summary.index('2023')+1]
+
+        # here check if conditions
+        if int(summary_sort[1]) > today_date and autototal_months[summary_sort[2]] == current_month or \
+                autototal_months[summary_sort[2]] > current_month:
+            lst_with_data.append({
+                "id": str(uuid.uuid4()),
+                "job_title": title,
+                "job_link":  link,
+                "company": "autototal",
+                "country": "Romania",
+                "city": "Romania"
+                })
+        else:
+            print('Not more...')
+            #
+            break
 
     return lst_with_data
 
