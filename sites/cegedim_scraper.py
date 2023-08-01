@@ -38,19 +38,7 @@ def prepare_post_data() -> tuple:
             'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36' 
         }
 
-    data = {
-            "filters": {},
-            "viewport": {
-                "top_left": {
-                    "lat": 51.46896241876855,
-                    "lon": 18.552639878467087
-                },
-                "bottom_right": {
-                    "lat": 25.979625107607177,
-                    "lon": 38.72353831596708
-                }
-            }
-        }
+    data = '{"filters":{},"viewport":{"top_left":{"lat":56.89202805438242,"lon":15.505919396767615},"bottom_right":{"lat":32.42792369340148,"lon":34.53423970926762}},"placeLabel":"Romania","placeType":"country"}'
 
     return url, headers, data
 
@@ -63,7 +51,7 @@ def make_post_requests() -> list:
     '''
 
     data = prepare_post_data()
-    response = requests.post(url=data[0], headers=data[1], json=data[2]).json()
+    response = requests.post(url=data[0], headers=data[1], data=data[2]).json()
 
     lst_with_data = []
     for dt in response['items']:
