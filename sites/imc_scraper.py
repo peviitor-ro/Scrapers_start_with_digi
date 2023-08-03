@@ -2,7 +2,7 @@
 #
 #
 # New scraper for IMC
-# Link to this -> 
+# Link to this -> https://www.im-c.com/careers/job-offers/
 #
 from A_OO_get_post_soup_update_dec import update_peviitor_api
 from L_00_logo import update_logo

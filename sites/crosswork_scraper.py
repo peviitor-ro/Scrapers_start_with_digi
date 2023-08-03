@@ -43,7 +43,15 @@ def get_data_from_crosswork():
                 "city": city
             })
 
-    return lst_with_data
+    # filter all jobs by link
+    return_jobs = []
+    lst_sort = []
+    for new_job in lst_with_data:
+        if new_job['job_link'] not in lst_sort:
+            lst_sort.append(new_job['job_link'])
+            return_jobs.append(new_job)
+
+    return return_jobs
 
 
 # update data on peviitor!

@@ -25,7 +25,7 @@ def collect_data_from_axintor(url: str) -> list:
     response = requests.get(url=url, headers=DEFAULT_HEADERS)
     soup = BeautifulSoup(response.text, 'lxml')
 
-    soup_data = soup.find_all('a')
+    soup_data = soup.find_all('a', attrs={'class': 'listing listing--callout'})
 
     # store all data and remove duplicates
     lst_with_data = []
@@ -49,13 +49,13 @@ def collect_data_from_axintor(url: str) -> list:
 
     # here make a list with data json!
     lst_with_json = []
-    for key, value in dict(lst_with_data).items():
+    for job_data in lst_with_data:
 
         # save data to list
         lst_with_json.append({
             "id": str(uuid.uuid4()),
-            "job_title": key,
-            "job_link":  value,
+            "job_title": job_data[0],
+            "job_link":  job_data[1],
             "company": "axintor",
             "country": "Romania",
             "city": "Romania"

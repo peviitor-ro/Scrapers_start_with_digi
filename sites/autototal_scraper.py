@@ -57,7 +57,8 @@ def make_post_requests():
     autototal_months = {'ian.': 1, 'febr.': 2, 'mart.': 3,
                         'apr.': 4, 'mai': 5, 'iun.': 6,
                         'iul.': 7, 'aug.': 8, 'sept.': 9,
-                        'oct.': 10, 'nov.': 11, 'dec.': 12}
+                        'oct.': 10, 'nov.': 11, 'dec.': 12,
+                        'august.': 8}
 
     data = get_post_requests()
     response = requests.post(url=data[0], headers=data[1], data=data[2]).json()['html']

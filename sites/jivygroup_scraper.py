@@ -20,7 +20,7 @@ def collect_data_from_jivy() -> list[dict]:
     '''
 
     response = requests.get(url='https://www.jivygroup.com/careers/',
-                            headers=DEFAULT_HEADERS)
+                            headers=DEFAULT_HEADERS, verify=False)
     soup = BeautifulSoup(response.text, 'lxml')
 
     soup_data = soup.find_all('article')
