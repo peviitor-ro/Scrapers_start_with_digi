@@ -7,71 +7,67 @@
 from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
 from L_00_logo import update_logo
 #
-import requests
+from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 #
 import uuid
+#
+from time import sleep
 
 
-def get_all_data() -> list:
+def make_bs4_object(requests_html_object) -> BeautifulSoup:
     '''
-    Get all data with one requests.
+    Convert requests-html to bs4 object.
     '''
 
-    url = 'https://www.bittnet.jobs/api/dataexchange'
-
-    headers = {
-          'authority': 'www.bittnet.jobs',
-          'accept': '*/*',
-          'accept-language': 'en-US,en;q=0.9',
-          'content-type': 'application/x-www-form-urlencoded',
-          'cookie': 'ASP.NET_SessionId=3cvagebpnxti2t45gaeeuljk',
-          'origin': 'https://www.bittnet.jobs',
-          'referer': 'https://www.bittnet.jobs/1048/lista-posturi',
-          'sec-ch-ua': '"Brave";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
-          'sec-ch-ua-mobile': '?0',
-          'sec-ch-ua-platform': '"Linux"',
-          'sec-fetch-dest': 'empty',
-          'sec-fetch-mode': 'cors',
-          'sec-fetch-site': 'same-origin',
-          'sec-gpc': '1',
-          'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36'
-        }
-
-    data = {
-        'transport': 'fIh90vbStQIALVzhryTM9x36QRnts/ePtYlI87cxS0cXz19ykXlxbmAJ1k7B0ZDAjCVuZLJPXOGvl42IJKBKDFzMDFBnFyczbKnMCBUWY9Y6+PE3vJcHEA4ilpm3RcGcpaJbyMOhThOc2OZxj8WuogjgJZf1glGs07nPpuj04bjgzGFMsx0ZLQ1m4hNV8VckIywX09XfIa8ift0H0nIUF/aMlw6ui9gnTWtfUrZ65Kk=',
-        'cykey': 'GPDZ7aKmCgjKD1PPGfoZi3zmwID/9biWpa/qBAwwwwwwwwAAAAAA123456789AAAAAAAAwwwwwwww5gJ0XHRvpQlTO41uwwwwwwwwAAAAAA123456789AAAAAAAAwwwwwwwwzJkeoul8ABZYOSty5ceMZGZUb26pRZt54LPzpHuRDygjqoG4XKdTVvPtxIzOcnOzDHFEwfezePNR4RAlSD36jJaGMYb6/wwwwwwwwAAAAAA123456789AAAAAAAAwwwwwwwwEjFtg40mqqJkCg13E03yC51ktGelZx/qOoycjuwwwwwwwwAAAAAA123456789AAAAAAAAwwwwwwwwO2T5wwwwwwwwAAAAAA123456789AAAAAAAAwwwwwwwwraJSnyHpi7hnavdtWHPw=='
-        }
-
-    return url, headers, data
+    return BeautifulSoup(requests_html_object, 'lxml')
 
 
-def make_post_request():
-    """
-    Here make a post request.
-    """
+def config_requests_html() -> HTMLSession:
+    '''
+    Config requests_html with headers and make new requests
+    and parse js data.
+    '''
 
-    data = get_all_data()
-    response = requests.post(url=data[0], headers=data[1], data=data[2])
+    session = HTMLSession()
+    session.headers['User-Agent'] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
+    session.headers['Accept-Language'] = 'en-US,en;q=0.5'
+    session.headers['Refer'] = 'https://google.com'
+    session.headers['DNT'] = '1'
+
+    return session
+
+
+def collect_data_from_bittnet() -> list[dict]:
+    '''
+    ... collect data.
+    '''
+
+    session = config_requests_html()
+    response = session.get(url='https://www.bittnet.jobs/1048/lista-posturi')
+    sleep(1)
+
+    response.html.render()
+    tr_elements = response.html.find('div.itemcard')
 
     lst_with_data = []
-    for dt in response.text.split('|'):
-        split_dt = dt.split('¦')
+    for job in tr_elements:
+        soup_bs4 = make_bs4_object(job.html)
 
-        title = split_dt[2]
-        link = 'https://www.bittnet.jobs/' + split_dt[-1].replace('┼8', '')
-        city = split_dt[4]
+        # here extract data
+        link = 'https://www.bittnet.jobs' + soup_bs4.find('a')['href']
+        title = soup_bs4.find('a').text
+        loc = str(soup_bs4).split('<br/>')[-2]
 
         lst_with_data.append({
-                "id": str(uuid.uuid4()),
-                "job_title": title,
-                "job_link":  link,
-                "company": "bittnet",
-                "country": "Romania",
-                "city": city
-            })
+                    "id": str(uuid.uuid4()),
+                    "job_title": title,
+                    "job_link":  link,
+                    "company": "bittnet",
+                    "country": "Romania",
+                    "city": loc
+                })
 
-    print(lst_with_data)
     return lst_with_data
 
 
@@ -86,7 +82,7 @@ def scrape_and_update_peviitor(company_name, data_list):
 
 
 company_name = 'bittnet'
-data_list = make_post_request()
+data_list = collect_data_from_bittnet()
 scrape_and_update_peviitor(company_name, data_list)
 
 print(update_logo('bittnet',
