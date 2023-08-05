@@ -1,7 +1,7 @@
 #
 #
 #
-# New scraper for Orion Company
+# New scraper for Orion Innovation
 # Link to this Company ---> https://www.orioninc.com/careers/jobs/?_job_location=romania
 #
 from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
@@ -36,7 +36,7 @@ def collect_data_from_orion() -> list:
             "id": str(uuid.uuid4()),
             "job_title": title,
             "job_link":  'https://www.orioninc.com' + link,
-            "company": "orionic",
+            "company": "OrionInnovation",
             "country": "Romania",
             "city": "Romania"
             })
@@ -53,8 +53,8 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'orionic'
+company_name = 'OrionInnovation'
 data_list = collect_data_from_orion()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('orionic', 'https://www.orioninc.com/wp-content/themes/orion/dist/images/orion_innovation_logo_white.svg'))
+print(update_logo('OrionInnovation', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsGNodxQd1YzkYFg_KUBWIZxbMpTHAQJdN747jMybZoQ&s'))

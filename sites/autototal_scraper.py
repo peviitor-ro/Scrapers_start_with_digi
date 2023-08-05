@@ -73,6 +73,7 @@ def make_post_requests():
         summary = dt.find('div', class_='post-text').find('div', class_='summary').text.lower().split()
 
         # indexes of elements
+        # try make
         summary_sort = summary[summary.index('expiră'):summary.index('2023')+1]
 
         # here check if conditions

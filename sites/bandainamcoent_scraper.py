@@ -40,3 +40,21 @@ def collect_data_from_site() -> list[dict]:
             })
 
     return lst_with_data
+
+
+@update_peviitor_api
+def scrape_and_update_peviitor(company_name, data_list):
+    """
+    Update data on peviitor API!
+    """
+
+    return data_list
+
+
+company_name = 'BandaiNamco'
+data_list = collect_data_from_site()
+scrape_and_update_peviitor(company_name, data_list)
+
+# update Logo
+print(update_logo('BandaiNamco',
+                  'https://www.bandainamcoent.com/assets/logos/light/Logo-light-1.svg'))
