@@ -73,8 +73,12 @@ def make_post_requests():
         summary = dt.find('div', class_='post-text').find('div', class_='summary').text.lower().split()
 
         # indexes of elements
-        # try make
-        summary_sort = summary[summary.index('expiră'):summary.index('2023')+1]
+        # try make for loop to catch 2023, 2024, 2025
+        summary_sort = []
+        for ij in [2023, 2024, 2025]:
+            if str(ij) in summary:
+                summary_sort = summary[summary.index('expiră'):summary.index(str(ij)) +1 ]
+                break
 
         # here check if conditions
         if int(summary_sort[1]) > today_date and autototal_months[summary_sort[2]] == current_month or \
