@@ -103,4 +103,4 @@ company_name = 'CECBank'
 data_list = collect_data_post_requests()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo(company_name, 'https://www.cec.ro/themes/custom/cec/logo.svg')
+print(update_logo(company_name, 'https://www.cec.ro/themes/custom/cec/logo.svg'))
