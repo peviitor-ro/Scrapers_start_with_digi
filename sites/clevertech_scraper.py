@@ -49,7 +49,7 @@ def collect_data_from_clevertech() -> list[dict]:
                     "id": str(uuid.uuid4()),
                     "job_title": title,
                     "job_link":  f'https://clevertech.biz/remote-jobs/{slug}',
-                    "company": "clevertech",
+                    "company": "Clevertech",
                     "country": "Romania",
                     "city": "Remote"
                 })
@@ -66,10 +66,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'clevertech'
+company_name = 'Clevertech'
 data_list = collect_data_from_clevertech()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('clevertech',
+print(update_logo('Clevertech',
                   "https://clevertech.biz/_next/static/media/ct-logo-greyred.cc64d432.svg"
                   ))

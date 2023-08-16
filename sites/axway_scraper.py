@@ -61,7 +61,7 @@ def collect_data_from_axway() -> list[dict]:
                     "id": str(uuid.uuid4()),
                     "job_title": title.text.strip(),
                     "job_link": link['href'],
-                    "company": "axway",
+                    "company": "Axway",
                     "country": "Romania",
                     "city": "Bucharest"
                 })
@@ -79,10 +79,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'axway'
+company_name = 'Axway'
 data_list = collect_data_from_axway()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('axway',
+print(update_logo('Axway',
                   'https://c-7055-20201030-www-axway-com.i.icims.com/themes/custom/axway2020/img/axway-logo-dark-gray.svg'
                   ))

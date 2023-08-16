@@ -24,7 +24,7 @@ def return_lst_dict(title: str, link: str, city: str) -> dict:
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link": link,
-                "company": "fabricdata",
+                "company": "Fabric",
                 "country": "Romania",
                 "city": city
             }
@@ -143,10 +143,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'fabricdata'
+company_name = 'Fabric'
 data_list = get_data_and_test_it()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('fabricdata',
+print(update_logo('Fabric',
                   'https://mma.prnewswire.com/media/1701193/Fabric2_Logo.jpg?p=twitter'
                   ))

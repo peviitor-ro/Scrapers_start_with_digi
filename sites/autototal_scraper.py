@@ -87,7 +87,7 @@ def make_post_requests():
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link":  link,
-                "company": "autototal",
+                "company": "AUTOTOTAL",
                 "country": "Romania",
                 "city": "Romania"
                 })
@@ -109,9 +109,9 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'autototal'
+company_name = 'AUTOTOTAL'
 data_list = make_post_requests()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('autototal',
+print(update_logo('AUTOTOTAL',
                   'https://www.autototal.ro/wp-content/uploads/thegem-logos/logo_f7149358a9d89410af13364be85f4883_1x.png'))

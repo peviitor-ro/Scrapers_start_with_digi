@@ -56,7 +56,7 @@ def collect_data_from_axintor(url: str) -> list:
             "id": str(uuid.uuid4()),
             "job_title": job_data[0],
             "job_link":  job_data[1],
-            "company": "axintor",
+            "company": "AxintorInterim",
             "country": "Romania",
             "city": "Romania"
             })
@@ -75,8 +75,8 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'axintor'
+company_name = 'AxintorInterim'
 data_list = collect_data_from_axintor('https://www.axintor.be/ro/locuri-de-munca?sector=&jobtitle=&sortorder=asc&searchterm=')
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('axintor', 'https://www.axintor.be/img/logo.svg'))
+print(update_logo('AxintorInterim', 'https://www.axintor.be/img/logo.svg'))

@@ -51,7 +51,7 @@ def collect_data_from_page(num: int) -> list:
                         "id": str(uuid.uuid4()),
                         "job_title": title,
                         "job_link":  link,
-                        "company": "conectys",
+                        "company": "Conectys",
                         "country": "Romania",
                         "city": city
                     })
@@ -101,9 +101,9 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'conectys'
+company_name = 'Conectys'
 data_list = get_all_data_from_site()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('conectys',
+print(update_logo('Conectys',
                   'https://www.conectys.com/wp-content/uploads/2021/05/Conectys.svg'))

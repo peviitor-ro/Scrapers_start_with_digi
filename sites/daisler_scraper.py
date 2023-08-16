@@ -34,7 +34,7 @@ def collect_data_from_daisler():
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link":  link,
-                "company": "daisler",
+                "company": "DaislerPrintHouse",
                 "country": "Romania",
                 "city": "Romania"
             })
@@ -52,8 +52,8 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'daisler'
+company_name = 'DaislerPrintHouse'
 data_list = collect_data_from_daisler()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('daisler', 'https://www.daisler.ro/skin/frontend/daisler/default/images/logo.png'))
+print(update_logo('DaislerPrintHouse', 'https://www.daisler.ro/skin/frontend/daisler/default/images/logo.png'))

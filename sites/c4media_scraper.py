@@ -35,7 +35,7 @@ def collect_data_from_c4media() -> list[dict]:
                     "id": str(uuid.uuid4()),
                     "job_title": title,
                     "job_link":  link,
-                    "company": "c4media",
+                    "company": "C4Media",
                     "country": "Romania",
                     "city": "Remote"
                 })
@@ -53,10 +53,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'c4media'
+company_name = 'C4Media'
 data_list = collect_data_from_c4media()
 scrape_and_update_peviitor(company_name, data_list)
 
 # update Logo
-print(update_logo('c4media',
+print(update_logo('C4Media',
                   'https://c4media.com/_nuxt/img/c4media-logo.b690907.svg'))

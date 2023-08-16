@@ -38,7 +38,7 @@ def collect_data_from_page(page: int) -> list:
             "id": str(uuid.uuid4()),
             "job_title": title,
             "job_link":  'https://www.ausy.com' + link,
-            "company": "ausy",
+            "company": "AUSY",
             "country": "Romania",
             "city": "Romania"
             })
@@ -81,8 +81,8 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'ausy'
+company_name = 'AUSY'
 data_list = scrape_all_data()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('ausy', 'https://www.ausy.com/sites/ausy-com/modules/custom/rbd_ausy_com/assets/img/logo.svg'))
+print(update_logo('AUSY', 'https://www.ausy.com/sites/ausy-com/modules/custom/rbd_ausy_com/assets/img/logo.svg'))

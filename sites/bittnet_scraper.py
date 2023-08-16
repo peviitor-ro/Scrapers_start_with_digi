@@ -63,7 +63,7 @@ def collect_data_from_bittnet() -> list[dict]:
                     "id": str(uuid.uuid4()),
                     "job_title": title,
                     "job_link":  link,
-                    "company": "bittnet",
+                    "company": "BittnetGroup",
                     "country": "Romania",
                     "city": loc
                 })
@@ -81,9 +81,9 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'bittnet'
+company_name = 'BittnetGroup'
 data_list = collect_data_from_bittnet()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('bittnet',
+print(update_logo('BittnetGroup',
                   'https://www.bittnet.jobs/img/logo_ro.png'))

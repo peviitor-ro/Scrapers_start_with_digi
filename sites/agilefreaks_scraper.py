@@ -32,7 +32,7 @@ def collect_data_from_site():
             "id": str(uuid.uuid4()),
             "job_title": title,
             "job_link":  link,
-            "company": "agilefreaks",
+            "company": "AgileFreaks",
             "country": "Romania",
             "city": "Romania"
             })
@@ -50,10 +50,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'agilefreaks'
+company_name = 'AgileFreaks'
 data_list = collect_data_from_site()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('agilefreaks',
+print(update_logo('AgileFreaks',
                   'https://www.agilefreaks.com/sites/default/files/agile-freaks-logo%20%281%29%20%281%29.png'
                   ))

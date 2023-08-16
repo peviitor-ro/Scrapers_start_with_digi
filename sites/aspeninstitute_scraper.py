@@ -34,7 +34,7 @@ def get_data_from_site() -> list[dict]:
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link":  link,
-                "company": "aspeninstitute",
+                "company": "AspenInstitute",
                 "country": "Romania",
                 "city": "Romania"
                 })
@@ -52,10 +52,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'aspeninstitute'
+company_name = 'AspenInstitute'
 data_list = get_data_from_site()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('aspeninstitute',
+print(update_logo('AspenInstitute',
                   'https://www.aspeninstitute.org/wp-content/uploads/2020/11/aspen-institute-logo-white-on-blue-1920x1080-1.png'
                   ))

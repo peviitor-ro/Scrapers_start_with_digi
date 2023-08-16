@@ -63,7 +63,7 @@ def make_post_requests() -> list:
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link":  link,
-                "company": "cegedim",
+                "company": "Cegedim",
                 "country": "Romania",
                 "city": city
             })
@@ -81,9 +81,9 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'cegedim'
+company_name = 'Cegedim'
 data_list = make_post_requests()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('cegedim',
+print(update_logo('Cegedim',
                   'https://careers.cegedim.com/generated_contents/images/company_logo_career/LRzK3bVZ-cegedim-logo2010-detoure200x73.png'))

@@ -35,7 +35,7 @@ def get_data_from_site() -> list:
                     "id": str(uuid.uuid4()),
                     "job_title": title,
                     "job_link": 'https://everience.jobs.net/' + link,
-                    "company": "everience",
+                    "company": "Everience",
                     "country": "Romania",
                     "city": location
                     })
@@ -53,10 +53,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'everience'
+company_name = 'Everience'
 data_list = get_data_from_site()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('everience',
+print(update_logo('Everience',
                   'https://www.everience.com/wp-content/uploads/2022/08/cropped-Everience-logo-final.png'
                   ))

@@ -34,7 +34,7 @@ def collect_data_from_azur() -> list[dict]:
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link":  'https://www.azur.ro' + link,
-                "company": "azur",
+                "company": "AZUR",
                 "country": "Romania",
                 "city": "Timisoara"
             })
@@ -51,10 +51,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'azur'
+company_name = 'AZUR'
 data_list = collect_data_from_azur()
 scrape_and_update_peviitor(company_name, data_list)
 
 # update Logo
-print(update_logo('azur',
+print(update_logo('AZUR',
                   'https://www.azur.ro/images/logo.png'))

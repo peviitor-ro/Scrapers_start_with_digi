@@ -34,7 +34,7 @@ def collect_data_from_canam():
             "id": str(uuid.uuid4()),
             "job_title": title,
             "job_link":  link,
-            "company": "canam",
+            "company": "CanamGroup",
             "country": "Romania",
             "city": "Romania"
         })
@@ -52,9 +52,9 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'canam'
+company_name = 'CanamGroup'
 data_list = collect_data_from_canam()
 scrape_and_update_peviitor(company_name, data_list)
 
 # update Logo
-print(update_logo('canam', 'https://www.canam.com/wp-content/themes/canam/dist/img/logo-canam.png'))
+print(update_logo('CanamGroup', 'https://www.canam.com/wp-content/themes/canam/dist/img/logo-canam.png'))

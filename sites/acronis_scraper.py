@@ -39,7 +39,7 @@ def req_and_collect_data():
                     "id": str(uuid.uuid4()),
                     "job_title": title,
                     "job_link":  'https://boards.greenhouse.io/' + link,
-                    "company": "acronis",
+                    "company": "Acronis",
                     "country": "Romania",
                     "city": location.split(', ')[0]
                 })
@@ -57,7 +57,7 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'acronis'  # add test comment
+company_name = 'Acronis'  # add test comment
 data_list = req_and_collect_data()
 scrape_and_update_peviitor(company_name, data_list)
 

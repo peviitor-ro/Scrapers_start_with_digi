@@ -1,7 +1,7 @@
 #
 #
 #
-# Company -> aggranda
+# Company -> Aggranda
 # Link -> https://www.aggranda.com/jobs/
 #
 from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
@@ -41,7 +41,7 @@ def get_data_from_site() -> list:
             "id": str(uuid.uuid4()),
             "job_title": title,
             "job_link":  link,
-            "company": "aggranda",
+            "company": "Aggranda",
             "country": "Romania",
             "city": city
             })
@@ -60,9 +60,9 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'aggranda'
+company_name = 'Aggranda'
 data_list = get_data_from_site()
 scrape_and_update_peviitor(company_name, data_list)
 
-update_logo('aggranda',
+update_logo('Aggranda',
                   'https://www.aggranda.com/wp-content/themes/Uprise/assets/logo-aggranda-dark.svg')

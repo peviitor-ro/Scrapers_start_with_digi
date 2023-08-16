@@ -34,7 +34,7 @@ def get_data_from_site() -> list[dict]:
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link":  link,
-                "company": "coremaker",
+                "company": "Coremaker",
                 "country": "Romania",
                 "city": location
             })
@@ -52,9 +52,9 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'coremaker'
+company_name = 'Coremaker'
 data_list = get_data_from_site()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('coremaker',
+print(update_logo('Coremaker',
                   'https://content.ejobs.ro/img/logos/3/318001.png'))

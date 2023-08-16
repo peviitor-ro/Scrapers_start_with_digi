@@ -13,7 +13,7 @@ import uuid
 
 
 url ='https://atsintegration.eurofins.com/ATSWebService.asmx/GetJobs?language=ro'
-company = 'eurofins'
+company = 'Eurofins'
 
 
 def eurofins():

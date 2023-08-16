@@ -34,7 +34,7 @@ def collect_data_from_emia() -> list:
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link":  link,
-                "company": "emia",
+                "company": "Emia",
                 "country": "Romania",
                 "city": "Romania"
                 })
@@ -52,10 +52,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'emia'
+company_name = 'Emia'
 data_list = collect_data_from_emia()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('emia',
+print(update_logo('Emia',
                   'https://emia.com/image/emia-logo.png'
                   ))

@@ -5,6 +5,7 @@
 # Link to data ---> https://lde.tbe.taleo.net/lde02/ats/careers/v2/searchResults?org=EMAG&cws=37
 #
 from A_OO_get_post_soup_update_dec import update_peviitor_api
+from L_00_logo import update_logo
 #
 import requests
 from bs4 import BeautifulSoup
@@ -80,7 +81,7 @@ def get_data_from_emag(page_num: int) -> None:
                 "id": str(uuid.uuid4()),
                 "job_title": clean_title,
                 "job_link":  easy_clean_link,
-                "company": "emag",
+                "company": "eMAG",
                 "country": "Romania",
                 "city": "Romania"
                 })
@@ -132,6 +133,9 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'emag'
+company_name = 'eMAG'
 data_list = emag_scrape()
 scrape_and_update_peviitor(company_name, data_list)
+
+print(update_logo(company_name,
+                  'https://logowik.com/content/uploads/images/emag6638.jpg'))

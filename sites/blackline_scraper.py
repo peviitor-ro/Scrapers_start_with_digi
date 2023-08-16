@@ -88,7 +88,7 @@ def collect_data_from_blackline() -> list[dict]:
                             "id": str(uuid.uuid4()),
                             "job_title": title,
                             "job_link":  f'https://careers.blackline.com/careers-home/jobs/{link_id}?lang=en-us',
-                            "company": "blackline",
+                            "company": "BlackLine",
                             "country": "Romania",
                             "city": city
                         })
@@ -111,10 +111,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'blackline'
+company_name = 'BlackLine'
 data_list = collect_data_from_blackline()
 scrape_and_update_peviitor(company_name, data_list)
 
 # update Logo
-print(update_logo('blackline',
+print(update_logo('BlackLine',
                   'https://cms.jibecdn.com/prod/blackline/assets/HEADER-NAV_LOGO-en-us-1640926577769.svg'))

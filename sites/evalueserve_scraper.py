@@ -42,7 +42,7 @@ def collect_data_from_site() -> list[dict]:
                     "id": str(uuid.uuid4()),
                     "job_title": title,
                     "job_link": link,
-                    "company": "evalueserve",
+                    "company": "Evalueserve",
                     "country": "Romania",
                     "city": city
                     })
@@ -60,10 +60,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'evalueserve'
+company_name = 'Evalueserve'
 data_list = collect_data_from_site()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('evalueserve',
+print(update_logo('Evalueserve',
                   'https://mltfwbciccuo.i.optimole.com/VDZzwSs-77A4qSCv/w:985/h:101/q:auto/https://www.evalueserve.com/wp-content/uploads/2021/10/Evalueserve__logo.svg'
                   ))

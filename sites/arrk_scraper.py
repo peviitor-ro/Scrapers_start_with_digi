@@ -39,7 +39,7 @@ def scrape_data_from_arrk() -> list:
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link":  link,
-                "company": "arrk",
+                "company": "ARRK",
                 "country": "Romania",
                 "city": location
                 })
@@ -55,7 +55,7 @@ def scrape_data_from_arrk() -> list:
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link":  link,
-                "company": "arrk",
+                "company": "ARRK",
                 "country": "Romania",
                 "city": location
                 })
@@ -73,10 +73,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'arrk'
+company_name = 'ARRK'
 data_list = scrape_data_from_arrk()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('arrk',
+print(update_logo('ARRK',
                   'https://www.arrk.com/wp/wp-content/themes/SmartPack3.0-Ver/img/logo-blue.svg'
                   ))

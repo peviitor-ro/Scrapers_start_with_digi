@@ -50,7 +50,7 @@ def get_data_from_akka() -> list[dict]:
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link":  link,
-                "company": "akka",
+                "company": "AKKA",
                 "country": "Romania",
                 "city": location
                 })
@@ -68,10 +68,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'akka'
+company_name = 'AKKA'
 data_list = get_data_from_akka()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('akka',
+print(update_logo('AKKA',
                   'https://www.akka-technologies.com/app/themes/akka/static/img/logo.svg'
                   ))

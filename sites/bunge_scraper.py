@@ -36,7 +36,7 @@ def get_data_from_bunge() -> list[dict]:
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link": 'https://jobs.bunge.com' + link,
-                "company": "bunge",
+                "company": "Bunge",
                 "country": "Romania",
                 "city": city
             })
@@ -54,10 +54,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'bunge'
+company_name = 'Bunge'
 data_list = get_data_from_bunge()
 scrape_and_update_peviitor(company_name, data_list)
 
 # update Logo
-print(update_logo('bunge',
+print(update_logo('Bunge',
                   'https://rmkcdn.successfactors.com/c8d09bed/298fb332-da77-4747-9f6b-9.svg'))

@@ -50,7 +50,7 @@ def collect_data_from_dowjones() -> list[dict]:
                             "id": str(uuid.uuid4()),
                             "job_title": title,
                             "job_link":  'https://dowjones.jobs' + link,
-                            "company": "dowjones",
+                            "company": "DowJones",
                             "country": "Romania",
                             "city": "Romania"
                         })
@@ -73,9 +73,9 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'dowjones'
+company_name = 'DowJones'
 data_list = collect_data_from_dowjones()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('dowjones',
+print(update_logo('DowJones',
                   'https://dn9tckvz2rpxv.cloudfront.net/dow-jones/img/logo2.jpg'))

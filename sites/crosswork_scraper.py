@@ -38,7 +38,7 @@ def get_data_from_crosswork():
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link":  link,
-                "company": "crosswork",
+                "company": "Crosswork",
                 "country": "Romania",
                 "city": city
             })
@@ -64,9 +64,9 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'crosswork'
+company_name = 'Crosswork'
 data_list = get_data_from_crosswork()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('crosswork',
+print(update_logo('Crosswork',
                   'https://crosswork.sincron.biz/images/routes/5023/logo-crosswork.png'))

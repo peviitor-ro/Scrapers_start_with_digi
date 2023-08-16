@@ -2,7 +2,7 @@
 #
 #
 #
-# Company -> Aecom
+# Company -> AECOM
 # Link ----> https://aecom.jobs/rom/jobs/
 #
 from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
@@ -26,7 +26,6 @@ def return_soup(url: str) -> BeautifulSoup:
     response = session.get(url=url, headers=DEFAULT_HEADERS)
 
     return BeautifulSoup(response.text, 'lxml')
-
 
 
 def collect_data_from_aecom() -> list[dict]:
@@ -53,7 +52,7 @@ def collect_data_from_aecom() -> list[dict]:
                     "id": str(uuid.uuid4()),
                     "job_title": title,
                     "job_link": link,
-                    "company": "aecom",
+                    "company": "AECOM",
                     "country": "Romania",
                     "city": loc
                 })
@@ -71,9 +70,9 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'aecom'
+company_name = 'AECOM'
 data_list = collect_data_from_aecom()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('aecom',
+print(update_logo('AECOM',
                   'https://1000logos.net/wp-content/uploads/2021/12/AECOM-logo.png'))

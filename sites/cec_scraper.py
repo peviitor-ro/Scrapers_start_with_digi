@@ -5,6 +5,7 @@
 # ... link for this site: https://www.cec.ro/cariere
 #
 from A_OO_get_post_soup_update_dec import update_peviitor_api
+from L_00_logo import update_logo
 from bs4 import BeautifulSoup
 import requests
 #
@@ -79,7 +80,7 @@ def collect_data_post_requests():
             "id": str(uuid.uuid4()),
             "job_title": title,
             "job_link":  'https://www.cec.ro' + link,
-            "company": "cec",
+            "company": "CECBank",
             "country": "Romania",
             "city": "Romania"
         })
@@ -98,6 +99,8 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'cec'
+company_name = 'CECBank'
 data_list = collect_data_post_requests()
 scrape_and_update_peviitor(company_name, data_list)
+
+print(update_logo(company_name, 'https://www.cec.ro/themes/custom/cec/logo.svg')

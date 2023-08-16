@@ -64,7 +64,7 @@ def collect_data_from_capex() -> list[dict]:
                     "id": str(uuid.uuid4()),
                     "job_title": title,
                     "job_link":  link,
-                    "company": "capex",
+                    "company": "CAPEX",
                     "country": "Romania",
                     "city": "Bucuresti"
                 })
@@ -82,9 +82,9 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'capex'
+company_name = 'CAPEX'
 data_list = collect_data_from_capex()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('capex',
+print(update_logo('CAPEX',
                   'https://capex.com/assets/logo/capex-com-logo-red.svg'))

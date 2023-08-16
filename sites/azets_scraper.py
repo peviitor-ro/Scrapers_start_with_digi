@@ -34,7 +34,7 @@ def collect_data_from_azets() -> list:
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link": "https://www.azets.ro" + link,
-                "company": "azets",
+                "company": "Azets",
                 "country": "Romania",
                 "city": "Romania"
             })
@@ -52,10 +52,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'azets'
+company_name = 'Azets'
 data_list = collect_data_from_azets()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('azets',
+print(update_logo('Azets',
                   'https://www.azets.ro/globalassets/global/graphics/logos/azets_logo.svg'
                   ))

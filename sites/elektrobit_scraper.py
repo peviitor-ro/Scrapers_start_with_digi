@@ -35,7 +35,7 @@ def collect_data_from_website(url: str) -> list:
             "id": str(uuid.uuid4()),
             "job_title": title_1,
             "job_link":  link_1,
-            "company": "elektrobit",
+            "company": "Elektrobit",
             "country": "Romania",
             "city": "Romania"
             })
@@ -49,7 +49,7 @@ def collect_data_from_website(url: str) -> list:
             "id": str(uuid.uuid4()),
             "job_title": title_2,
             "job_link":  link_2,
-            "company": "elektrobit",
+            "company": "Elektrobit",
             "country": "Romania",
             "city": "Romania"
             })
@@ -71,12 +71,12 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'elektrobit'
+company_name = 'Elektrobit'
 data_list = collect_data_from_website(
         'https://jobs.elektrobit.com/job-offers.html?order%5Bdir%5D=asc&order%5Bfield%5D=stellenbezeichnung&filter[countr][]=Romania+-+Brasov&filter[countr][]=Romania+-+Oradea&filter[countr][]=Romania+-+Timisoara&filter[volltext]='
         )
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('elektrobit',
+print(update_logo('Elektrobit',
                   'https://jobs.elektrobit.com/bilder/elektrobitautomotive/symbole/logo1.png'
                   ))

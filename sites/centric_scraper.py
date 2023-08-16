@@ -43,7 +43,7 @@ def get_data_from_centric():
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link":  link,
-                "company": "centric",
+                "company": "Centric",
                 "country": "Romania",
                 "city": city
             })
@@ -61,9 +61,9 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'centric'
+company_name = 'Centric'
 data_list = get_data_from_centric()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('centric',
+print(update_logo('Centric',
                   'https://www.oribi.nl/cache/centric.2994/centric-s1920x1080.png'))

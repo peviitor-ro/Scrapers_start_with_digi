@@ -34,7 +34,7 @@ def collect_data_from_site() -> list[dict]:
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link":  link,
-                "company": "BandaiNamco",
+                "company": "BANDAINAMCO",
                 "country": "Romania",
                 "city": "Romania"
             })
@@ -51,10 +51,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'BandaiNamco'
+company_name = 'BANDAINAMCO'
 data_list = collect_data_from_site()
 scrape_and_update_peviitor(company_name, data_list)
 
 # update Logo
-print(update_logo('BandaiNamco',
+print(update_logo('BANDAINAMCO',
                   'https://www.bandainamcoent.com/assets/logos/light/Logo-light-1.svg'))

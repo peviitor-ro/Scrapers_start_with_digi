@@ -38,7 +38,7 @@ def collect_data_from_API():
                     "id": str(uuid.uuid4()),
                     "job_title": title,
                     "job_link":  'https://boards.eu.greenhouse.io/' + link,
-                    "company": "bitpanda",
+                    "company": "Bitpanda",
                     "country": "Romania",
                     "city": location.split(', ')[0]
                 })
@@ -56,10 +56,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'bitpanda'
+company_name = 'Bitpanda'
 data_list = collect_data_from_API()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('bitpanda',
+print(update_logo('Bitpanda',
                   'https://cdn.bitpanda.com/media/New%20navigation_Rebrand%203.0/Bitpanda_EN_trimmed.png'
                   ))

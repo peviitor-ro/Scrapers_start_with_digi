@@ -86,7 +86,7 @@ def collect_data_from_arkadium() -> list[dict]:
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link":  link,
-                "company": "arkadium",
+                "company": "Arkadium",
                 "country": "Romania",
                 "city": location
                 })
@@ -104,10 +104,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'arkadium'
+company_name = 'Arkadium'
 data_list = collect_data_from_arkadium()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('arkadium',
+print(update_logo('Arkadium',
                   'https://workablehr.s3.amazonaws.com/uploads/account/logo/233867/Logo_small.png'
                   ))
