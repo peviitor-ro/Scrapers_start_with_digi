@@ -85,4 +85,4 @@ company_name = 'AUSY'
 data_list = scrape_all_data()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('AUSY', 'https://www.ausy.com/sites/ausy-com/modules/custom/rbd_ausy_com/assets/img/logo.svg'))
+print(update_logo('AUSY', 'https://cdn.cookielaw.org/logos/9c9e1da5-cb5e-4789-be00-8f37c0e84ef3/62e61997-de64-46c2-bd04-cd5f54c2ff86/54e09e2b-769b-4b50-aad3-12e44849e0ff/ausy_logo-removebg-preview.png'))
