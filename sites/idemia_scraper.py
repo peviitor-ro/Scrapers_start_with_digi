@@ -56,5 +56,5 @@ data_list = collect_data_idemia()
 scrape_and_update_peviitor(company_name, data_list)
 
 print(update_logo('idemia',
-                  'https://rmkcdn.successfactors.com/ef2b0b62/6fa40f55-61ea-4281-bac1-7.png'
+                  'https://img.officer.com/files/base/cygnus/ofcr/image/2021/09/Idemia_Logo.614e0f599ebb2.png?auto=format,compress&fit=fill&fill=blur&w=1200&h=630'
                   ))
