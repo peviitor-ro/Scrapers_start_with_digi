@@ -45,20 +45,21 @@ def get_data_from_site() -> list[dict]:
                 data_soup = return_bs4_object(job['href'].strip())
                 time.sleep(0.3)
 
-                paragraf = data_soup.find('p').text
+                paragraf = data_soup.find_all('p')
+                for zz in paragraf:
+                    if 'Bucharest' in zz.text or 'Romania' in zz.text:
 
-                if 'Bucharest' in paragraf or 'Romania' in paragraf:
-                    title = data_soup.find('h4', attrs={'class': 'elementor-heading-title elementor-size-default'}).text
-                    link = job['href']
+                        title = data_soup.find('h4', attrs={'class': 'elementor-heading-title elementor-size-default'}).text
+                        link = job['href']
 
-                    lst_with_data.append({
-                        "id": str(uuid.uuid4()),
-                        "job_title": title,
-                        "job_link":  link,
-                        "company": "AppGreat",
-                        "country": "Romania",
-                        "city": "Romania"
-                        })
+                        lst_with_data.append({
+                            "id": str(uuid.uuid4()),
+                            "job_title": title,
+                            "job_link":  link,
+                            "company": "AppGreat",
+                            "country": "Romania",
+                            "city": "Romania"
+                            })
 
     return lst_with_data
 
