@@ -78,7 +78,7 @@ def return_links_with_jobs():
             "country": "Romania",
             "city": "Romania"
             })
-
+    print(list_for_pe_viitor)
     return list_for_pe_viitor
 
 
