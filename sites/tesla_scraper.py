@@ -12,6 +12,7 @@
 # ---------> link - https://www.tesla.com/cua-api/apps/careers/state
 #
 from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
+from L_00_logo import update_logo
 import requests
 #
 import uuid
@@ -37,7 +38,7 @@ def return_all_dict_data_jobs():
     data_lst = []
     ###
     try:
-        all_l_nums = data['geo'][1]['sites'][24]['cities']
+        all_l_nums = data['geo'][1]['sites'][22]['cities']
         for dl in all_l_nums:
             data_lst.extend(all_l_nums[dl])
     except:
@@ -74,14 +75,15 @@ def return_links_with_jobs():
             "id": str(uuid.uuid4()),
             "job_title": title,
             "job_link":  link_final,
-            "company": "tesla",
+            "company": "Tesla",
             "country": "Romania",
             "city": "Romania"
             })
-    print(list_for_pe_viitor)
+
     return list_for_pe_viitor
 
 
+# update data on peviitor!
 @update_peviitor_api
 def scrape_and_update_peviitor(company_name, data_list):
     """
@@ -91,6 +93,10 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'tesla'
+company_name = 'Tesla'
 data_list = return_links_with_jobs()
 scrape_and_update_peviitor(company_name, data_list)
+
+print(update_logo('Tesla',
+                  'https://autostickere.ro/image/cache/catalog/Stickere/Stickere%20Auto/Stickere%20Marci/Tesla/sticker-tesla-text-1000x1000.jpg'
+                  ))
