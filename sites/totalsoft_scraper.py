@@ -57,5 +57,5 @@ data_list = collect_data_from_totalsoft()
 scrape_and_update_peviitor(company_name, data_list)
 
 print(update_logo('totalsoft',
-                  'https://careers.totalsoft.ro/wp-content/uploads/2021/12/totalsoft-logo-alb.svg'
+                  'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/TotalSoft_logo.png/1200px-TotalSoft_logo.png'
                   ))

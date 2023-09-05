@@ -58,5 +58,5 @@ data_list = collect_data_frot_htss()
 scrape_and_update_peviitor(company_name, data_list)
 
 print(update_logo('htssgroup',
-                  'https://ro.htssgroup.eu/wp-content/themes/htss/assets/svg/sprite.svg'
+                  'https://mma.prnewswire.com/media/1695308/HTSS_%20.jpg?p=facebook'
                   ))
