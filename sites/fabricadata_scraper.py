@@ -129,7 +129,7 @@ def get_data_and_test_it() -> list[dict]:
                         data_test_check2 = get_soup_object(link)
                         if (h2_2 := data_test_check2.find('h2').text):
                             lst_with_data.append(return_lst_dict(title=h2_2, link=link, city=cities[i].split()[0].replace(',', '')))
-
+    print(lst_with_data)
     return lst_with_data
 
 
