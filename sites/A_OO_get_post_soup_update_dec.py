@@ -48,6 +48,7 @@ def update_peviitor_api(original_function):
             }
 
         post_request_to_server = requests.post('https://api.peviitor.ro/v4/update/', headers=post_header, data=json.dumps(data_list))
+        print(json.dumps(data_list, indent=4))
 
         return original_function(*args, **kwargs)
 
