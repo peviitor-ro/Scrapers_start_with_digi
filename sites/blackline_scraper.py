@@ -59,7 +59,7 @@ def prepare_post_requests(page: str) -> tuple:
     return url, headers
 
 
-def collect_data_from_blackline() -> list[dict]:
+def collect_data_from_blackline():
     '''
     ... collect data from blackline:
         -> make a request to API.

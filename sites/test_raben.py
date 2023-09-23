@@ -28,7 +28,7 @@ def make_get_req(url: str = '') -> tuple:
     return url, headers
 
 
-def collect_data_from_site() -> list[dict]:
+def collect_data_from_site():
     '''
     ... here collect all data from site.
     '''

@@ -27,7 +27,7 @@ def make_req(offset: str) -> BeautifulSoup:
     return BeautifulSoup(response.text, 'lxml')
 
 
-def collect_data_from_dowjones() -> list[dict]:
+def collect_data_from_dowjones():
     '''
     ... collect data with one requests.
     '''

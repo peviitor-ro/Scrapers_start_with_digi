@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def get_data_from_site() -> list[dict]:
+def get_data_from_site():
     '''
     ... collect all data from site.
     '''

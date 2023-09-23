@@ -14,7 +14,7 @@ import uuid
 import json
 
 
-def get_data_from_site() -> list:
+def get_data_from_site():
     '''
     ... get data with one requests.
     '''

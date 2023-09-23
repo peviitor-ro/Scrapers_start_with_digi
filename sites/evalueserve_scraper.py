@@ -15,7 +15,7 @@ import uuid
 import re
 
 
-def collect_data_from_site() -> list[dict]:
+def collect_data_from_site():
     '''
     ... collect data with one request and default headers.
     '''

@@ -48,7 +48,7 @@ def prepare_post_req() -> tuple:
     return url, headers, data
 
 
-def make_post_req() -> list[dict]:
+def make_post_req():
     '''
     ...
     '''

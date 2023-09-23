@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def collect_data_from_dornamedical() -> list[dict]:
+def collect_data_from_dornamedical():
     '''
     ... collect data with one requests.
     '''

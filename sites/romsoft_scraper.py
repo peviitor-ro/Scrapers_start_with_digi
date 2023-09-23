@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def collect_data_from_romsoft() -> list[dict]:
+def collect_data_from_romsoft():
     '''
     ... collect data from romsoft with one requests.
     '''

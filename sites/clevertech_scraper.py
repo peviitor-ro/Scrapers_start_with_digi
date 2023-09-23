@@ -30,7 +30,7 @@ def get_id() -> str:
     return scr_script_id
 
 
-def collect_data_from_clevertech() -> list[dict]:
+def collect_data_from_clevertech():
     '''
     ... get data from clever tech with one request to json data.
     Need more attention, because may be cause errros.

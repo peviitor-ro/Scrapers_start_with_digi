@@ -38,7 +38,7 @@ def config_requests_html() -> HTMLSession:
     return session
 
 
-def collect_data_from_site() -> list[dict]:
+def collect_data_from_site():
     '''
     ... collect data from one requests.
     '''

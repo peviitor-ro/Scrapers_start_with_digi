@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def get_data_from_spacelift() -> list[dict]:
+def get_data_from_spacelift():
     '''
     ... get all data with one requests.
     '''

@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def get_html_data() -> list[dict]:
+def get_html_data():
     '''
     ... get data with one requests.
     '''

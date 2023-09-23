@@ -24,7 +24,7 @@ def get_soup_object(page: str):
     return BeautifulSoup(response.text, 'lxml')
 
 
-def get_data_from_akka() -> list[dict]:
+def get_data_from_akka():
     '''
     ... return data from site in json format.
     '''

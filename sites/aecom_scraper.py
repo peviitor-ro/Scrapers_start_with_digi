@@ -28,7 +28,7 @@ def return_soup(url: str) -> BeautifulSoup:
     return BeautifulSoup(response.text, 'lxml')
 
 
-def collect_data_from_aecom() -> list[dict]:
+def collect_data_from_aecom():
     '''
     ... collect data with one request and default headers.
     '''

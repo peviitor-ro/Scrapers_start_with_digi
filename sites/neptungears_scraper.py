@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def collect_data_from_neptungears() -> list[dict]:
+def collect_data_from_neptungears():
     '''
     ... collect data with one requests.
     '''

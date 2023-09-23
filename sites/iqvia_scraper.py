@@ -44,7 +44,7 @@ def return_soup_object(url: str) -> BeautifulSoup:
     return BeautifulSoup(response['results'], 'lxml')
 
 
-def collect_data_from_iqvia() -> list[dict]:
+def collect_data_from_iqvia():
     '''
     ... collect data from site with get requests.
     '''

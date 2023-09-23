@@ -29,7 +29,7 @@ def get_soup_data(url: str) -> int:
     """
 
 
-def collect_data_from_site() -> list:
+def collect_data_from_site():
     """
     This func() return all data from site.
     """

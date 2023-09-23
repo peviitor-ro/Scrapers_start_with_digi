@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def get_data_from_smartdreamers() -> list[dict]:
+def get_data_from_smartdreamers():
     '''
     ... get data from site with one requests.
     '''

@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def collect_data_from_trustyou() -> list[dict]:
+def collect_data_from_trustyou():
     '''
     ... collect data from trustYOU with one requests and default headers.
     '''

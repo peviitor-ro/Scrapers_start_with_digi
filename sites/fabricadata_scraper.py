@@ -101,7 +101,7 @@ def get_valid_link_for_job(title: str) -> str:
             return link
 
 
-def get_data_and_test_it() -> list[dict]:
+def get_data_and_test_it():
     '''
     ... here get links and get data from it.
     '''

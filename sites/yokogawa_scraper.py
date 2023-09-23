@@ -68,7 +68,7 @@ def prepare_post_headers() -> tuple:
     return url, headers, data
 
 
-def collect_data_from_yokogawa() -> list[dict]:
+def collect_data_from_yokogawa():
     '''
     ... return data from site, after post request.
     '''

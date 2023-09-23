@@ -50,7 +50,7 @@ def prepare_post_requests() -> tuple:
     return url, headers, data
 
 
-def get_data_from_oselo() -> list[dict]:
+def get_data_from_oselo():
     '''
     ... get all data from this site and store it into a list with dict.
     '''

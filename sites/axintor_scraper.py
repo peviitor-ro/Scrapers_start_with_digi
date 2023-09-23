@@ -17,7 +17,7 @@ import re
 
 
 # collect data from axintor
-def collect_data_from_axintor(url: str) -> list:
+def collect_data_from_axintor(url: str):
     """
     Collect data from Axintor and return a list with json data.
     """

@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def collect_data_from_leadlion() -> list[dict]:
+def collect_data_from_leadlion():
     '''
     ... collect data from leadlion with one requests
     with default headers.

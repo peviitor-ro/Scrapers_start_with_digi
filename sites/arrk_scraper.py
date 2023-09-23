@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def scrape_data_from_arrk() -> list:
+def scrape_data_from_arrk():
     '''
     Scrap all data from arrk with one requests.
     '''

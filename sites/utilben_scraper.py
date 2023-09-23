@@ -39,7 +39,7 @@ def config_requests_html() -> HTMLSession:
     return session
 
 
-def collect_data_from_utilben() -> list[dict]:
+def collect_data_from_utilben():
     '''
     ... collect data with requests_html and configured headers.
     '''

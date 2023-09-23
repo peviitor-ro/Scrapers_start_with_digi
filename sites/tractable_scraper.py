@@ -14,7 +14,7 @@ import requests
 import uuid
 
 
-def get_data() -> list[dict]:
+def get_data():
 
     response = requests.get('https://tractable.ai/api/joblist?board=tractable',
                             headers=DEFAULT_HEADERS)

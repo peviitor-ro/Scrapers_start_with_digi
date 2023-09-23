@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def collect_data_from_c4media() -> list[dict]:
+def collect_data_from_c4media():
     '''
     ... collect data from c4media, with one requests.
     '''

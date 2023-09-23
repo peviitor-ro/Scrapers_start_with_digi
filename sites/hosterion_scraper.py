@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def collect_data_from_hosterion() -> list[dict]:
+def collect_data_from_hosterion():
     '''
     ... collect data with one requests.
     '''

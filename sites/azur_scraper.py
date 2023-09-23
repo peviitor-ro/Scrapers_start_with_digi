@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def collect_data_from_azur() -> list[dict]:
+def collect_data_from_azur():
     '''
     ... collect data with one requests.
     '''

@@ -70,7 +70,7 @@ def return_lst_dict(title: str, link: str, city: str) -> dict:
     return dct
 
 
-def collect_links_to_jobs() -> list[dict]:
+def collect_links_to_jobs():
     '''
     ... for this step I will collect all links
     from all pages and check them with class:

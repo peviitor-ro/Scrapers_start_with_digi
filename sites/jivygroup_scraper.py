@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def collect_data_from_jivy() -> list[dict]:
+def collect_data_from_jivy():
     '''
     ... collect data with one request and default headers.
     '''

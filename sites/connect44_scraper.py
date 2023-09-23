@@ -136,7 +136,7 @@ def prepare_post_request() -> tuple:
     return url, headers, json_data
 
 
-def collect_data_from_connect44() -> list[dict]:
+def collect_data_from_connect44():
     '''
     ... collect data with prepared headers.
     '''

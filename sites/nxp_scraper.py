@@ -62,7 +62,7 @@ def prepare_headers_post_requests() -> tuple:
     return url, headers
 
 
-def collect_data_from_nxp() -> list[dict]:
+def collect_data_from_nxp():
     '''
     ... collect data from nxp. Need all data.
     '''

@@ -17,7 +17,7 @@ import time
 from random import randint
 
 
-def collect_data_from_page(page: int) -> list:
+def collect_data_from_page(page: int):
     """
     This func() make post requests du AUSY.
     """

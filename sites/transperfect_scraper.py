@@ -73,7 +73,7 @@ def prepare_post() -> tuple:
     return url, headers, data
 
 
-def get_data_from_transperfect() -> list[dict]:
+def get_data_from_transperfect():
     '''
     ... get all data from site, after post requests with fresh cookie data.
     '''

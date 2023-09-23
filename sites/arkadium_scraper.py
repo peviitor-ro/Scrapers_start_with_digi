@@ -66,7 +66,7 @@ def prepare_post_request() -> tuple:
     return url, headers, payload
 
 
-def collect_data_from_arkadium() -> list[dict]:
+def collect_data_from_arkadium():
     '''
     ... return all data after post requests.
     '''

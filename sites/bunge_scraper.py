@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def get_data_from_bunge() -> list[dict]:
+def get_data_from_bunge():
     '''
     ... collect data from bunge with one request.
     Site return a html with data.

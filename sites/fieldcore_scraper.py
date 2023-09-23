@@ -19,7 +19,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def collect_data_from_fieldcore() -> list[dict]:
+def collect_data_from_fieldcore():
     '''
     ... collect data from dynamic site.
     '''

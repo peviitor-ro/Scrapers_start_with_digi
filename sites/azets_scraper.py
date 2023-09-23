@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def collect_data_from_azets() -> list:
+def collect_data_from_azets():
     """
     Colect data from sites.
     """

@@ -13,7 +13,7 @@ import requests
 import uuid
 
 
-def collect_data_from_funcom() -> list[dict]:
+def collect_data_from_funcom():
     '''
     ... collect data from funcom, request to API with get.
     '''

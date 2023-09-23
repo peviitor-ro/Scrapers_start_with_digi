@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import uuid
 
 
-def crawl_data_from_gradle() -> list[dict]:
+def crawl_data_from_gradle():
     '''
     ... get all data from site with one requests.
     '''

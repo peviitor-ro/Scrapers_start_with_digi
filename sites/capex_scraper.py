@@ -44,7 +44,7 @@ def prepare_post_requests() -> tuple:
     return url, headers, data
 
 
-def collect_data_from_capex() -> list[dict]:
+def collect_data_from_capex():
     '''
     ... collect data with prepared post requests.
     '''

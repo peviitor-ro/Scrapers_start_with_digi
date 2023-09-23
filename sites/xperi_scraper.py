@@ -72,7 +72,7 @@ def parse_jobs(data: BeautifulSoup) -> dict:
                 return return_lst_dict(title=title, link=link, city=cc.capitalize())
 
 
-def collect_data_from_xperi() -> list[dict]:
+def collect_data_from_xperi():
     '''
     ... return all data from one request.
     '''

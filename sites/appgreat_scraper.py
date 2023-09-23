@@ -26,7 +26,7 @@ def return_bs4_object(url: str) -> BeautifulSoup:
     return BeautifulSoup(session.get(url=url, headers=DEFAULT_HEADERS).text, 'lxml')
 
 
-def get_data_from_site() -> list[dict]:
+def get_data_from_site():
     '''
     ... get data from site with one requests.
     '''

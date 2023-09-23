@@ -84,7 +84,7 @@ def prepare_post_requests() -> tuple:
     return url, headers, data
 
 
-def collect_data_from_gmv() -> list[dict]:
+def collect_data_from_gmv():
     '''
     ...collect data with post reques.
     '''

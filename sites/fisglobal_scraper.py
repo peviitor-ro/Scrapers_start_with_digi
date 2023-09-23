@@ -94,7 +94,7 @@ def prepare_post_request() -> tuple:
     return url, headers, data
 
 
-def collect_data_from_fisglobal() -> list[dict]:
+def collect_data_from_fisglobal():
     '''
     ... get data after collecting all keys.
     '''
