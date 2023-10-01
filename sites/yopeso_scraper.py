@@ -22,12 +22,12 @@ def get_data_from_yopeso() -> list:
                             headers=DEFAULT_HEADERS)
     soup = BeautifulSoup(response.text, 'lxml')
 
-    soup_data = soup.find_all('div', class_='u0th15-1 lnmHBb')
+    soup_data = soup.find_all('div', class_='uzptka-1 ddeuCH')
 
     lst_with_data = []
     for dt in soup_data:
-        title = dt.find('a', class_='sc-1543tgf-1 hUFAVu').text
-        link = dt.find('a', class_='sc-1543tgf-1 hUFAVu')['href']
+        title = dt.find('a', class_='sc-6exb5d-1 harIFI').text
+        link = dt.find('a', class_='s03za1-0 krhJaE')['href']
         city = dt.find('span', class_='custom-css-style-job-location-city').text
 
         lst_with_data.append({
