@@ -15,6 +15,13 @@ import uuid
 import time
 
 
+def get_cookie() -> str:
+    '''
+    ... here is the function for getting cookies.
+    '''
+    return requests.head('https://www.digi.ro/cariere').headers['Set-Cookie'].split(';')[0]
+
+
 # headers for post requests
 def get_post_data(city: str, job_title: str) -> tuple:
     """
@@ -28,7 +35,7 @@ def get_post_data(city: str, job_title: str) -> tuple:
             'accept': '*/*',
             'accept-language': 'en-US,en;q=0.5',
             'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'cookie': 'DGROSESSV3PRI=E2D7096834AD414697BF27A5EAAE0C859F3643EA81874F9B; webpush=0; cmp_level=15',
+            'cookie': f'{get_cookie()}; webpush=0; cmp_level=15',
             'origin': 'https://www.digi.ro',
             'referer': 'https://www.digi.ro/cariere',
             'sec-ch-ua': '"Brave";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
@@ -97,11 +104,14 @@ def scrape_data_from_digi(cities: list, jobs: list, session) -> list:
             job_titles = re.findall(r'<label class="accordion-title"[^>]*>([^<]+)<', str(soup))
             job_links = re.findall(r'href="([^"]+)"', str(soup))
 
-            #print(job_links, job_titles)
+            # print(job_links, job_titles)
+
+            # print data to see how it work
+            print(f"{city} - {job}")
 
             # data from post requests in list
-            #job_titles = [tag.text for tag in soup.find_all('label', class_='accordion-title')]
-            #job_links = [links['href'] for links in soup.find_all('a', class_='btn-round-right')]
+            # job_titles = [tag.text for tag in soup.find_all('label', class_='accordion-title')]
+            # job_links = [links['href'] for links in soup.find_all('a', class_='btn-round-right')]
 
             if (len(job_titles) == len(job_links)) and (len(job_titles) + len(job_links)) > 0:
                 for id in range(len(job_titles)):
