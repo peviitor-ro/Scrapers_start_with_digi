@@ -24,13 +24,18 @@ def collect_data_from_webhelp() -> list:
             url=f'https://jobs.webhelp.com/job-search/?keyword=&country=Romania',
             headers=DEFAULT_HEADERS
         )
+
     soup = BeautifulSoup(response.text, 'lxml')
     soup_data = soup.find_all('div', class_='job')
 
     lst_with_data = []
     for sd in soup_data:
         link = sd.find('a')['href']
-        title = sd.find('h3').text
+        title = sd.find('h3').text.encode('utf-8').decode('utf-8')
+        location = sd.find('div', class_='job-meta').text.split('\n')[1].split(',')[0].encode('utf-8').decode('utf-8')
+
+        if 'webhelp' not in link:
+            continue
 
         lst_with_data.append({
             "id": str(uuid.uuid4()),
@@ -38,7 +43,7 @@ def collect_data_from_webhelp() -> list:
             "job_link": link,
             "company": "webhelp",
             "country": "Romania",
-            "city": "Romania"
+            "city": location
             })
 
     return lst_with_data
