@@ -29,6 +29,7 @@ def collect_data_from_canam():
     for sd in soup_data:
         link = sd['href']
         title = sd.find('span').text
+        location = sd.text.strip().split()[-2]
 
         lst_with_jobs.append({
             "id": str(uuid.uuid4()),
@@ -36,7 +37,7 @@ def collect_data_from_canam():
             "job_link":  link,
             "company": "CanamGroup",
             "country": "Romania",
-            "city": "Romania"
+            "city": location
         })
 
     return lst_with_jobs

@@ -54,6 +54,9 @@ def get_all_titles_and_images_tags() -> tuple:
 
     soup = get_soup_object('https://www.fabricdata.com/corporate/careers')
 
+    # make if conditions ---> if site haven't jobs...
+    #
+
     for data_job in soup.find_all('div', attrs={'class': 'card__content'}):
         titles.append(data_job.find('h3').text)
         images_src.append(data_job.find('img', attrs={'class': 'image'})['src'])
