@@ -18,26 +18,27 @@ def get_data_from_verifone():
     ... get data from verifone with one requests.
     """
 
-    response = requests.get(url='https://www.verifone.com/en/careers/search?locations%5B%5D=8729&keyword=',
+    response = requests.get(url='https://www.verifone.com/en/global/careers/jobs?title=&departments=All&locations=686',
                             headers=DEFAULT_HEADERS)
     soup = BeautifulSoup(response.text, 'lxml')
 
-    soup_data = soup.find_all('div', class_='views-row')
+    soup_data = soup.find_all('tr')
 
     lst_with_data = []
     for dt in soup_data:
-        link = dt.find('span', class_='field-content').find('a')['href']
-        title = dt.find('span', class_='field-content').find('a').find('span').text
-        city = dt.find('div', class_='field-content').find('div').find('div').text
+        link = dt.find('a')
+        title = dt.find('a')
+        location = dt.find('td', attrs={'class': 'views-field views-field-field-offices'})
 
-        lst_with_data.append({
-            "id": str(uuid.uuid4()),
-            "job_title": title,
-            "job_link": link,
-            "company": "verifone",
-            "country": "Romania",
-            "city": city
-            })
+        if link is not None:
+            lst_with_data.append({
+                "id": str(uuid.uuid4()),
+                "job_title": title.text.strip(),
+                "job_link": link['href'].strip(),
+                "company": "verifone",
+                "country": "Romania",
+                "city": location.text.strip()
+                })
 
     return lst_with_data
 
