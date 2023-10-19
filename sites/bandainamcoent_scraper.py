@@ -36,7 +36,7 @@ def collect_data_from_site():
                 "job_link":  link,
                 "company": "BANDAINAMCO",
                 "country": "Romania",
-                "city": "Romania"
+                "city": "Bucuresti"
             })
 
     return lst_with_data
