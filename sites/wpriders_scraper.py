@@ -44,7 +44,8 @@ def get_data_from_site() -> list:
                         "job_link":  link['href'],
                         "company": "wpriders",
                         "country": "Romania",
-                        "city": "Remote"
+                        "city": "Bucuresti",
+                        "remote": "remote",
                         })
 
     # dict with no duplicate
