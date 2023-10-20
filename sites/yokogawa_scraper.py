@@ -81,6 +81,7 @@ def collect_data_from_yokogawa():
     for job in response['jobPostings']:
         title = job['title']
         link = job['externalPath']
+        #location = job['locationsText']
 
         lst_with_data.append({
                         "id": str(uuid.uuid4()),
@@ -88,7 +89,7 @@ def collect_data_from_yokogawa():
                         "job_link": f'https://wd3.myworkdaysite.com/en-US/recruiting/yokogawa/yokogawa-career-site{link}?locationCountry=f2e609fe92974a55a05fc1cdc2852122',
                         "company": "yokogawa",
                         "country": "Romania",
-                        "city": "Romania"
+                        "city": "Bucuresti",
                         })
 
     return lst_with_data
