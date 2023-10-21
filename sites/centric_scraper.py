@@ -11,11 +11,12 @@ import requests
 from bs4 import BeautifulSoup
 #
 import uuid
-import re 
+import re
 import json
 
 #Am folosit regex deoarece joburile sunt afisate prin javascript
 pattern = re.compile(r'window.FILTER_BAR_INITIAL = (.*);')
+
 
 def get_data_from_centric():
     """
@@ -24,7 +25,7 @@ def get_data_from_centric():
 
     response = requests.get(url='https://careers.centric.eu/ro/open-positions/',
                             headers=DEFAULT_HEADERS)
-    
+
     data = json.loads(pattern.search(response.text).group(1)).get('results')
 
     soup = BeautifulSoup(data[0], 'lxml')
@@ -35,7 +36,7 @@ def get_data_from_centric():
     for dt in soup_data:
 
         if soup_data:
-            title = dt.find('div',class_='card__title').text
+            title = dt.find('div', class_='card__title').text
             link = dt.find('a')['href']
             city = dt.find('div', class_='tag-list').find_all('span', class_="tag__span")[1].text
 
@@ -48,22 +49,7 @@ def get_data_from_centric():
                 "city": city
             })
 
-    return lst_with_data
+    return lst_with_data, len(lst_with_data)
 
 
-# update data on peviitor!
-@update_peviitor_api
-def scrape_and_update_peviitor(company_name, data_list):
-    """
-    Update data on peviitor API!
-    """
-
-    return data_list
-
-
-company_name = 'Centric'
-data_list = get_data_from_centric()
-scrape_and_update_peviitor(company_name, data_list)
-
-print(update_logo('Centric',
-                  'https://www.oribi.nl/cache/centric.2994/centric-s1920x1080.png'))
+print(get_data_from_centric())
