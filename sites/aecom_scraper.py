@@ -12,20 +12,9 @@ import requests
 from bs4 import BeautifulSoup
 #
 import uuid
-from math import ceil
 
 
 session = requests.Session()
-
-
-def return_soup(url: str) -> BeautifulSoup:
-    '''
-    ... this function return soup object.
-    '''
-
-    response = session.get(url=url, headers=DEFAULT_HEADERS)
-
-    return BeautifulSoup(response.text, 'lxml')
 
 
 def collect_data_from_aecom():
@@ -33,29 +22,38 @@ def collect_data_from_aecom():
     ... collect data with one request and default headers.
     '''
 
-    num_jobs = return_soup(url='https://aecom.jobs/jobs/?location=Romania&r=25').find('h3', attrs={'class': 'direct_highlightedText'}).text.strip().split()[0]
-
-    # time to count for loop!
-    diez_num_url = ceil(int(num_jobs) / 15) - 1
-
-    # return nums of jobs
-    soup = return_soup(url=f'https://aecom.jobs/jobs/?location=Romania&r=25#{diez_num_url}')
-    soup_data = soup.find_all('li', attrs={'class': 'direct_joblisting with_description'})
-
+    # data to store
     lst_with_data = []
-    for job in soup_data:
-        title = job.find('h4').text.strip()
-        link = 'https://aecom.jobs' + job.find('a')['href'].strip()
-        loc = job.find('div', attrs={'class': 'direct_joblocation'}).text.split()[0].replace(',', '')
 
-        lst_with_data.append({
+    flag = True
+    offset = 0
+    while flag:
+        response = session.get(f'https://aecom.jobs/rom/jobs/ajax/joblisting/?num_items=15&offset={offset}',
+                               headers=DEFAULT_HEADERS)
+        soup = BeautifulSoup(response.text, 'lxml')
+
+        soup_data = soup.find_all('li', class_='direct_joblisting with_description')
+
+        if len(soup_data) < 1:
+            flag = False
+
+        # here extrat data from each job
+        for job in soup_data:
+            loc = job.find('div', class_='direct_joblocation').text.strip()
+
+            if 'romania' not in loc.lower():
+                break
+
+            lst_with_data.append({
                     "id": str(uuid.uuid4()),
-                    "job_title": title,
-                    "job_link": link,
+                    "job_title": job.find('h4').text.strip(),
+                    "job_link": 'https://aecom.jobs/' + job.find('a').get('href').strip(),
                     "company": "AECOM",
                     "country": "Romania",
-                    "city": loc
+                    "city": loc.split('\n')[0]
                 })
+
+        offset += 15
 
     return lst_with_data
 
