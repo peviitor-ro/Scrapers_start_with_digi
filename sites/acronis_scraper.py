@@ -30,19 +30,26 @@ def req_and_collect_data():
     for dt in soup_data:
 
         # check if Romania in location
-        location = dt.find('span', class_='location').text
-        if 'Romania' in location or 'România' in location:
+        city = dt.find('span', class_='location').text
+        if 'Romania' in city or 'România' in city:
             link = dt.find('a')['href']
             title = dt.find('a').text
+
+            if city.lower() == 'remote':
+                city = ''
+                type = 'remote'
+            else:
+                type = 'on-site'
 
             lst_with_data.append({
                     "id": str(uuid.uuid4()),
                     "job_title": title,
-                    "job_link":  'https://boards.greenhouse.io/' + link,
-                    "company": "Acronis",
+                    "job_link":  link,
+                    "company": "totalsoft",
                     "country": "Romania",
-                    "city": location.split(', ')[0]
-                })
+                    "city": city.split(', ')[0],
+                    "remote": type,
+                    })
 
     return lst_with_data
 

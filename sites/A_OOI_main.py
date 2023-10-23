@@ -25,7 +25,9 @@ exclude = ['__init__.py',
            'ausy_scraper.py',
            'nxp_scraper.py',
            'centric_scraper.py',
-           'bandainamcoent_scraper.py',]
+           'bandainamcoent_scraper.py',
+           'totalsoft_scraper.py',
+           ]
 
 path = os.path.dirname(os.path.abspath(__file__))
 
