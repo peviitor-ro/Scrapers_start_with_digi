@@ -19,16 +19,23 @@ def collect_data_from_totalsoft() -> list:
     """
 
     response = requests.get(
-            url='https://careers.totalsoft.ro/professionals/',
+            url='https://totalsoft.applytojob.com/apply/',
             headers=DEFAULT_HEADERS)
     soup = BeautifulSoup(response.text, 'lxml')
 
-    soup_data = soup.find_all('div', class_='job-item')
+    soup_data = soup.find_all('li', attrs={'class': 'list-group-item'})
 
     lst_with_data = []
     for sd in soup_data:
-        title = sd.find('h2', class_='job-item_title').text.strip()
-        link = sd.find('a')['href']
+        title = sd.find('a').text.strip()
+        link = sd.find('a')['href'].strip()
+        city = sd.find('ul', attrs={'class': 'list-inline list-group-item-text'}).text.strip().split('\n')[0].split(',')[0].strip()
+
+        if city == 'Remote':
+            city = ''
+            type = 'remote'
+        else:
+            type = 'on-site'
 
         lst_with_data.append({
                 "id": str(uuid.uuid4()),
@@ -36,7 +43,8 @@ def collect_data_from_totalsoft() -> list:
                 "job_link":  link,
                 "company": "totalsoft",
                 "country": "Romania",
-                "city": "Romania"
+                "city": city,
+                "remote": type,
                 })
 
     return lst_with_data
