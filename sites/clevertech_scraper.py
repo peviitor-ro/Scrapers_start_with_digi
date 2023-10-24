@@ -51,7 +51,9 @@ def collect_data_from_clevertech():
                     "job_link":  f'https://clevertech.biz/remote-jobs/{slug}',
                     "company": "Clevertech",
                     "country": "Romania",
-                    "city": "Remote"
+                    "city": '',
+                    "remote": 'remote',
+
                 })
 
     return lst_with_data
