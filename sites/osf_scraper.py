@@ -88,9 +88,9 @@ def collect_data_osf() -> list:
                 "id": str(uuid.uuid4()),
                 "job_title": title,
                 "job_link": "https://osf.digital" + link,
-                "company": "osf",
+                "company": "OSFDigital",
                 "country": "Romania",
-                "city": "Romania"
+                "city": "Bucuresti",
             })
 
     return list_with_data
@@ -106,9 +106,9 @@ def scrape_and_update_peviitor(company_name, data_list):
     return data_list
 
 
-company_name = 'osf'
+company_name = 'OSFDigital'
 data_list = collect_data_osf()
 scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('osf',
+print(update_logo('OSFDigital',
                   'https://osf.digital/library/media/osf/digital/common/header/osf_digital_logo.svg?h=60&la=en&w=366&hash=5FF21BA406E10D94D9778FA8A3A8AEC43C247D2B'))
