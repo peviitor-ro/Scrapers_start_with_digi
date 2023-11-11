@@ -1,5 +1,5 @@
 /venv_scrapers
 /Bash_scrapers
 **/__pycache__
-scrapers_forzza/000_delete_api_data.py
-/env
+sites/000_delete_api_data.py
+/new_sites
