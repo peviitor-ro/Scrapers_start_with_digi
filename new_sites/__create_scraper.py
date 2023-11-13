@@ -35,11 +35,13 @@ def create_static_scraper_config(nume_scraper, link):
 # Link ------> {link}
 #
 #
-from __utils import GetStaticSoup
-from __utils import get_county
-from __utils import get_job_type
-from __utils import Item
-from __utils import UpdateAPI
+from __utils import (
+    GetStaticSoup,
+    get_county,
+    get_job_type,
+    Item,
+    UpdateAPI,
+)
 
 
 '''
@@ -167,11 +169,13 @@ def create_dynamic_json_get_scraper_config(nume_scraper, link):
 # ---> get_data_with_regex(expression: str, object: str)
 #
 #
-from __utils import GetRequestJson
-from __utils import get_county
-from __utils import get_job_type
-from __utils import Item
-from __utils import UpdateAPI
+from __utils import (
+    GetRequestJson,
+    get_county,
+    get_job_type,
+    Item,
+    UpdateAPI,
+)
 
 '''
     Daca deja te-ai deprins cu aceasta formula de cod,
@@ -296,11 +300,13 @@ def create_dynamic_json_post_scraper_config(nume_scraper, link):
 # ---> get_data_with_regex(expression: str, object: str)
 #
 #
-from __utils import PostRequestJson
-from __utils import get_county
-from __utils import get_job_type
-from __utils import Item
-from __utils import UpdateAPI
+from __utils import (
+    PostRequestJson,
+    get_county,
+    get_job_type,
+    Item,
+    UpdateAPI,
+)
 
 
 '''
@@ -426,11 +432,13 @@ def create_dynamic_render_scraper_config(nume_scraper, link):
 # ---> get_data_with_regex(expression: str, object: str)
 #
 #
-from __utils import GetDynamicSoup
-from __utils import get_county
-from __utils import get_job_type
-from __utils import Item
-from __utils import UpdateAPI
+from __utils import (
+    GetDynamicSoup,
+    get_county,
+    get_job_type,
+    Item,
+    UpdateAPI,
+)
 
 
 '''
@@ -620,7 +628,7 @@ if __name__ == "__main__":
 
         # Verificați dacă fișierul scraper există deja sau nu
         if os.path.exists(f'{nume_scraper.lower()}_scraper.py'):
-            print(f"File {nume_scraper}__scraper.py already exists!")
+            print(f"File {nume_scraper.lower()}__scraper.py already exists!")
         else:
             if scraper_type == 'static':
                 create_static_scraper_config(nume_scraper, link)

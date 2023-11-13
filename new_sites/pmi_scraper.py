@@ -15,11 +15,13 @@
 # Link ------> https://www.pmi.com/careers/explore-our-job-opportunities?locations=Romania&page=1
 #
 #
-from __utils import GetStaticSoup
-from __utils import get_county
-from __utils import get_job_type
-from __utils import Item
-from __utils import UpdateAPI
+from __utils import (
+    GetStaticSoup,
+    get_county,
+    get_job_type,
+    Item,
+    UpdateAPI,
+)
 
 
 '''
