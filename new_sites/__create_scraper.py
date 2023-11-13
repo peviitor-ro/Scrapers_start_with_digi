@@ -23,6 +23,7 @@ def create_static_scraper_config(nume_scraper, link):
 #  Basic for scraping data from static pages
 #  ... project made by Andrei Cojocaru
 #  LinkedIn: https://www.linkedin.com/in/andrei-cojocaru-985932204/
+#  Github: https://github.com/andreireporter13
 #
 # ------ IMPORTANT! ------
 # if you need return soup object:
@@ -157,6 +158,7 @@ def create_dynamic_json_get_scraper_config(nume_scraper, link):
 # Config for Dynamic Get Method -> For Json format!
 #  ... project made by Andrei Cojocaru
 #  LinkedIn: https://www.linkedin.com/in/andrei-cojocaru-985932204/
+#  Github: https://github.com/andreireporter13
 #
 # Company ---> {nume_scraper}
 # Link ------> {link}
@@ -288,6 +290,7 @@ def create_dynamic_json_post_scraper_config(nume_scraper, link):
 # Config for Dynamic Post Method -> For Json format!
 #  ... project made by Andrei Cojocaru
 #  LinkedIn: https://www.linkedin.com/in/andrei-cojocaru-985932204/
+#  Github: https://github.com/andreireporter13
 #
 # Company ---> {nume_scraper}
 # Link ------> {link}
@@ -420,6 +423,7 @@ def create_dynamic_render_scraper_config(nume_scraper, link):
 # Configurare pentru Scraperul Dynamic Render!
 #  ... project made by Andrei Cojocaru
 #  LinkedIn: https://www.linkedin.com/in/andrei-cojocaru-985932204/
+#  Github: https://github.com/andreireporter13
 #
 # Company ---> {nume_scraper}
 # Link ------> {link}
@@ -628,7 +632,7 @@ if __name__ == "__main__":
 
         # Verificați dacă fișierul scraper există deja sau nu
         if os.path.exists(f'{nume_scraper.lower()}_scraper.py'):
-            print(f"File {nume_scraper.lower()}__scraper.py already exists!")
+            print(f"File {nume_scraper.lower()}_scraper.py already exists!")
         else:
             if scraper_type == 'static':
                 create_static_scraper_config(nume_scraper, link)

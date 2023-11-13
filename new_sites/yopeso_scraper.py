@@ -12,8 +12,8 @@
 # you cand import from __utils ->
 # ---> get_data_with_regex(expression: str, object: str)
 #
-# Company ---> pmi
-# Link ------> https://www.pmi.com/careers/explore-our-job-opportunities?locations=Romania&page=1
+# Company ---> Yopeso
+# Link ------> https://careers.yopeso.com/
 #
 #
 from __utils import (
@@ -83,9 +83,9 @@ from __utils import (
 
 def scraper():
     '''
-    ... scrape data from pmi scraper.
+    ... scrape data from Yopeso scraper.
     '''
-    soup = GetStaticSoup("https://www.pmi.com/careers/explore-our-job-opportunities?locations=Romania&page=1")
+    soup = GetStaticSoup("https://careers.yopeso.com/")
 
     job_list = []
     for job in soup.find_all(...):
@@ -95,7 +95,7 @@ def scraper():
         job_list.append(Item(
             job_title='',
             job_link='',
-            company='pmi',
+            company='Yopeso',
             country='',
             county='',
             city='',
@@ -112,7 +112,7 @@ def main():
     ---> update_jobs() and update_logo()
     '''
 
-    company_name = "pmi"
+    company_name = "Yopeso"
     logo_link = "logo_link"
 
     jobs = scraper()
