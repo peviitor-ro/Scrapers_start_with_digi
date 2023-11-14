@@ -8,18 +8,19 @@
 #
 #
 import requests
-from requests.sessions import Session
 from bs4 import BeautifulSoup
 #
 from .default_headers import DEFAULT_HEADERS
+
+
+# Define Global Session:
+session = requests.Session()
 
 
 class GetStaticSoup:
     '''
     ... This class return soup object from static page!
     '''
-
-    session = Session()
 
     def __new__(cls, link, custom_headers=None):
 
@@ -51,8 +52,6 @@ class GetRequestJson:
     ... This class return JSON object from get requests!
     '''
 
-    session = Session()
-
     def __new__(cls, link, custom_headers=None):
         headers = DEFAULT_HEADERS.copy()
 
@@ -75,8 +74,6 @@ class PostRequestsJson:
     '''
     ... This class return JSON object from post requests!
     '''
-
-    session = requests.Session()
 
     def __new__(cls, url, headers=None, data_raw=None):
         headers = DEFAULT_HEADERS.copy()
