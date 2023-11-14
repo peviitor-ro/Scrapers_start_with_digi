@@ -12,7 +12,7 @@
 # you cand import from __utils ->
 # ---> get_data_with_regex(expression: str, object: str)
 #
-# Company ---> Yopeso
+# Company ---> yopeso
 # Link ------> https://careers.yopeso.com/
 #
 #
@@ -44,8 +44,9 @@ from __utils import (
     default_headers.py unde poti sa-ti setezi headerele tale default.
 
     --------------IMPORTANT----------------
-    In interiorul clasei GetStaticSoup este definit Session() ->
-    deci requesturile se fac in aceeasi sesiune!
+    La nivel de proiect, ca o variabila globala, este definit Session()!
+    ... acest session inseamna ca orice clasa va putea folosi
+    ... aceeasi sesiune, practic se va evita multiple requests;
 
     ########################################################################
 
@@ -83,7 +84,7 @@ from __utils import (
 
 def scraper():
     '''
-    ... scrape data from Yopeso scraper.
+    ... scrape data from yopeso scraper.
     '''
     soup = GetStaticSoup("https://careers.yopeso.com/")
 
@@ -95,7 +96,7 @@ def scraper():
         job_list.append(Item(
             job_title='',
             job_link='',
-            company='Yopeso',
+            company='yopeso',
             country='',
             county='',
             city='',
@@ -112,7 +113,7 @@ def main():
     ---> update_jobs() and update_logo()
     '''
 
-    company_name = "Yopeso"
+    company_name = "yopeso"
     logo_link = "logo_link"
 
     jobs = scraper()

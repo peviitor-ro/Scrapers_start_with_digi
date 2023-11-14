@@ -13,7 +13,7 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 # Company ---> pmi
-# Link ------> https://www.pmi.com/careers/explore-our-job-opportunities?locations=Romania&page=1
+# Link ------> https://www.pmi.com/careers/explore-our-job-opportunities?title=&locations=Romania&departments=&contracts=&page=1
 #
 #
 from __utils import (
@@ -44,8 +44,9 @@ from __utils import (
     default_headers.py unde poti sa-ti setezi headerele tale default.
 
     --------------IMPORTANT----------------
-    In interiorul clasei GetStaticSoup este definit Session() ->
-    deci requesturile se fac in aceeasi sesiune!
+    La nivel de proiect, ca o variabila globala, este definit Session()!
+    ... acest session inseamna ca orice clasa va putea folosi
+    ... aceeasi sesiune, practic se va evita multiple requests;
 
     ########################################################################
 
@@ -85,22 +86,42 @@ def scraper():
     '''
     ... scrape data from pmi scraper.
     '''
-    soup = GetStaticSoup("https://www.pmi.com/careers/explore-our-job-opportunities?locations=Romania&page=1")
 
+    # job list for all jobs
     job_list = []
-    for job in soup.find_all(...):
-        pass
+    page = 1
+    while True:
+        soup = GetStaticSoup(f"https://www.pmi.com/careers/explore-our-job-opportunities?title=&locations=Romania&departments=&contracts=&page={page}")
+        soup_data = soup.find_all('a', attrs={'class': 'job-row'})
 
-        # get jobs items from response
-        job_list.append(Item(
-            job_title='',
-            job_link='',
-            company='pmi',
-            country='',
-            county='',
-            city='',
-            remote='',
-        ).to_dict())
+        link_verification = 'https://www.pmi.com' + soup.find_all('a', attrs={'class': 'job-row'})[0]['href'].strip()
+        print(link_verification)
+
+        # verification for link exists in job_list json
+        if job_list:
+            if link_verification in {job["job_link"] for job in job_list}:
+                break
+
+        for idx, job in enumerate(soup_data):
+            link_str = f"https://www.pmi.com{job['href'].strip()}"
+
+            req_page = GetStaticSoup(link_str)
+
+            #  search location
+            location = req_page.find('p', attrs={'class': 'details--note details--positionIcon location'}).text
+
+            # get jobs items from response
+            job_list.append(Item(
+                job_title=job.find('h3', attrs={'class': 'job-row--title title8'}).text.strip(),
+                job_link=link_str,
+                company='pmi',
+                country='Romania',
+                county=get_county(location.split(',')[0]),
+                city=location.split(',')[0],
+                remote=get_job_type('remote'),
+            ).to_dict())
+
+        page += 1
 
     return job_list
 
@@ -113,9 +134,10 @@ def main():
     '''
 
     company_name = "pmi"
-    logo_link = "logo_link"
+    logo_link = "https://www.pmi.com/resources/images/default-source/default-album/pmi-logoaaf115bd6c7468f696e2ff0400458fff.svg?sfvrsn=37857db4_2"
 
     jobs = scraper()
+    print(jobs)
 
     # uncomment if your scraper done
     #UpdateAPI().update_jobs(company_name, jobs)

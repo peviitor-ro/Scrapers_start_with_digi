@@ -64,8 +64,9 @@ from __utils import (
     default_headers.py unde poti sa-ti setezi headerele tale default.
 
     --------------IMPORTANT----------------
-    In interiorul clasei GetStaticSoup este definit Session() ->
-    deci requesturile se fac in aceeasi sesiune!
+    La nivel de proiect, ca o variabila globala, este definit Session()!
+    ... acest session inseamna ca orice clasa va putea folosi
+    ... aceeasi sesiune, practic se va evita multiple requests;
 
     ########################################################################
 
@@ -196,8 +197,9 @@ from __utils import (
     json_data = GetRequestJson(link, custom_headers=headers -> new headers)
 
     --------------IMPORTANT----------------
-    In interiorul clasei GetRequestJson este definit Session() ->
-    deci requesturile se fac in aceeasi sesiune!
+    La nivel de proiect, ca o variabila globala, este definit Session()!
+    ... acest session inseamna ca orice clasa va putea folosi
+    ... aceeasi sesiune, practic se va evita multiple requests;
 
     ########################################################################
 
@@ -330,8 +332,9 @@ from __utils import (
     ceea ce inseamna ca trebuie o logica mai avansata. Dar nu e nimic greu.
 
     --------------IMPORTANT----------------
-    In interiorul clasei PostRequestJson este definit Session() ->
-    deci requesturile se fac in aceeasi sesiune!
+    La nivel de proiect, ca o variabila globala, este definit Session()!
+    ... acest session inseamna ca orice clasa va putea folosi
+    ... aceeasi sesiune, practic se va evita multiple requests;
 
     ########################################################################
 
@@ -466,8 +469,9 @@ from __utils import (
     GetDynamicSoup(link, custom_headers=headers)
 
     --------------IMPORTANT----------------
-    In interiorul clasei GetDynamicSoup este definit Session() ->
-    deci requesturile se fac in aceeasi sesiune!
+    La nivel de proiect, ca o variabila globala, este definit Session()!
+    ... acest session inseamna ca orice clasa va putea folosi
+    ... aceeasi sesiune, practic se va evita multiple requests;
 
     ########################################################################
 

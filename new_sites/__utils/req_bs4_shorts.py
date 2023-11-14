@@ -13,7 +13,8 @@ from bs4 import BeautifulSoup
 from .default_headers import DEFAULT_HEADERS
 
 
-# Define Global Session:
+# Global Session -> avoid multiple requests
+# ... and all classes can use it in one script
 session = requests.Session()
 
 
@@ -31,7 +32,7 @@ class GetStaticSoup:
         if custom_headers:
             headers.update(custom_headers)
 
-        response = cls.session.get(link, headers=headers)
+        response = session.get(link, headers=headers)
 
         # return soup object from static page
         return BeautifulSoup(response.content, 'lxml')
@@ -59,7 +60,7 @@ class GetRequestJson:
         if custom_headers:
             headers.update(custom_headers)
 
-        response = cls.session.get(link, headers=headers)
+        response = session.get(link, headers=headers)
 
         # Parse response to JSON and return ditct oject
         try:
@@ -82,7 +83,7 @@ class PostRequestsJson:
         if headers:
             headers.update(headers)
 
-        response = cls.session.post(url, headers=headers, data=data_raw)
+        response = session.post(url, headers=headers, data=data_raw)
 
         # Parse response to JSON and return ditct oject
         try:

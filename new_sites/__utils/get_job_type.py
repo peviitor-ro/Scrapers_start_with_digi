@@ -12,9 +12,9 @@ def get_job_type(job_type: str) -> str:
     job_type = job_type.lower()
 
     match job_type:
-        case 'Remote':
+        case 'remote':
             return job_type
-        case 'Hybrid':
+        case 'hybrid':
             return job_type
         case _:
-            return 'On-site'
+            return 'on-site'
