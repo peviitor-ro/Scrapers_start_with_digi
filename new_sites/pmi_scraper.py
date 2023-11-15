@@ -95,11 +95,10 @@ def scraper():
         soup_data = soup.find_all('a', attrs={'class': 'job-row'})
 
         link_verification = 'https://www.pmi.com' + soup.find_all('a', attrs={'class': 'job-row'})[0]['href'].strip()
-        print(link_verification)
 
         # verification for link exists in job_list json
         if job_list:
-            if link_verification in {job["job_link"] for job in job_list}:
+            if link_verification in [job["job_link"] for job in job_list]:
                 break
 
         for idx, job in enumerate(soup_data):

@@ -38,16 +38,6 @@ class GetStaticSoup:
         return BeautifulSoup(response.content, 'lxml')
 
 
-class GetHtmlSoup:
-    '''
-    ... method if server return html response,
-    after post requests.
-    '''
-
-    def __new__(cls, html_response):
-        return BeautifulSoup(html_response, 'lxml')
-
-
 class GetRequestJson:
     '''
     ... This class return JSON object from get requests!
@@ -76,12 +66,12 @@ class PostRequestsJson:
     ... This class return JSON object from post requests!
     '''
 
-    def __new__(cls, url, headers=None, data_raw=None):
+    def __new__(cls, url, custom_headers=None, data_raw=None):
         headers = DEFAULT_HEADERS.copy()
 
         # Post requests headers, if not provided
-        if headers:
-            headers.update(headers)
+        if custom_headers:
+            headers.update(custom_headers)
 
         response = session.post(url, headers=headers, data=data_raw)
 
@@ -92,3 +82,31 @@ class PostRequestsJson:
         except ValueError as e:
             print(f"Errors. No JSON! Details: {e}")
             return None
+
+
+class GetHtmlSoup:
+    '''
+    ... method if server return html response,
+    after post requests.
+    '''
+
+    def __new__(cls, html_response):
+        return BeautifulSoup(html_response, 'lxml')
+
+
+class GetHeadersDict:
+    '''
+    ... method if server return headers response,
+    after session.headers
+    '''
+
+    def __new__(cls, url, custom_headers=None):
+        headers = DEFAULT_HEADERS.copy()
+
+        # Post requests headers, if not provided
+        if custom_headers:
+            headers.update(custom_headers)
+
+        response = session.get(url, headers=headers).headers
+
+        return response
