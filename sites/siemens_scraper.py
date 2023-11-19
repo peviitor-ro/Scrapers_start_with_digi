@@ -43,9 +43,6 @@ def siemens():
     return payload
 
 
-print(siemens())
-
-
 # update data on peviitor!
 @update_peviitor_api
 def scrape_and_update_peviitor(company_name, data_list):
