@@ -72,7 +72,7 @@ from __utils import (
 
     ########################################################################
 
-    2) ---> get_county(nume_localitat) -> returneaza numele judetului;
+    2) ---> get_county(nume_localitate) -> returneaza numele judetului;
     poti pune chiar si judetul, de exemplu, nu va fi o eroare.
 
     ########################################################################
