@@ -61,7 +61,7 @@ class GetRequestJson:
             return None
 
 
-class PostRequestsJson:
+class PostRequestJson:
     '''
     ... This class return JSON object from post requests!
     '''

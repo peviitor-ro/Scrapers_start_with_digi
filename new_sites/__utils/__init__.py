@@ -9,7 +9,7 @@ from __utils.found_county import get_county
 from __utils.req_bs4_shorts import(
     GetStaticSoup,
     GetRequestJson,
-    PostRequestsJson,
+    PostRequestJson,
     GetHtmlSoup,
     GetHeadersDict,
 )
