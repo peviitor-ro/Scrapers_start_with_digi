@@ -20,3 +20,8 @@ def update_logo(id: str, logo_url: str):
     response = requests.post(url, headers=headers, data=data)
 
     return response
+
+
+#print(update_logo("Lidl",
+#      "https://upload.wikimedia.org/wikipedia/commons/e/e3/LUXOFT_01_logo_color.png",
+#                  ))
