@@ -6,6 +6,9 @@
 #
 #  Start here!
 #
+# Note ---> Update certifi for bad SSL
+# if SSL invalid ---> rezolve without error in terminal
+# ... plus sa fac aceeasi chestie ca la PostRequestJson si in GetRequestJson
 #
 import requests
 from bs4 import BeautifulSoup
@@ -35,7 +38,7 @@ class GetStaticSoup:
         response = session.get(link, headers=headers)
 
         # return soup object from static page
-        return BeautifulSoup(response.content, 'lxml')
+        return BeautifulSoup(response.text, 'lxml')
 
 
 class GetRequestJson:
@@ -56,9 +59,10 @@ class GetRequestJson:
         try:
             json_response = response.json()
             return json_response
-        except ValueError as e:
-            print(f"Errors. No JSON! Details: {e}")
-            return None
+        except ValueError:
+            return BeautifulSoup(response.text, 'lxml')
+        finally:
+            response.close()
 
 
 class PostRequestJson:

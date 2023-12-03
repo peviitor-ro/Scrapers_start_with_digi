@@ -9,8 +9,8 @@
 # you cand import from __utils ->
 # ---> get_data_with_regex(expression: str, object: str)
 #
-# Company ---> CanamGroup
-# Link ------> https://www.canam.com/en/job-opportunities/?country%5B%5D=romania&search=
+# Company ---> C4Media
+# Link ------> https://c4media.com/career
 #
 #
 from __utils import (
@@ -81,24 +81,26 @@ from __utils import (
 
 def scraper():
     '''
-    ... scrape data from CanamGroup scraper.
+    ... scrape data from C4Media scraper.
     '''
-    soup = GetStaticSoup("https://www.canam.com/en/job-opportunities/?country%5B%5D=romania&search=")
+    soup = GetStaticSoup("https://c4media.com/career")
 
     job_list = []
-    for job in soup.find_all('a', attrs={'class': 'c-card-job'}):
-        location = job.find('div', attrs={'class': 'c-btn c-btn--ghost c-btn--tag u-pointer-events-none'}).text.strip()
+    for job in soup.find_all('div', attrs={'class': 'text-left'}):
+        link = job.find('a')
 
-        # get jobs items from response
-        job_list.append(Item(
-            job_title=job.find('div', attrs={'class': 'c-card-job__title u-heading-600'}).find('span').text,
-            job_link=job.get('href'),
-            company='CanamGroup',
-            country='Romania',
-            county=get_county(location),
-            city=location,
-            remote=get_job_type(location),
-        ).to_dict())
+        if link and 'https' not in str(link):
+
+            # get jobs items from response
+            job_list.append(Item(
+                job_title=link.text,
+                job_link='https://c4media.com' + link.get('href'),
+                company='C4Media',
+                country='Romania',
+                county='',
+                city='',
+                remote='remote',
+            ).to_dict())
 
     return job_list
 
@@ -110,11 +112,12 @@ def main():
     ---> update_jobs() and update_logo()
     '''
 
-    company_name = "CanamGroup"
+    company_name = "C4Media"
     logo_link = "logo_link"
 
     jobs = scraper()
-    print(jobs)
+    import json
+    print(json.dumps(jobs, indent=4))
 
     # uncomment if your scraper done
     #UpdateAPI().update_jobs(company_name, jobs)

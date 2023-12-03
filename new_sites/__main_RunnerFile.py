@@ -12,6 +12,8 @@ exclude = ['__init__.py',
            '__create_scraper.py',
            '__main_RunnerFile.py',
            'gigroup_scraper.py',
+           'c4media_scraper.py',
+           'bandanainamcoent.py',
            ]
 
 path = os.path.dirname(os.path.abspath(__file__))
