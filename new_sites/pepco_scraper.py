@@ -9,8 +9,8 @@
 # you cand import from __utils ->
 # ---> get_data_with_regex(expression: str, object: str)
 #
-# Company ---> bandainamco
-# Link ------> https://www.bandainamcoent.ro/ro/careers/
+# Company ---> PEPCO
+# Link ------> https://careers.pepco.eu/PepcoRomania/search/?createNewAlert=false&q=&locationsearch=Romania&optionsFacetsDD_customfield1=
 #
 #
 from __utils import (
@@ -47,7 +47,7 @@ from __utils import (
 
     ########################################################################
 
-    2) ---> get_county(nume_localitat) -> returneaza numele judetului;
+    2) ---> get_county(nume_localitate) -> returneaza numele judetului;
     poti pune chiar si judetul, de exemplu, nu va fi o eroare.
 
     ########################################################################
@@ -81,24 +81,22 @@ from __utils import (
 
 def scraper():
     '''
-    ... scrape data from bandainamco scraper.
+    ... scrape data from PEPCO scraper.
     '''
-    try:
-        soup = GetStaticSoup("https://www.bandainamcoent.ro/ro/careers/")
-    except Exception:
-        soup = GetStaticSoup("http://www.bandainamcoent.ro/ro/careers/")
+    soup = GetStaticSoup("https://careers.pepco.eu/PepcoRomania/search/?createNewAlert=false&q=&locationsearch=Romania&optionsFacetsDD_customfield1=")
 
     job_list = []
-    for job in soup.find_all('p', attrs={'class':'career_job_links has-text-align-center has-black-color has-text-color'}):
+    for job in soup.find_all('tr', attrs={'class': 'data-row'}):
+        location = job.find('span', attrs={'class': 'jobLocation'}).text.strip().split(', ')[0]
 
         # get jobs items from response
         job_list.append(Item(
-            job_title=job.find('a').text.strip(),
-            job_link= 'https://www.bandainamcoent.ro' + job.find("a")["href"].strip(),
-            company='Bandainamco',
+            job_title=job.find('a', attrs={'class': 'jobTitle-link'}).text,
+            job_link='https://careers.pepco.eu' + job.find('a', attrs={'class': 'jobTitle-link'})['href'],
+            company='PEPCO',
             country='Romania',
-            county=get_county('Bucuresti'),
-            city='Bucuresti',
+            county=get_county(location),
+            city=location,
             remote='on-site',
         ).to_dict())
 
@@ -112,11 +110,10 @@ def main():
     ---> update_jobs() and update_logo()
     '''
 
-    company_name = "Bandainamco"
-    logo_link = "https://www.bandainamcoent.ro/wp-content/themes/namco/img/logo_small.jpg"
+    company_name = "PEPCO"
+    logo_link = "https://pepco.ro/wp-content/themes/main/dist/img/logo.svg?x71824"
 
     jobs = scraper()
-    print(jobs)
 
     # uncomment if your scraper done
     #UpdateAPI().update_jobs(company_name, jobs)
