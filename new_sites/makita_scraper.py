@@ -114,14 +114,13 @@ def main():
     '''
 
     company_name = "makita"
-    logo_link = "logo_link"
+    logo_link = "https://www.makita.ro/data/pam/public/makita_logo3.png"
 
     jobs = scraper()
-    print(jobs)
 
     # uncomment if your scraper done
-    #UpdateAPI().update_jobs(company_name, jobs)
-    #UpdateAPI().update_logo(company_name, logo_link)
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
 
 
 if __name__ == '__main__':

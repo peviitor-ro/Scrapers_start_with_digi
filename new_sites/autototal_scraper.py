@@ -1,6 +1,9 @@
 #
 #
-#  Basic for scraping data from static pages
+# Config for Dynamic Post Method -> For Json format!
+#
+# Company ---> AUTOTOTAL
+# Link ------> https://www.autototal.ro/cariere/
 #
 # ------ IMPORTANT! ------
 # if you need return soup object:
@@ -9,12 +12,9 @@
 # you cand import from __utils ->
 # ---> get_data_with_regex(expression: str, object: str)
 #
-# Company ---> PEPCO
-# Link ------> https://careers.pepco.eu/PepcoRomania/search/?createNewAlert=false&q=&locationsearch=Romania&optionsFacetsDD_customfield1=
-#
 #
 from __utils import (
-    GetStaticSoup,
+    PostRequestJson,
     get_county,
     get_job_type,
     Item,
@@ -23,22 +23,21 @@ from __utils import (
 
 
 '''
-    Daca te-ai deprins cu aceasta formula de cod,
+    Daca deja te-ai deprins cu aceasta formula de cod,
     atunci poti sterge acest comentariu din fisierul
-    __create_scraper.py, din functia -> create_static_scraper_config <-
+    __create_scraper.py, din functia - create_static_scraper_config -.
 
     Deci:
     ########################################################################
-    1) --->  clasa GetStaticSoup returneaza un obiect BeautifulSoup,
-    direct in instanta, fara a apela alte metode.
 
-    soup = GetStaticSoup(link) -> si gata, ai acces la obiectul soup
-    si deja poti face -> for job in soup.find_all(...)
+    1) --->  clasa PostRequestJson returneaza un obiect Json in urma unui
+    post request direct in instanta.
 
-    + poti sa-i adaugi si custom_headers
-    soup = GetStaticSoup(link, custom_headers)
-    ... by default, custom_headers = None, dar in __utils ai un fisier
-    default_headers.py unde poti sa-ti setezi headerele tale default.
+    json_data = PostRequestJson(link, custom_headers, data)
+    -> si returneaza datele din acel fisier json dupa un post request,
+    direct in instanta.
+    Uneori e nevoie de headere mai deosebite pentru post requests,
+    ceea ce inseamna ca trebuie o logica mai avansata. Dar nu e nimic greu.
 
     --------------IMPORTANT----------------
     La nivel de proiect, ca o variabila globala, este definit Session()!
@@ -47,7 +46,7 @@ from __utils import (
 
     ########################################################################
 
-    2) ---> get_county(nume_localitate) -> returneaza numele judetului;
+    2) ---> get_county(nume_localitat) -> returneaza numele judetului;
     poti pune chiar si judetul, de exemplu, nu va fi o eroare.
 
     ########################################################################
@@ -59,7 +58,7 @@ from __utils import (
 
     4) ---> Item -> este un struct pentru datele pe care le vom stoca in lista
     si, apoi, le vom trimite catre API.
-    exemplu: job_list.append(Item(job_title="titlu_str",
+    exemplu: list_jobs.append(Item(job_title="titlu_str",
                                     job_link="link",
                                     company="nume_companie",
                                     country="Romania",
@@ -81,23 +80,23 @@ from __utils import (
 
 def scraper():
     '''
-    ... scrape data from PEPCO scraper.
+    ... scrape data from AUTOTOTAL scraper.
     '''
-    soup = GetStaticSoup("https://careers.pepco.eu/PepcoRomania/search/?createNewAlert=false&q=&locationsearch=Romania&optionsFacetsDD_customfield1=")
+    post_data = PostRequestJson("https://www.autototal.ro/cariere/", custom_headers=headers, data_raw=data_raw)
 
     job_list = []
-    for job in soup.find_all('tr', attrs={'class': 'data-row'}):
-        location = job.find('span', attrs={'class': 'jobLocation'}).text.strip().split(', ')[0]
+    for job in post_data:
+        pass
 
         # get jobs items from response
         job_list.append(Item(
-            job_title=job.find('a', attrs={'class': 'jobTitle-link'}).text,
-            job_link='https://careers.pepco.eu' + job.find('a', attrs={'class': 'jobTitle-link'})['href'],
-            company='PEPCO',
-            country='Romania',
-            county=get_county(location),
-            city=location,
-            remote='on-site',
+            job_title='',
+            job_link='',
+            company='AUTOTOTAL',
+            country='',
+            county='',
+            city='',
+            remote='',
         ).to_dict())
 
     return job_list
@@ -110,15 +109,14 @@ def main():
     ---> update_jobs() and update_logo()
     '''
 
-    company_name = "PEPCO"
-    logo_link = "https://pepco.ro/wp-content/themes/main/dist/img/logo.svg?x71824"
+    company_name = "AUTOTOTAL"
+    logo_link = "logo_link"
 
     jobs = scraper()
 
     # uncomment if your scraper done
     #UpdateAPI().update_jobs(company_name, jobs)
     #UpdateAPI().update_logo(company_name, logo_link)
-
 
 if __name__ == '__main__':
     main()

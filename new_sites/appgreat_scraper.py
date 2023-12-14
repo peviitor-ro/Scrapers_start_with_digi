@@ -9,8 +9,8 @@
 # you cand import from __utils ->
 # ---> get_data_with_regex(expression: str, object: str)
 #
-# Company ---> bandainamco
-# Link ------> https://www.bandainamcoent.ro/ro/careers/
+# Company ---> AppGreat
+# Link ------> https://www.appgr8.com/careers/
 #
 #
 from __utils import (
@@ -47,7 +47,7 @@ from __utils import (
 
     ########################################################################
 
-    2) ---> get_county(nume_localitat) -> returneaza numele judetului;
+    2) ---> get_county(nume_localitate) -> returneaza numele judetului;
     poti pune chiar si judetul, de exemplu, nu va fi o eroare.
 
     ########################################################################
@@ -81,26 +81,29 @@ from __utils import (
 
 def scraper():
     '''
-    ... scrape data from bandainamco scraper.
+    ... scrape data from AppGreat scraper.
     '''
-    try:
-        soup = GetStaticSoup("https://www.bandainamcoent.ro/ro/careers/")
-    except Exception:
-        soup = GetStaticSoup("http://www.bandainamcoent.ro/ro/careers/")
+    soup = GetStaticSoup("https://www.appgr8.com/careers/")
 
     job_list = []
-    for job in soup.find_all('p', attrs={'class':'career_job_links has-text-align-center has-black-color has-text-color'}):
+    for job in soup.find_all('a'):
+        if 'positions' in job['href']:
+            soup_2 = GetStaticSoup(job['href'])
 
-        # get jobs items from response
-        job_list.append(Item(
-            job_title=job.find('a').text.strip(),
-            job_link= 'https://www.bandainamcoent.ro' + job.find("a")["href"].strip(),
-            company='Bandainamco',
-            country='Romania',
-            county=get_county('Bucuresti'),
-            city='Bucuresti',
-            remote='on-site',
-        ).to_dict())
+            text_with_location = soup_2.find_all('p')
+            for item in text_with_location:
+                if 'Bucharest' in item.text:
+
+                    # get jobs items from response
+                    job_list.append(Item(
+                        job_title=soup_2.find('h4', attrs={'class': 'elementor-heading-title elementor-size-default'}).text,
+                        job_link=job['href'],
+                        company='AppGreat',
+                        country='Romania',
+                        county='Bucuresti',
+                        city='Bucuresti',
+                        remote='remote',
+                    ).to_dict())
 
     return job_list
 
@@ -112,15 +115,14 @@ def main():
     ---> update_jobs() and update_logo()
     '''
 
-    company_name = "Bandainamco"
-    logo_link = "https://www.bandainamcoent.ro/wp-content/themes/namco/img/logo_small.jpg"
+    company_name = "AppGreat"
+    logo_link = "https://clutchco-static.s3.amazonaws.com/s3fs-public/logos/52175d74be34bfe849aef98e4ed36c4a.jpeg?VersionId=n87OrsHNyLbgXOo4MoyU4abLU4uoEUaV"
 
     jobs = scraper()
-    print(jobs)
 
     # uncomment if your scraper done
-    #UpdateAPI().update_jobs(company_name, jobs)
-    #UpdateAPI().update_logo(company_name, logo_link)
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
 
 
 if __name__ == '__main__':

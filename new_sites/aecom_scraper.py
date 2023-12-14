@@ -127,15 +127,13 @@ def main():
     '''
 
     company_name = "AECOM"
-    logo_link = "logo_link"
+    logo_link = "https://1000logos.net/wp-content/uploads/2021/12/AECOM-logo.png"
 
     jobs = scraper()
-    print(jobs)
-    print(len(jobs))
 
     # uncomment if your scraper done
-    #UpdateAPI().update_jobs(company_name, jobs)
-    #UpdateAPI().update_logo(company_name, logo_link)
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
 
 
 if __name__ == '__main__':

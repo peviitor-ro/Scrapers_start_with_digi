@@ -370,10 +370,10 @@ def scraper():
     '''
     ... scrape data from {nume_scraper} scraper.
     '''
-    json_data = PostRequestJson("{link}", custom_headers=headers, data=data_row)
+    post_data = PostRequestJson("{link}", custom_headers=headers, data_raw=data_raw)
 
     job_list = []
-    for job in json_data['key']:
+    for job in post_data:
         pass
 
         # get jobs items from response

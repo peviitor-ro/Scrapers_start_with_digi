@@ -115,14 +115,13 @@ def main():
     '''
 
     company_name = "azets"
-    logo_link = "logo_link"
+    logo_link = "https://www.azets.no/globalassets/global/graphics/logos/azets_logo.svg"
 
     jobs = scraper()
-    print(jobs)
 
     # uncomment if your scraper done
-    #UpdateAPI().update_jobs(company_name, jobs)
-    #UpdateAPI().update_logo(company_name, logo_link)
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
 
 
 if __name__ == '__main__':
