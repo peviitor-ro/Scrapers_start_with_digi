@@ -23,3 +23,6 @@ def clean_data(company_name: str) -> None:
 
 
 print(clean_data("Bandainamco"))
+
+
+# test
