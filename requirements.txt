@@ -4,6 +4,7 @@ attrs==23.1.0
 beautifulsoup4==4.12.2
 bs4==0.0.1
 certifi==2022.12.7
+cfscrape==2.1.1
 charset-normalizer==3.1.0
 cssselect==1.2.0
 exceptiongroup==1.1.1

@@ -1,11 +1,9 @@
 #
 #
 #
-import cfscrape 
+from __utils import HackCloudFlare
 
 
-url = 'https://romania.cgsinc.com/vino-in-echipa-cgs/'
-scraper = cfscrape.create_scraper()
+data = HackCloudFlare('https://romania.cgsinc.com/vino-in-echipa-cgs/')
 
-response = scraper.get(url)
-print(response.content)
+print(data)

@@ -13,6 +13,8 @@
 import requests
 from bs4 import BeautifulSoup
 #
+import cfscrape
+#
 from .default_headers import DEFAULT_HEADERS
 
 
@@ -113,3 +115,21 @@ class GetHeadersDict:
         response = session.get(url, headers=headers).headers
 
         return response
+
+
+class HackCloudFlare:
+    '''
+    ... this method can help you avoid CloudFlare protection.
+    Is not a hack, but useful tool.
+    '''
+
+    def __new__(cls, url, custom_headers=None):
+        headers = DEFAULT_HEADERS.copy()
+
+        # if headers is requiered
+        if custom_headers:
+            headers.update(custom_headers)
+
+        scraper = cfscrape.create_scraper()
+
+        return BeautifulSoup(scraper.get(url).content, 'lxml')
