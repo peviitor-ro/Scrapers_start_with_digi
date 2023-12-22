@@ -112,7 +112,7 @@ class GetHeadersDict:
         if custom_headers:
             headers.update(custom_headers)
 
-        response = session.get(url, headers=headers).headers
+        response = session.head(url, headers=headers).headers
 
         return response
 
