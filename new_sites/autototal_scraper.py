@@ -1,9 +1,6 @@
 #
 #
-# Config for Dynamic Post Method -> For Json format!
-#
-# Company ---> AUTOTOTAL
-# Link ------> https://www.autototal.ro/cariere/
+#  Basic for scraping data from static pages
 #
 # ------ IMPORTANT! ------
 # if you need return soup object:
@@ -12,32 +9,37 @@
 # you cand import from __utils ->
 # ---> get_data_with_regex(expression: str, object: str)
 #
+# Company ---> Autototal
+# Link ------> https://www.autototal.ro/cariere/
+#
 #
 from __utils import (
-    PostRequestJson,
+    GetStaticSoup,
     get_county,
     get_job_type,
     Item,
     UpdateAPI,
 )
+from datetime import date
 
 
 '''
-    Daca deja te-ai deprins cu aceasta formula de cod,
+    Daca te-ai deprins cu aceasta formula de cod,
     atunci poti sterge acest comentariu din fisierul
-    __create_scraper.py, din functia - create_static_scraper_config -.
+    __create_scraper.py, din functia -> create_static_scraper_config <-
 
     Deci:
     ########################################################################
+    1) --->  clasa GetStaticSoup returneaza un obiect BeautifulSoup,
+    direct in instanta, fara a apela alte metode.
 
-    1) --->  clasa PostRequestJson returneaza un obiect Json in urma unui
-    post request direct in instanta.
+    soup = GetStaticSoup(link) -> si gata, ai acces la obiectul soup
+    si deja poti face -> for job in soup.find_all(...)
 
-    json_data = PostRequestJson(link, custom_headers, data)
-    -> si returneaza datele din acel fisier json dupa un post request,
-    direct in instanta.
-    Uneori e nevoie de headere mai deosebite pentru post requests,
-    ceea ce inseamna ca trebuie o logica mai avansata. Dar nu e nimic greu.
+    + poti sa-i adaugi si custom_headers
+    soup = GetStaticSoup(link, custom_headers)
+    ... by default, custom_headers = None, dar in __utils ai un fisier
+    default_headers.py unde poti sa-ti setezi headerele tale default.
 
     --------------IMPORTANT----------------
     La nivel de proiect, ca o variabila globala, este definit Session()!
@@ -46,7 +48,7 @@ from __utils import (
 
     ########################################################################
 
-    2) ---> get_county(nume_localitat) -> returneaza numele judetului;
+    2) ---> get_county(nume_localitate) -> returneaza numele judetului;
     poti pune chiar si judetul, de exemplu, nu va fi o eroare.
 
     ########################################################################
@@ -58,7 +60,7 @@ from __utils import (
 
     4) ---> Item -> este un struct pentru datele pe care le vom stoca in lista
     si, apoi, le vom trimite catre API.
-    exemplu: list_jobs.append(Item(job_title="titlu_str",
+    exemplu: job_list.append(Item(job_title="titlu_str",
                                     job_link="link",
                                     company="nume_companie",
                                     country="Romania",
@@ -80,25 +82,55 @@ from __utils import (
 
 def scraper():
     '''
-    ... scrape data from AUTOTOTAL scraper.
+    ... scrape data from Autototal scraper.
     '''
-    post_data = PostRequestJson("https://www.autototal.ro/cariere/", custom_headers=headers, data_raw=data_raw)
+    soup = GetStaticSoup("https://www.autototal.ro/cariere/")
+
+    # date and month
+    today_date = date.today().day
+    current_month = date.today().month
+
+    # dict for clean data by date
+    autototal_months = {'ian.': 1, 'febr.': 2, 'mart.': 3,
+                        'apr.': 4, 'mai': 5, 'iun.': 6,
+                        'iul.': 7, 'aug.': 8, 'sept.': 9,
+                        'oct.': 10, 'nov.': 11, 'dec.': 12,
+                        'august.': 8}
 
     job_list = []
-    for job in post_data:
-        pass
+    for job in soup.find_all('div', attrs={'class': 'gem-compact-tiny-right'}):
 
-        # get jobs items from response
-        job_list.append(Item(
-            job_title='',
-            job_link='',
-            company='AUTOTOTAL',
-            country='',
-            county='',
-            city='',
-            remote='',
-        ).to_dict())
+        # save title and link -> if check_data == true
+        link_job = job.find('a')['href']
+        summary = job.find('div', attrs={'class': 'summary text-body-tiny'}).text.lower()
 
+        # extract date
+        summary_sort = ''
+        for ij in [2024, 2025, 2026]:
+            if str(ij) in summary:
+                summary_sort = summary[summary.index('expiră'):summary.index(str(ij)) +4]
+                break
+
+        # split to make list from string
+        summary_sort = summary_sort.split()
+        try:
+            if int(summary_sort[1]) > today_date and autototal_months[summary_sort[2]] == current_month or autototal_months[summary_sort[2]] > current_month:
+                print(link_job)
+                # here cod from Larisa. Good Luck!
+                # ... code
+                # after code, refresh this list
+                job_list.append(Item(
+                    job_title='',
+                    job_link='',
+                    company='Autototal',
+                    country='',
+                    county='',
+                    city='',
+                    remote='',
+                ).to_dict())
+        except:
+            continue
+        
     return job_list
 
 
@@ -109,7 +141,7 @@ def main():
     ---> update_jobs() and update_logo()
     '''
 
-    company_name = "AUTOTOTAL"
+    company_name = "Autototal"
     logo_link = "logo_link"
 
     jobs = scraper()
@@ -117,6 +149,7 @@ def main():
     # uncomment if your scraper done
     #UpdateAPI().update_jobs(company_name, jobs)
     #UpdateAPI().update_logo(company_name, logo_link)
+
 
 if __name__ == '__main__':
     main()
