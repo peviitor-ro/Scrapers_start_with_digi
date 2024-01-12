@@ -106,7 +106,7 @@ def scraper():
 
         # extract date
         summary_sort = ''
-        for ij in [2024, 2025, 2026]:
+        for ij in range(2024, 2030):
             if str(ij) in summary:
                 summary_sort = summary[summary.index('expiră'):summary.index(str(ij)) +4]
                 break
@@ -115,7 +115,11 @@ def scraper():
         summary_sort = summary_sort.split()
         try:
             if int(summary_sort[1]) > today_date and autototal_months[summary_sort[2]] == current_month or autototal_months[summary_sort[2]] > current_month:
-                print(link_job)
+
+                # new request to find job city
+                request_for_city = GetStaticSoup(link_job)
+                city_name = request_for_city.find('div', attrs={'class': 'wpb_wrapper'}).find('p').text.split('\n')[0].split(':')[1].strip().split()
+                print(city_name)
                 # here cod from Larisa. Good Luck!
                 # ... code
                 # after code, refresh this list
