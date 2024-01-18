@@ -33,12 +33,14 @@ def collect_data_from_saltpepper():
 
     response = requests.get('https://saltandpepper.co/careers/', headers=default_headers())
     soup = BeautifulSoup(response.text, 'lxml')
-    soup_data = soup.find_all('h3', class_='entry-title')
+
+    soup_data = soup.find_all('a')
+    print(soup_data)
 
     lst_with_jobs = []
     for sd in soup_data:
-        link = sd.find('a')['href']
-        title = sd.find('a').text
+        link = ''
+        title = ''
 
         lst_with_jobs.append({
             "id": str(uuid.uuid4()),

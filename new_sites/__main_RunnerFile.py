@@ -12,6 +12,7 @@ exclude = ['__init__.py',
            '__create_scraper.py',
            '__main_RunnerFile.py',
            'gigroup_scraper.py',
+           'autototal_scraper.py',
            ]
 
 path = os.path.dirname(os.path.abspath(__file__))
