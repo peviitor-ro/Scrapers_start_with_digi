@@ -2,7 +2,7 @@
 #
 #
 # Make new Scraper for bertrandtgroup --->
-# Link to this Company ---> https://bertrandtgroup.onlyfy.jobs/
+# Link to this Company ---> 
 #
 from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
 from L_00_logo import update_logo
