@@ -30,7 +30,7 @@ class GetStaticSoup:
     ... This class return soup object from static page!
     '''
 
-    def __new__(cls, link, custom_headers=None):
+    def __new__(cls, url, custom_headers=None):
 
         headers = DEFAULT_HEADERS.copy()
 
@@ -39,7 +39,7 @@ class GetStaticSoup:
         if custom_headers:
             headers.update(custom_headers)
 
-        response = session.get(link, headers=headers)
+        response = session.get(url, headers=headers)
 
         # return soup object from static page
         return BeautifulSoup(response.text, 'lxml')
@@ -50,14 +50,14 @@ class GetRequestJson:
     ... This class return JSON object from get requests!
     '''
 
-    def __new__(cls, link, custom_headers=None):
+    def __new__(cls, url, custom_headers=None):
         headers = DEFAULT_HEADERS.copy()
 
         # Dacă utilizatorul are headere personalizate, actualizează headerele
         if custom_headers:
             headers.update(custom_headers)
 
-        response = session.get(link, headers=headers)
+        response = session.get(url, headers=headers)
 
         # Parse response to JSON and return ditct oject
         try:
@@ -74,14 +74,17 @@ class PostRequestJson:
     ... This class return JSON object from post requests!
     '''
 
-    def __new__(cls, url, custom_headers=None, data_raw=None):
+    def __new__(cls, url, custom_headers=None, data_raw=None, data_json=None):
         headers = DEFAULT_HEADERS.copy()
 
         # Post requests headers, if not provided
         if custom_headers:
             headers.update(custom_headers)
 
-        response = session.post(url, headers=headers, data=data_raw)
+        if data_json:
+            response = session.post(url, headers=headers, json=data_json)
+        else:
+            response = session.post(url, headers=headers, data=data_raw)
 
         try:
             return response.json()
@@ -149,6 +152,6 @@ class GetXMLObject:
         if custom_headers:
             headers.update(custom_headers)
 
-        response = requests.get(url, headers=headers)
+        response = session.get(url, headers=headers)
         if response.status_code == 200:
             return ET.fromstring(response.text)

@@ -444,7 +444,7 @@ from __utils import (
 '''
     Daca deja te-ai deprins cu aceasta formula de cod,
     atunci poti sterge acest comentariu din fisierul
-    __create_scraper.py, din functia - create_static_scraper_config -.
+    __create_scraper.py, din functia - create_dynamic_renders_scraper_config -.
 
     Deci:
     ########################################################################
