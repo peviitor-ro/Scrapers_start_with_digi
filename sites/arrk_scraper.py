@@ -59,6 +59,7 @@ def main():
     logo_link = "https://www.arrk.com/wp/wp-content/themes/SmartPack3.0-Ver/img/logo-blue.svg"
 
     jobs = scraper()
+    print(len(jobs))
 
     # uncomment if your scraper done
     UpdateAPI().update_jobs(company_name, jobs)
