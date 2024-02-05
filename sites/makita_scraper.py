@@ -1,54 +1,70 @@
 #
 #
+#  Basic for scraping data from static pages
 #
-# Scrap this new site - Makita!
-# Link to this site ---> https://makitajobs.ro/locuri-de-munca/
+# ------ IMPORTANT! ------
+# if you need return soup object:
+# you cand import from __utils -> GetHtmlSoup
+# if you need return regex object:
+# you cand import from __utils ->
+# ---> get_data_with_regex(expression: str, object: str)
 #
-from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
+# Company ---> makita
+# Link ------> https://makitajobs.ro/locuri-de-munca/
 #
-import requests
-from bs4 import BeautifulSoup
 #
-import uuid
-import json
+from __utils import (
+    GetStaticSoup,
+    get_county,
+    get_job_type,
+    Item,
+    UpdateAPI,
+)
 
 
-def collect_data_from_makita(url: str) -> list:
-    """
-    Collect data from makita and return a list with dicts.
-    """
+def scraper():
+    '''
+    ... scrape data from makita scraper.
+    '''
+    soup = GetStaticSoup("https://makitajobs.ro/locuri-de-munca/")
 
-    response = requests.get(url=url, headers=DEFAULT_HEADERS)
-    soup = BeautifulSoup(response.text, 'lxml')
+    job_list = []
+    for job in soup.find_all('div', attrs={'class': 'box-right'}):
+        link = "https://makitajobs.ro" + job.find('div', attrs={'class': 'content-button'}).find('a')['href']
 
-    soup_data = soup.find_all('div', class_='box-right')
+        # search location
+        location = GetStaticSoup(link).find_all('div', attrs={'class': 'text'})[-1].find('p').text.split()[-1].strip()
 
-    lst_with_data = []
-    for data in soup_data:
-        title = data.find('div', class_='content-title').text.strip()
-        link = data.find('a')['href']
+        # get jobs items from response
+        job_list.append(Item(
+            job_title=job.find('div', attrs={'class': 'content-title'}).text,
+            job_link=link,
+            company='makita',
+            country='România',
+            county=get_county(location),
+            city=location,
+            remote='on-site',
+        ).to_dict())
 
-        lst_with_data.append({
-            "id": str(uuid.uuid4()),
-            "job_title": title,
-            "job_link": 'https://makitajobs.ro' + link,
-            "company": "makita",
-            "country": "Romania",
-            "city": "Romania"
-            })
-
-    return lst_with_data
-
-
-@update_peviitor_api
-def scrape_and_update_peviitor(company_name, data_list):
-    """
-    Update data on peviitor API!
-    """
-
-    return data_list
+    return job_list
 
 
-company_name = 'makita'
-data_list = collect_data_from_makita('https://makitajobs.ro/locuri-de-munca/')
-scrape_and_update_peviitor(company_name, data_list)
+def main():
+    '''
+    ... Main:
+    ---> call scraper()
+    ---> update_jobs() and update_logo()
+    '''
+
+    company_name = "makita"
+    logo_link = "https://www.makita.ro/data/pam/public/makita_logo3.png"
+
+    jobs = scraper()
+
+    # uncomment if your scraper done
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
+
+
+if __name__ == '__main__':
+    main()

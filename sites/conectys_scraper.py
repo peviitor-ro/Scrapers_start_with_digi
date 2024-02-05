@@ -1,109 +1,75 @@
 #
 #
+#  Basic for scraping data from static pages
 #
-# Company - conectys
-# Link -> https://careers.conectys.com/careers/?paged=2&search_keywords&selected_location=bucharest
+# ------ IMPORTANT! ------
+# if you need return soup object:
+# you cand import from __utils -> GetHtmlSoup
+# if you need return regex object:
+# you cand import from __utils ->
+# ---> get_data_with_regex(expression: str, object: str)
 #
-from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
-from L_00_logo import update_logo
+# Company ---> Conectys
+# Link ------> https://careers.conectys.com/careers/\?search_keywords\=\&selected_location\=
 #
-import requests
-from bs4 import BeautifulSoup
 #
-import uuid
-#
-from time import sleep
-from random import randint
+from __utils import (
+    GetStaticSoup,
+    get_county,
+    get_job_type,
+    Item,
+    UpdateAPI,
+)
 
 
-def collect_data_from_page(num: int) -> list:
-    """
-    ... collect data from page to page.
-    """
+def scraper():
+    '''
+    ... scrape data from Conectys scraper.
+    '''
 
-    response = requests.get(url=f'https://careers.conectys.com/careers/?paged={num}&search_keywords&selected_location=bucharest',
-                            headers=DEFAULT_HEADERS)
-    soup = BeautifulSoup(response.text, 'lxml')
+    cities_for_requests = ['bucharest', 'sibiu']
 
-    soup_data = soup.find_all('div', class_='row')
+    job_list = []
+    for city_search in cities_for_requests:
+        soup = GetStaticSoup(f"https://careers.conectys.com/careers/?search_keywords=&selected_location={city_search}")
 
-    if len(soup_data) > 0:
+        if len(check_soup := soup.find_all('div', attrs={'class': 'col-md-4 col-sm-6 grid-item'})) > 0:
+            for job in check_soup:
+                location = job.find('div', attrs={'class': 'job-location'}).text.strip().split(',')[0].strip()
 
-        hash_data = []
-        lst_with_data = []
-        for dt in soup_data:
-            job_data = dt.find('div', class_='job-info')
+                if location.lower() == 'bucharest':
+                    location = 'Bucuresti'
 
-            # for duplicate
-            if job_data not in hash_data:
-                hash_data.append(job_data)
-            else:
-                continue
+                # get jobs items from response
+                job_list.append(Item(
+                    job_title=job.find('span', attrs={'class': 'job-title'}).text.strip(),
+                    job_link=job.find('div', attrs={'class': 'job-info'}).find('a')['href'].strip(),
+                    company='Conectys',
+                    country='Romania',
+                    county=get_county(location),
+                    city=location,
+                    remote='on-site',
+                ).to_dict())
 
-            #
-            #city = dt.find('i', class_='fa fa-map-marker')
-            if job_data:
-                title = dt.find('span', class_='job-title').text
-                link = dt.find('a')['href']
-                city = dt.find('div', class_='job-location').text.split()[0].replace(',', '')
-
-                lst_with_data.append({
-                        "id": str(uuid.uuid4()),
-                        "job_title": title,
-                        "job_link":  link,
-                        "company": "Conectys",
-                        "country": "Romania",
-                        "city": city
-                    })
-
-        return lst_with_data
-
-    else:
-        return None
+    return job_list
 
 
-def get_all_data_from_site() -> list:
-    """
-    Get all data from the site.
-    """
+def main():
+    '''
+    ... Main:
+    ---> call scraper()
+    ---> update_jobs() and update_logo()
+    '''
 
-    global_lst_with_jobs = []
-    page = 1
-    flag = ''
+    company_name = "Conectys"
+    logo_link = "https://www.conectys.com/wp-content/uploads/2021/05/Conectys.svg"
 
-    while flag != 'no_data':
-        data = collect_data_from_page(page)
+    jobs = scraper()
 
-        # check data!
-        if data:
-            global_lst_with_jobs.extend(data)
-            print(f'Page {page} done.')
-
-        else:
-            flag = 'no_data'
-
-        # increment page
-        page += 1
-
-        # time sleep and random!
-        sleep(randint(2, 4))
-
-    return global_lst_with_jobs
+    # uncomment if your scraper done
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
 
 
-# update data on peviitor!
-@update_peviitor_api
-def scrape_and_update_peviitor(company_name, data_list):
-    """
-    Update data on peviitor API!
-    """
-
-    return data_list
-
-
-company_name = 'Conectys'
-data_list = get_all_data_from_site()
-scrape_and_update_peviitor(company_name, data_list)
-
-print(update_logo('Conectys',
-                  'https://www.conectys.com/wp-content/uploads/2021/05/Conectys.svg'))
+if __name__ == '__main__':
+    main()

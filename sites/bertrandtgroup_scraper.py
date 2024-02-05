@@ -1,16 +1,22 @@
 #
 #
+# Your custom scraper here ---> Last level!
 #
-# Make new Scraper for bertrandtgroup --->
-# Link to this Company ---> 
+# Company ---> BertrandtGroup
+# Link ------> 
 #
-from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
-from L_00_logo import update_logo
 #
+# Aici va invit sa va creati propriile metode de scraping cu Python,
+# ... folosind:
+# -> requests
+# -> BeautifulSoup
+# -> requests_html etc.
+#
+from __utils import Item, get_county, UpdateAPI
+from __utils import DEFAULT_HEADERS
 import requests
 from bs4 import BeautifulSoup
-#
-import uuid
+# from requests_html import HTMLSession
 
 
 def return_soup(url: str):
@@ -23,19 +29,10 @@ def return_soup(url: str):
     return soup
 
 
-def get_soup_data(url: str) -> int:
-    """
-    Return total nums of jobs from Bertrandtgroup
-    """
-
-
-def collect_data_from_site():
+def scraper():
     """
     This func() return all data from site.
     """
-
-    # collect data!
-    lst_with_data = []
 
     # facem request la pagina principala si extragem csrf_token
     soup = return_soup(url=f'https://bertrandtgroup.onlyfy.jobs')
@@ -60,35 +57,44 @@ def collect_data_from_site():
 
     jobs = soup.find_all('div', class_='row')
 
+    # collect data!
+    job_list = []
     for job in jobs:
-        link = job.find('div', class_='inner').find('a')['href']
-        title = job.find('div', class_='inner').find('a').text
-        city = job.find_all('div', class_='inner')[1].text.strip()
+        location = job.find_all('div', class_='inner')[1].text.strip()
 
-        lst_with_data.append({
-                "id": str(uuid.uuid4()),
-                "job_title": title,
-                "job_link":  'https://bertrandtgroup.onlyfy.jobs' + link,
-                "company": "BertrandtGroup",
-                "country": "Romania",
-                "city": city
-            })
+        # if location == Bucharest
+        if location.lower() in ['bucharest',]:
+            location = 'Bucuresti'
 
-    return lst_with_data
+        job_list.append(Item(
+            job_title=job.find('div', class_='inner').find('a').text,
+            job_link='https://bertrandtgroup.onlyfy.jobs' + job.find('div', class_='inner').find('a')['href'],
+            company='CanamGroup',
+            country='Romania',
+            county=get_county(location),
+            city=location,
+            remote='remote',
+        ).to_dict())
 
-
-@update_peviitor_api
-def scrape_and_update_peviitor(company_name, data_list):
-    """
-    Update data on peviitor API!
-    """
-
-    return data_list
+    return job_list
 
 
-company_name = 'BertrandtGroup'
-data_list = collect_data_from_site()
-scrape_and_update_peviitor(company_name, data_list)
+def main():
+    '''
+    ... Main:
+    ---> call scraper()
+    ---> update_jobs() and update_logo()
+    '''
 
-# update Logo
-print(update_logo('BertrandtGroup', 'https://content.prescreen.io/company/logo/2zflb91e9rc4s8gskgco4g84gss0kgw.jpg'))
+    company_name = "BertrandtGroup"
+    logo_link = "https://content.prescreen.io/company/logo/2zflb91e9rc4s8gskgco4g84gss0kgw.jpg"
+
+    jobs = scraper()
+
+    # uncomment if your scraper done
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,76 +1,83 @@
 #
 #
+#  Basic for scraping data from static pages
+#  ... project made by Andrei Cojocaru
+#  LinkedIn: https://www.linkedin.com/in/andrei-cojocaru-985932204/
+#  Github: https://github.com/andreireporter13
 #
+# ------ IMPORTANT! ------
+# if you need return soup object:
+# you cand import from __utils -> GetHtmlSoup
+# if you need return regex object:
+# you cand import from __utils ->
+# ---> get_data_with_regex(expression: str, object: str)
 #
-# Company -> AECOM
-# Link ----> https://aecom.jobs/rom/jobs/
+# Company ---> AECOM
+# Link ------> https://aecom.jobs/rom/jobs/
 #
-from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
-from L_00_logo import update_logo
-#
-import requests
-from bs4 import BeautifulSoup
-#
-import uuid
+from __utils import (
+    GetStaticSoup,
+    get_county,
+    get_job_type,
+    Item,
+    UpdateAPI,
+)
 
 
-session = requests.Session()
-
-
-def collect_data_from_aecom():
+def scraper():
     '''
-    ... collect data with one request and default headers.
+    ... scrape data from AECOM scraper.
     '''
 
-    # data to store
-    lst_with_data = []
-
+    job_list = []
     flag = True
     offset = 0
     while flag:
-        response = session.get(f'https://aecom.jobs/rom/jobs/ajax/joblisting/?num_items=15&offset={offset}',
-                               headers=DEFAULT_HEADERS)
-        soup = BeautifulSoup(response.text, 'lxml')
-
+        soup = GetStaticSoup(f"https://aecom.jobs/rom/jobs/ajax/joblisting/?num_items=15&offset={offset}")
         soup_data = soup.find_all('li', class_='direct_joblisting with_description')
 
         if len(soup_data) < 1:
             flag = False
 
-        # here extrat data from each job
         for job in soup_data:
             loc = job.find('div', class_='direct_joblocation').text.strip()
 
             if 'romania' not in loc.lower():
                 break
 
-            lst_with_data.append({
-                    "id": str(uuid.uuid4()),
-                    "job_title": job.find('h4').text.strip(),
-                    "job_link": 'https://aecom.jobs/' + job.find('a').get('href').strip(),
-                    "company": "AECOM",
-                    "country": "Romania",
-                    "city": loc.split('\n')[0]
-                })
+            # get jobs items from response
+            job_list.append(Item(
+                job_title=job.find('h4').text.strip(),
+                job_link='https://aecom.jobs/' + job.find('a').get('href').strip(),
+                company='AECOM',
+                country='Romania',
+                county=get_county(loc.split('\n')[0]),
+                city=loc.split('\n')[0],
+                remote=get_job_type('hybrid'),
+            ).to_dict())
 
+        # don't forget this details in loops
         offset += 15
 
-    return lst_with_data
+    return job_list
 
 
-# update data on peviitor!
-@update_peviitor_api
-def scrape_and_update_peviitor(company_name, data_list):
-    """
-    Update data on peviitor API!
-    """
+def main():
+    '''
+    ... Main:
+    ---> call scraper()
+    ---> update_jobs() and update_logo()
+    '''
 
-    return data_list
+    company_name = "AECOM"
+    logo_link = "https://1000logos.net/wp-content/uploads/2021/12/AECOM-logo.png"
+
+    jobs = scraper()
+
+    # uncomment if your scraper done
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
 
 
-company_name = 'AECOM'
-data_list = collect_data_from_aecom()
-scrape_and_update_peviitor(company_name, data_list)
-
-print(update_logo('AECOM',
-                  'https://1000logos.net/wp-content/uploads/2021/12/AECOM-logo.png'))
+if __name__ == '__main__':
+    main()

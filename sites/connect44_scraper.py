@@ -1,150 +1,72 @@
 #
 #
+#  Basic for scraping data from static pages
 #
-# Company -> connect44
-# Link ----> https://www.connect44.com/careers/jobs?country=3&city=
+# ------ IMPORTANT! ------
+# if you need return soup object:
+# you cand import from __utils -> GetHtmlSoup
+# if you need return regex object:
+# you cand import from __utils ->
+# ---> get_data_with_regex(expression: str, object: str)
 #
-from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
-from L_00_logo import update_logo
+# Company ---> Connect44
+# Link ------> https://www.connect44.com/careers/jobs\?country\=3\&search\=
 #
-import requests
-from bs4 import BeautifulSoup
 #
-import uuid
-import re
+from __utils import (
+    GetStaticSoup,
+    get_county,
+    get_job_type,
+    Item,
+    UpdateAPI,
+)
 
 
-# session for new session!
-session = requests.Session()
-
-
-def csrf_and_session_tokens() -> tuple[str]:
+def scraper():
     '''
+    ... scrape data from Connect44 scraper.
     '''
+    soup = GetStaticSoup("https://www.connect44.com/careers/jobs?country=3&search=")
 
-    response = session.get(url='https://www.connect44.com/careers/jobs?country=3&search=',
-                            headers=DEFAULT_HEADERS)
-    soup = BeautifulSoup(response.text, 'lxml')
+    job_list = []
+    # walrus - best option
+    if len((data_soup := soup.find_all('div', attrs={'class': 'col-md-6'}))) > 0:
+    
+        for job in data_soup:
+            location = job.find('span', attrs={'class': 'me-3 d-flex align-items-center'}).text.strip().split(',')[-1].strip()
+            if location.lower() == "bucharest":
+                location = "Bucuresti"
 
-    # token id and session id
-    tokens = response.headers
-    x_csrf = re.search(r'XSRF-TOKEN=([^;]+)', str(tokens)).group(0)
-    connec44_id = re.search(r'connect44_session=([^;]+)', str(tokens)).group(0)
+            # get jobs items from response
+            job_list.append(Item(
+                job_title=job.find('div', attrs={'class': 'mb-4 d-flex align-items-center'}).text.strip(),
+                job_link=job.find('a', attrs={'class': 'stretched-link'})['href'].strip(),
+                company='Connect44',
+                country='Romania',
+                county=get_county(location),
+                city=location,
+                remote='on-site',
+            ).to_dict())
 
-    # check sum
-    div_elements = soup.find_all('div', attrs={'wire:id': True})
-    wire_ids = [div['wire:id'] for div in div_elements]
-
-    # htmlHash
-    html_hash_regex = r'htmlHash":"([^"]+)'
-    html_hash_match = re.search(html_hash_regex, str(div_elements))
-    if html_hash_match:
-        html_hash = html_hash_match.group(1)
-
-    # v Value!
-    v_regex = r'"v":"([^"]+)'
-    v_match = re.search(v_regex, str(div_elements))
-    if v_match:
-        v_value = v_match.group(1)
-
-    # search for checksum
-    regex = r'checksum":"([^"]+)"'
-    matches = re.findall(regex, str(div_elements))
-    if matches:
-        checksum = matches[0]
-
-    # catch csrf token
-    meta_csrf = soup.find_all('meta')
-    csrf = meta_csrf[-1]['content']
-
-    return csrf, x_csrf, connec44_id, wire_ids[0], checksum, html_hash, v_value
+        return job_list
 
 
-def prepare_post_request() -> tuple:
+def main():
     '''
-    ... here, prepare url, headers and data for post request.
+    ... Main:
+    ---> call scraper()
+    ---> update_jobs() and update_logo()
     '''
 
-    data = csrf_and_session_tokens()
+    company_name = "Connect44"
+    logo_link = "https://www.totaljobs.com/CompanyLogos/32ec644942c1486e89eb54318d6eed92.png"
 
-    url = 'https://www.connect44.com/livewire/message/jobs-table',
+    jobs = scraper()
 
-    headers = {
-
-            'Accept': 'text/html, application/xhtml+xml',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/json',
-            'Cookie': f'CookieConsent={"stamp:%27ND9DqhKFmppbOWaxrzR7/vmb82Rdt/kSiCvVQz3k06hyIo3E+8UlHA==%27%2Cnecessary:true%2Cpreferences:true%2Cstatistics:true%2Cmarketing:true%2Cmethod:%27explicit%27%2Cver:1%2Cutc:1688208124784%2Cregion:%27ro%27"}; {data[1]}; {data[2]};',
-            'Origin': 'https://www.connect44.com',
-            'Referer': 'https://www.connect44.com/careers/jobs?country=3&city=',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-origin',
-            'Sec-GPC': '1',
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-            'X-CSRF-TOKEN': f'{data[0]}',
-            'X-Livewire': 'true'
-            }
-
-    json_data = {
-            'fingerprint': {
-                'id': f'{data[3]}',
-                'name': 'jobs-table',
-                'locale': 'en',
-                'path': 'careers/jobs',
-                'method': 'GET',
-                'v': f'{data[6]}'
-            },
-            'serverMemo': {
-                'children': [],
-                'errors': [],
-                'htmlHash': f'{data[5]}',
-                'data': {
-                    'perPage': 6,
-                    'search': None,
-                    'query': None,
-                    'country': '3',
-                    'city': '',
-                    'cities': []
-                },
-                'dataMeta': {
-                    'modelCollections': {
-                        'cities': {
-                            'class': 'App\\Models\\JobsCountryCity',
-                            'id': [20, 53],
-                            'relations': [],
-                            'connection': 'tenant',
-                            'collectionClass': None
-                        }
-                    }
-                },
-                'checksum': f'{data[5]}'
-            },
-            'updates': [
-                {
-                    'type': 'callMethod',
-                    'payload': {
-                        'id': '1zgk',
-                        'method': 'loadMore',
-                        'params': []
-                    }
-                }
-            ]
-        }
-
-    return url, headers, json_data
+    # uncomment if your scraper done
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
 
 
-def collect_data_from_connect44():
-    '''
-    ... collect data with prepared headers.
-    '''
-
-    post_data = prepare_post_request()
-
-    response = session.post(url=post_data[0], headers=post_data[1], json=post_data[2])
-    print(response)
-
-
-print(collect_data_from_connect44())
+if __name__ == '__main__':
+    main()

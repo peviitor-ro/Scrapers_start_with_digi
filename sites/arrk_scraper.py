@@ -1,82 +1,69 @@
 #
 #
+#  Basic for scraping data from static pages
+#
+# ------ IMPORTANT! ------
+# if you need return soup object:
+# you cand import from __utils -> GetHtmlSoup
+# if you need return regex object:
+# you cand import from __utils ->
+# ---> get_data_with_regex(expression: str, object: str)
+#
+# Company ---> ARRK
+# Link ------> https://arrkeurope.onlyfy.jobs/candidate/job/ajax_list?display_length=400&page=1&sort=matching&sort_dir=DESC&search=&_ps_widget_token=tMU6eTWJkBAGWF7DxNep3O83rN2owhZyjUrvVqLojQ704xeU3sRAvmKFfnnzc9WKaZKQVgh459vPDJRviAvJnA8sbU4j0j7jb9r9ZI0OBoT99CuysZwQcMyyu3uv5WrQIFzBb3TBxP-UT-zl7YZN-KMzPnzs,mHgPgtQPsr5xVNp2784JeZZ0VswqwmbAkFqDUzbyCAYV2Q0iBOQhpofKQoRsT1yHksD&parentUrl=https://engineering.arrk.com/jobs-career/current-job-offers&widgetConfig=yl6c10ku&_=1687204199282
 #
 #
-# Company -> arrk
-# Link -> https://arrkeurope.onlyfy.jobs/candidate/job/ajax_list?display_length=400&page=1&sort=matching&sort_dir=DESC&search=&_ps_widget_token=tMU6eTWJkBAGWF7DxNep3O83rN2owhZyjUrvVqLojQ704xeU3sRAvmKFfnnzc9WKaZKQVgh459vPDJRviAvJnA8sbU4j0j7jb9r9ZI0OBoT99CuysZwQcMyyu3uv5WrQIFzBb3TBxP-UT-zl7YZN-KMzPnzs,mHgPgtQPsr5xVNp2784JeZZ0VswqwmbAkFqDUzbyCAYV2Q0iBOQhpofKQoRsT1yHksD&parentUrl=https://engineering.arrk.com/jobs-career/current-job-offers&widgetConfig=yl6c10ku&_=1687204199282
-#
-from A_OO_get_post_soup_update_dec import DEFAULT_HEADERS, update_peviitor_api
-from L_00_logo import update_logo
-#
-import requests
-from bs4 import BeautifulSoup
-#
-import uuid
+from __utils import (
+    GetStaticSoup,
+    get_county,
+    get_job_type,
+    Item,
+    UpdateAPI,
+)
 
 
-def scrape_data_from_arrk():
+def scraper():
     '''
-    Scrap all data from arrk with one requests.
+    ... scrape data from ARRK scraper.
+    '''
+    soup = GetStaticSoup("https://arrkeurope.onlyfy.jobs/candidate/job/ajax_list?display_length=400&page=1&sort=matching&sort_dir=DESC&search=&_ps_widget_token=tMU6eTWJkBAGWF7DxNep3O83rN2owhZyjUrvVqLojQ704xeU3sRAvmKFfnnzc9WKaZKQVgh459vPDJRviAvJnA8sbU4j0j7jb9r9ZI0OBoT99CuysZwQcMyyu3uv5WrQIFzBb3TBxP-UT-zl7YZN-KMzPnzs,mHgPgtQPsr5xVNp2784JeZZ0VswqwmbAkFqDUzbyCAYV2Q0iBOQhpofKQoRsT1yHksD&parentUrl=https://engineering.arrk.com/jobs-career/current-job-offers&widgetConfig=yl6c10ku&_=1687204199282")
+
+    job_list = []
+    for job in soup.select('[class*="row-table"][class*="collapsed"]'):
+        location = job.find('div', attrs={'class': 'cell-table col-sm-6 col-xs-8'}).text.strip()
+
+        if location in ['Cluj', 'Cluj-Napoca', 'Bucharest', 'Bucuresti']:
+
+            # get jobs items from response
+            job_list.append(Item(
+                job_title=job.find('a').text.strip(),
+                job_link=job.find('a')['href'],
+                company='ARRK',
+                country='Romania',
+                county=get_county(location),
+                city=location,
+                remote='on-site',
+            ).to_dict())
+
+    return job_list
+
+
+def main():
+    '''
+    ... Main:
+    ---> call scraper()
+    ---> update_jobs() and update_logo()
     '''
 
-    response = requests.get(url='https://arrkeurope.onlyfy.jobs/candidate/job/ajax_list?display_length=400&page=1&sort=matching&sort_dir=DESC&search=&_ps_widget_token=tMU6eTWJkBAGWF7DxNep3O83rN2owhZyjUrvVqLojQ704xeU3sRAvmKFfnnzc9WKaZKQVgh459vPDJRviAvJnA8sbU4j0j7jb9r9ZI0OBoT99CuysZwQcMyyu3uv5WrQIFzBb3TBxP-UT-zl7YZN-KMzPnzs,mHgPgtQPsr5xVNp2784JeZZ0VswqwmbAkFqDUzbyCAYV2Q0iBOQhpofKQoRsT1yHksD&parentUrl=https://engineering.arrk.com/jobs-career/current-job-offers&widgetConfig=yl6c10ku&_=1687204199282',
-                            headers=DEFAULT_HEADERS)
-    soup = BeautifulSoup(response.text, 'lxml')
+    company_name = "ARRK"
+    logo_link = "https://www.arrk.com/wp/wp-content/themes/SmartPack3.0-Ver/img/logo-blue.svg"
 
-    soup_data_1 = soup.find_all('div', class_='row row-table row-24 collapsed row-table-condensed')
-    soup_data_2 = soup.find_all('div', class_='row row-table row-24 collapsed even row-table-condensed')
+    jobs = scraper()
 
-    lst_with_data = []
-
-    # first div
-    for i_dt in soup_data_1:
-        link = i_dt.find('a')['href']
-        title = i_dt.find('a').text
-        location = i_dt.find('div', class_='cell-table col-sm-6 col-xs-8').text.strip()
-
-        if location == 'Cluj-Napoca':
-            lst_with_data.append({
-                "id": str(uuid.uuid4()),
-                "job_title": title,
-                "job_link":  link,
-                "company": "ARRK",
-                "country": "Romania",
-                "city": location
-                })
-
-    # second div!
-    for j_dt in soup_data_2:
-        link = j_dt.find('a')['href']
-        title = j_dt.find('a').text
-        location = j_dt.find('div', class_='cell-table col-sm-6 col-xs-8').text.strip()
-
-        if location == 'Cluj-Napoca':
-            lst_with_data.append({
-                "id": str(uuid.uuid4()),
-                "job_title": title,
-                "job_link":  link,
-                "company": "ARRK",
-                "country": "Romania",
-                "city": location
-                })
-
-    return lst_with_data
+    # uncomment if your scraper done
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
 
 
-# update data on peviitor!
-@update_peviitor_api
-def scrape_and_update_peviitor(company_name, data_list):
-    """
-    Update data on peviitor API!
-    """
-
-    return data_list
-
-
-company_name = 'ARRK'
-data_list = scrape_data_from_arrk()
-scrape_and_update_peviitor(company_name, data_list)
-
-print(update_logo('ARRK',
-                  'https://www.arrk.com/wp/wp-content/themes/SmartPack3.0-Ver/img/logo-blue.svg'
-                  ))
+if __name__ == '__main__':
+    main()
