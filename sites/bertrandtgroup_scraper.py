@@ -3,7 +3,7 @@
 # Your custom scraper here ---> Last level!
 #
 # Company ---> BertrandtGroup
-# Link ------> 
+# Link ------> https://bertrandtgroup.onlyfy.jobs/
 #
 #
 # Aici va invit sa va creati propriile metode de scraping cu Python,
@@ -69,7 +69,7 @@ def scraper():
         job_list.append(Item(
             job_title=job.find('div', class_='inner').find('a').text,
             job_link='https://bertrandtgroup.onlyfy.jobs' + job.find('div', class_='inner').find('a')['href'],
-            company='CanamGroup',
+            company='BertrandtGroup',
             country='Romania',
             county=get_county(location),
             city=location,
