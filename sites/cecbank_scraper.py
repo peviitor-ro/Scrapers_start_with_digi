@@ -27,6 +27,7 @@ from __utils import (
 #
 import re
 from time import sleep
+import html
 
 
 def get_id_from_site():
@@ -85,12 +86,12 @@ def scraper():
                     no_duplicates_links.append(link)
 
                     # second soup for scraping
-                    second_soup = GetStaticSoup(link)
+                    second_soup = html.unescape(GetStaticSoup(link))
                     location = second_soup.find('div', attrs={'class': 'col-12 col-sm-12 col-md-12 col-lg-3 col-xl-3'}).find('p').text.split()[-1].strip()
 
                     # get jobs items from response
                     job_list.append(Item(
-                        job_title=second_soup.find('h1').text,
+                        job_title=second_soup.title.text,
                         job_link=link,
                         company='CECBank',
                         country='România',
