@@ -28,6 +28,7 @@ from __utils import (
 )
 from time import sleep
 from random import randint
+import re
 
 
 def get_only_jsession_id():
@@ -85,13 +86,9 @@ def scraper():
                 for search_city in counties:
                     for k, v in search_city.items():
                         for ccity in v:
-                            if ccity.split()[-1].lower() in location.lower():
+                            if re.search(r'\b{}\b'.format(re.escape(ccity.split()[-1].lower())), location.lower()):
                                 new_loc = ccity
                                 break
-
-                # find one error
-                if new_loc == 'Bucu':
-                    new_loc = 'Bucuresti'
 
                 # find type job
                 job_type_f = ''
