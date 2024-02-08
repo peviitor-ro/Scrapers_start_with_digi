@@ -42,7 +42,7 @@ def scraper():
             company='makita',
             country='România',
             county=get_county(location),
-            city=location,
+            city='All',
             remote='on-site',
         ).to_dict())
 
