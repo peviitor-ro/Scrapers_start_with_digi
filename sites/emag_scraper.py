@@ -125,7 +125,7 @@ def main():
     '''
 
     company_name = "eMAG"
-    logo_link = "logo_link"
+    logo_link = "https://s13emagst.akamaized.net/layout/ro/images/logo//59/88362.svg"
 
     jobs = scraper()
 
