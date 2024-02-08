@@ -85,7 +85,7 @@ def scraper():
                 for search_city in counties:
                     for k, v in search_city.items():
                         for ccity in v:
-                            if ccity.split()[-1].lower(0) in location.lower():
+                            if ccity.split()[-1].lower() in location.lower():
                                 new_loc = ccity
                                 break
 
