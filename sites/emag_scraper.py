@@ -26,6 +26,8 @@ from __utils import (
     get_data_with_regex,
     counties,
 )
+from time import sleep
+from random import randint
 
 
 def get_only_jsession_id():
@@ -76,16 +78,20 @@ def scraper():
         html_data = GetRequestJson(url=url_header[0], custom_headers=url_header[1])
 
         if len(all_job_elements := html_data.find_all('div', attrs={'class': 'oracletaleocwsv2-accordion oracletaleocwsv2-accordion-expandable clearfix'})) > 0:
-
+            
             for job_data in all_job_elements:
                 new_loc = ''
                 location = job_data.find('div', attrs={'class': 'oracletaleocwsv2-accordion-head-info'}).find_all('div')[1].text
                 for search_city in counties:
                     for k, v in search_city.items():
                         for ccity in v:
-                            if ccity.lower() in location.lower():
+                            if ccity.split()[-1].lower(0) in location.lower():
                                 new_loc = ccity
                                 break
+
+                # find one error
+                if new_loc == 'Bucu':
+                    new_loc = 'Bucurestiss'
 
                 # find type job
                 job_type_f = ''
@@ -113,6 +119,9 @@ def scraper():
 
         # increment for new page request
         page += 10
+
+        # sleep for better work
+        sleep(randint(1,3))
 
     return job_list
 
