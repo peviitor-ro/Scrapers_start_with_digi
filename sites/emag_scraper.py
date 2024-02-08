@@ -91,7 +91,7 @@ def scraper():
 
                 # find one error
                 if new_loc == 'Bucu':
-                    new_loc = 'Bucurestiss'
+                    new_loc = 'Bucuresti'
 
                 # find type job
                 job_type_f = ''
