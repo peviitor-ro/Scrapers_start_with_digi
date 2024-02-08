@@ -84,7 +84,7 @@ def scraper():
                 new_loc = ''
                 location = job_data.find('div', attrs={'class': 'oracletaleocwsv2-accordion-head-info'}).find_all('div')[1].text
                 for search_city in counties:
-                    for k, v in search_city.items():
+                    for v in search_city.values():
                         for ccity in v:
                             if re.search(r'\b{}\b'.format(re.escape(ccity.split()[-1].lower())), location.lower()):
                                 new_loc = ccity
