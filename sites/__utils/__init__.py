@@ -5,7 +5,7 @@
 from __utils.peviitor_update import UpdateAPI
 from __utils.default_headers import DEFAULT_HEADERS
 from __utils.items_struct import Item
-from __utils.found_county import get_county
+from __utils.found_county import get_county, counties
 from __utils.req_bs4_shorts import(
     GetStaticSoup,
     GetRequestJson,

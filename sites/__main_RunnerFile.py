@@ -10,7 +10,7 @@ import subprocess
 # exclude files
 exclude = ['__init__.py',
            '__create_scraper.py',
-           "__main_RunnerFile.py",
+           '__main_RunnerFile.py',
            ]
 
 path = os.path.dirname(os.path.abspath(__file__))

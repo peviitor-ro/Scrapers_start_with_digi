@@ -23,7 +23,8 @@ from __utils import (
     # only this time
     GetHeadersDict,
     #
-    get_data_with_regex
+    get_data_with_regex,
+    counties,
 )
 
 
@@ -55,10 +56,6 @@ def make_headers(page_count: str):
         'Connection': 'keep-alive',
         'Cookie': f'{jsession_id_for_session}',
         'Referer': 'https://lde.tbe.taleo.net/lde02/ats/careers/v2/searchResults?org=EMAG&cws=37',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-origin',
-        'Sec-GPC': '1',
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'X-Requested-With': 'XMLHttpRequest',
         }
@@ -78,22 +75,44 @@ def scraper():
         url_header = make_headers(str(page))
         html_data = GetRequestJson(url=url_header[0], custom_headers=url_header[1])
 
-        if len(all_job_elements := html_data.select("[class*='oracletaleocwsv2-']")) > 0:
+        if len(all_job_elements := html_data.find_all('div', attrs={'class': 'oracletaleocwsv2-accordion oracletaleocwsv2-accordion-expandable clearfix'})) > 0:
+
+            for job_data in all_job_elements:
+                new_loc = ''
+                location = job_data.find('div', attrs={'class': 'oracletaleocwsv2-accordion-head-info'}).find_all('div')[1].text
+                for search_city in counties:
+                    for k, v in search_city.items():
+                        for ccity in v:
+                            if ccity.lower() in location.lower():
+                                new_loc = ccity
+                                break
+
+                # find type job
+                job_type_f = ''
+                if 'remote' in location.lower():
+                    job_type_f = 'remote'
+                elif 'hybrid' in location.lower():
+                    job_type_f = 'hybrid'
+                else:
+                    job_type_f = 'on-site'
+                
+                link_title = job_data.find('h4', attrs={'class', 'oracletaleocwsv2-head-title'}).find('a')
+                # get jobs items from response
+                job_list.append(Item(
+                    job_title=link_title.text,
+                    job_link=link_title['href'],
+                    company='eMAG',
+                    country='Romania',
+                    county=get_county(new_loc),
+                    city=new_loc,
+                    remote=job_type_f,
+                ).to_dict())
+            
         else:
             flag = False
 
+        # increment for new page request
         page += 10
-
-        # get jobs items from response
-        job_list.append(Item(
-            job_title='',
-            job_link='',
-            company='eMAG',
-            country='',
-            county='',
-            city='',
-            remote='',
-        ).to_dict())
 
     return job_list
 
@@ -111,8 +130,8 @@ def main():
     jobs = scraper()
 
     # uncomment if your scraper done
-    #UpdateAPI().update_jobs(company_name, jobs)
-    #UpdateAPI().update_logo(company_name, logo_link)
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
 
 
 if __name__ == '__main__':
