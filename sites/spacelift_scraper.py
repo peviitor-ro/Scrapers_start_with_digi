@@ -97,7 +97,6 @@ def scraper():
             city='',
             remote='remote',
         ).to_dict())
-    print(job_list) 
     return job_list
 
 def main():
