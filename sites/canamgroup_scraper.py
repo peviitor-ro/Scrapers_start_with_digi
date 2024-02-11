@@ -57,10 +57,10 @@ def main():
     logo_link = "https://www.canam.com/wp-content/themes/canam/dist/img/logo-canam.png"
 
     jobs = scraper()
-    print(jobs)
+
     # uncomment if your scraper done
-    #UpdateAPI().update_jobs(company_name, jobs)
-    #UpdateAPI().update_logo(company_name, logo_link)
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
 
 
 if __name__ == '__main__':
