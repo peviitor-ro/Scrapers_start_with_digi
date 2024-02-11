@@ -41,21 +41,22 @@ def collect_data_from_genos():
 
     return lst_with_data
 
+print(collect_data_from_genos())
 
-# update data on peviitor!
-@update_peviitor_api
-def scrape_and_update_peviitor(company_name, data_list):
-    """
-    Update data on peviitor API!
-    """
+# # update data on peviitor!
+# @update_peviitor_api
+# def scrape_and_update_peviitor(company_name, data_list):
+#     """
+#     Update data on peviitor API!
+#     """
 
-    return data_list
+#     return data_list
 
 
-company_name = 'genos'
-data_list = collect_data_from_genos()
-scrape_and_update_peviitor(company_name, data_list)
+# company_name = 'genos'
+# data_list = collect_data_from_genos()
+# scrape_and_update_peviitor(company_name, data_list)
 
-print(update_logo('genos',
-                  'https://www.genosdanmark.eu/uploads/images/logo-dark_27_12.png'
-                  ))
+# print(update_logo('genos',
+#                   'https://www.genosdanmark.eu/uploads/images/logo-dark_27_12.png'
+#                   ))
