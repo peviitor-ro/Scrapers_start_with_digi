@@ -40,21 +40,21 @@ def scraper():
             flag = False
 
         for job in soup_data:
-            loc = job.find('div', class_='direct_joblocation').text.strip()
+            if (loc := job.find('div', class_='direct_joblocation').text.strip().split('\n')) and 'romania' in [element.strip().lower() for element in loc]:
+                loc_f = loc[0].strip().split(',')[0]
+                if loc_f.lower() == 'bucharest':
+                    loc_f = 'Bucuresti'
 
-            if 'romania' not in loc.lower():
-                break
-
-            # get jobs items from response
-            job_list.append(Item(
-                job_title=job.find('h4').text.strip(),
-                job_link='https://aecom.jobs/' + job.find('a').get('href').strip(),
-                company='AECOM',
-                country='Romania',
-                county=get_county(loc.split('\n')[0]),
-                city=loc.split('\n')[0],
-                remote=get_job_type('hybrid'),
-            ).to_dict())
+                # get jobs items from response
+                job_list.append(Item(
+                    job_title=job.find('h4').text.strip(),
+                    job_link='https://aecom.jobs' + job.find('a').get('href').strip(),
+                    company='AECOM',
+                    country='Romania',
+                    county=get_county(loc_f),
+                    city=loc_f,
+                    remote=get_job_type('hybrid'),
+                ).to_dict())
 
         # don't forget this details in loops
         offset += 15
