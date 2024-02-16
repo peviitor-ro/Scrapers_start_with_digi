@@ -80,8 +80,12 @@ def scraper():
 
         if len(all_job_elements := html_data.find_all('div', attrs={'class': 'oracletaleocwsv2-accordion oracletaleocwsv2-accordion-expandable clearfix'})) > 0:
             
+            # extract data outsite, for city == ''
+            location = ''
+            new_loc = ''
             for job_data in all_job_elements:
-                new_loc = ''
+
+                # loc here
                 location = job_data.find('div', attrs={'class': 'oracletaleocwsv2-accordion-head-info'}).find_all('div')[1].text
                 for search_city in counties:
                     for v in search_city.values():
@@ -89,6 +93,11 @@ def scraper():
                             if re.search(r'\b{}\b'.format(re.escape(ccity.split()[-1].lower())), location.lower()):
                                 new_loc = ccity
                                 break
+                
+                if new_loc.strip() != True:
+                    if 'depozit' in location.lower() and 'emag' in location.lower() and 'retail' in location.lower():
+                        new_loc = 'Stefanestii de Jos'
+
 
                 # find type job
                 job_type_f = ''
