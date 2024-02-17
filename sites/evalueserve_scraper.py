@@ -30,22 +30,24 @@ def scraper():
 
     job_list = []
     for job in soup.select('div[class$="Romania"]'):
-        print(job)
+
+        # get location
+        location = job.select_one('div.db-location-country > h6').text.split(',')
 
         # get jobs items from response
         job_list.append(Item(
-            job_title='',
-            job_link='',
+            job_title=job.select_one('div.db-job-title > h4').text,
+            job_link=job.select_one('div.db-job-link > a')['href'],
             company='Evalueserve',
-            country='',
-            county='',
-            city='',
-            remote='',
+            country='Romania',
+            county=location[1],
+            city=location[0],
+            remote='remote',
         ).to_dict())
 
     return job_list
 
-#
+
 def main():
     '''
     ... Main:
@@ -59,8 +61,8 @@ def main():
     jobs = scraper()
 
     # uncomment if your scraper done
-    #UpdateAPI().update_jobs(company_name, jobs)
-    #UpdateAPI().update_logo(company_name, logo_link)
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
 
 
 if __name__ == '__main__':
