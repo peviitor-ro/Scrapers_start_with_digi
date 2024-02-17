@@ -56,7 +56,7 @@ def main():
     '''
 
     company_name = "Evalueserve"
-    logo_link = "logo_link"
+    logo_link = "https://mltfwbciccuo.i.optimole.com/w:985/h:101/q:mauto/https://www.evalueserve.com/wp-content/uploads/2021/10/Evalueserve__logo.svg"
 
     jobs = scraper()
 
