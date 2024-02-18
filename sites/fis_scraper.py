@@ -25,9 +25,6 @@ from __utils import (
 
     # import StatiClass for get csrf
     GetStaticSoup,
-
-    # for headesr
-    GetHeadersDict,
 )
 import requests
 
