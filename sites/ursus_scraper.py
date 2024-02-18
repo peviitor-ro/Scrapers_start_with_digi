@@ -87,11 +87,14 @@ def scraper():
 
     job_list = []
     for job in soup.find_all('tr', class_='data-row'):
+        #
         link = job.find('a')['href'].strip()
         locatie = job.find('span', class_='jobLocation')
         city = locatie.text.strip().split(',')[0]
+        #
         if city == 'Timis':
             city = 'Timisoara'
+        
         # get jobs items from response
         job_list.append(Item(
             job_title=job.find('a').text,
