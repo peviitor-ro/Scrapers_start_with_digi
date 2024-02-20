@@ -91,10 +91,9 @@ def main():
     '''
 
     company_name = "HTSS"
-    logo_link = "logo_link"
+    logo_link = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRysC7nnegm3c49Yi7xNjgY3W5JNTxJ3gtSEiBlMQpfLA&s"
 
     jobs = scraper()
-    print(jobs, len(jobs))
 
     # uncomment if your scraper done
     UpdateAPI().update_jobs(company_name, jobs)

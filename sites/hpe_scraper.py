@@ -111,7 +111,7 @@ def main():
     '''
 
     company_name = "HPE"
-    logo_link = "logo_link"
+    logo_link = "https://www.avnet.com/wps/wcm/connect/onesite/33291645-fa81-47cf-8686-eda25124bc60/hpe-logo-black-768X432.jpg?MOD=AJPERES&CACHEID=ROOTWORKSPACE.Z18_NA5A1I41L0ICD0ABNDMDDG0000-33291645-fa81-47cf-8686-eda25124bc60-nERM7Mr"
 
     jobs = scraper()
 
