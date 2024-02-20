@@ -107,7 +107,7 @@ def main():
     '''
     ... Main:
     ---> call scraper()
-    ---> update_jobs() and update_logo()
+    ---> update_jobs() and update_logo() 
     '''
 
     company_name = "HPE"
