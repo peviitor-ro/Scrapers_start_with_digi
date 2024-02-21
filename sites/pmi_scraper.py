@@ -56,6 +56,9 @@ def scraper():
             else:
                 new_loc = location[0]
 
+            if new_loc.lower() == 'bucharest':
+                new_loc = 'Bucuresti'
+
             # get jobs items from response
             job_list.append(Item(
                 job_title=job.find('h3', attrs={'class': 'job-row--title title8'}).text.strip(),
