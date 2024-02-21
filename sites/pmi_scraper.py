@@ -50,7 +50,11 @@ def scraper():
             req_page = GetStaticSoup(link_str)
 
             #  search location
-            location = req_page.find('p', attrs={'class': 'details--note details--positionIcon location'}).text
+            new_loc = list()
+            if len((location := req_page.find('p', attrs={'class': 'details--note details--positionIcon location'}).text.strip().split(',')[0].split())) > 1:
+                new_loc = '-'.join(location)
+            else:
+                new_loc = location[0]
 
             # get jobs items from response
             job_list.append(Item(
@@ -58,8 +62,8 @@ def scraper():
                 job_link=link_str,
                 company='pmi',
                 country='Romania',
-                county=get_county(location.split(',')[0]),
-                city=location.split(',')[0],
+                county=get_county(new_loc),
+                city=new_loc,
                 remote='on-site',
             ).to_dict())
 
