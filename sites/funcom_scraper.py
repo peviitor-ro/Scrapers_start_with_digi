@@ -65,6 +65,8 @@ def get_job_type_data(data_string_with_job_type: str):
     job_type = '' 
     if 'temporarily remote' in data_string_with_job_type:
         return 'hybrid'
+    elif 'remote' in data_string_with_job_type and 'hybrid' in data_string_with_job_type:
+        return ['remote', 'hybrid']
     elif 'remote' in data_string_with_job_type:
         return 'remote'
     else:

@@ -60,7 +60,7 @@ def scraper():
                 country='Romania',
                 county=get_county(location.split(',')[0]),
                 city=location.split(',')[0],
-                remote=get_job_type('remote'),
+                remote='on-site',
             ).to_dict())
 
         page += 1

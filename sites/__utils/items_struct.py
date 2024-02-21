@@ -20,7 +20,7 @@ class Item:
     country: str
     county: Union[str, List[str]]
     city: Union[str, List[str]]
-    remote: str
+    remote: Union[str, List[str]]
 
     def to_dict(self) -> dict:
         """Return a dictionary representation of the Item object."""

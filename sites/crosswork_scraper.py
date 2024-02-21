@@ -31,16 +31,25 @@ def scraper():
     job_list = []
     for job in soup.find_all('div', attrs={'class': 'col-md-9'}):
         location = job.find_all('p', attrs={'class': 'job-info'})[0].text.strip()
+        title_job = job.find('a').text
+
+        job_type = ''
+        if 'remote' in title_job.lower():
+            job_type = 'remote'
+        elif 'hibrid' in title_job.lower():
+            job_type = 'hybrid'
+        else:
+            job_type = 'on-site'
 
         # get jobs items from response
         job_list.append(Item(
-            job_title=job.find('a').text,
+            job_title=title_job,
             job_link=job.find('a')['href'],
             company='Crosswork',
             country='Romania',
             county=get_county(location),
             city=location,
-            remote='on-site',
+            remote=job_type,
         ).to_dict())
 
     return job_list
