@@ -86,13 +86,20 @@ def scraper():
     job_list = []
     for job in post_data.get('refineSearch').get('data').get('jobs'):
 
-        if (location := job.get('city').lower()) == 'bucharest':
+        location = ''
+        string_locations_dict = str(job.get('multi_location')).lower()
+        if 'bucharest' in string_locations_dict:
             location = 'Bucuresti'
+
+        slug_from_apply_link = '-'.join([element.title()
+                                for element in 
+                                job.get('applyUrl').split('/')[-2].split('_')[0].split('-')
+                                if element.strip()])
 
         # get jobs items from response
         job_list.append(Item(
             job_title=job.get('title'),
-            job_link=job.get('applyUrl').replace('apply', ''),
+            job_link=f"https://careers.hpe.com/us/en/job/{job.get('jobId')}/{slug_from_apply_link}",
             company='HPE',
             country='Romania',
             county=get_county(location.title()),
