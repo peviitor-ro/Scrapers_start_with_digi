@@ -73,8 +73,6 @@ def scraper():
 
         page += 1
 
-
-
     return job_list
 
 
