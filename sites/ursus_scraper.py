@@ -19,6 +19,9 @@ from __utils import (
     get_job_type,
     Item,
     UpdateAPI,
+
+    #
+    counties,
 )
 
 
@@ -90,10 +93,14 @@ def scraper():
         #
         link = job.find('a')['href'].strip()
         locatie = job.find('span', class_='jobLocation')
-        city = locatie.text.strip().split(',')[0]
-        #
-        if city == 'Timis':
-            city = 'Timisoara'
+        county_ro = locatie.text.strip().split(',')[0].strip()
+
+        # get city
+        city = ''
+        for county_i in counties:
+            for key, value in county_i.items():
+                if key == county_ro:
+                    city = value[0]
         
         # get jobs items from response
         job_list.append(Item(
@@ -101,7 +108,7 @@ def scraper():
             job_link='https://careers.asahiinternational.com' + link,
             company='ursus',
             country='Romania',
-            county=get_county(city),
+            county=county_ro,
             city=city,
             remote='on-site',
         ).to_dict())
