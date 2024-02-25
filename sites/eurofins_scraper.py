@@ -62,6 +62,7 @@ def scraper():
                     for i in value:
                         if location == i and location == check_location:
                             county_general = i
+                            break
 
             # get jobs items from response
             job_list.append(Item(

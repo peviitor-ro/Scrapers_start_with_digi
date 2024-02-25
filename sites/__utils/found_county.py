@@ -67,3 +67,6 @@ def get_county(town):
             if town in value:
                 return key
     return None
+
+
+# make a function for get_accurate_city
