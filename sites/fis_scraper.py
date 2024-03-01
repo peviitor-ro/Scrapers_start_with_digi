@@ -87,8 +87,10 @@ def scraper():
     job_list = []
     for job in post_data.get('eagerLoadRefineSearch').get('data').get('jobs'):
 
-        if (job_city := job.get('city').lower()) == 'bucharest':
-            job_city = 'Bucuresti'
+        if (location := job.get('city').lower()) == 'bucharest':
+            location = 'Bucuresti'
+
+        location_finish = get_county(location=location)
 
         # get jobs items from response
         job_list.append(Item(
@@ -96,8 +98,10 @@ def scraper():
             job_link=job.get('applyUrl').replace('apply', ''),
             company='FIS',
             country='Romania',
-            county=get_county(job_city),
-            city=job_city,
+            county=location_finish[0] if True in location_finish else None,
+            city='all' if location.lower() == location_finish[0].lower()\
+                        and True in location_finish and 'bucuresti' != location.lower()\
+                            else location,
             remote='on-site',
         ).to_dict())
 

@@ -26,6 +26,7 @@ from __utils import (
     get_data_with_regex,
 )
 
+
 def get_cookie_ids():
     '''
         ... get unic ids for cookie, headers
@@ -73,14 +74,18 @@ def scraper():
         if (location := job.get('location').get('city').lower()) == 'bucharest':
             location = 'Bucuresti'
 
+        location_finish = get_county(location=location)
+
         # get jobs items from response
         job_list.append(Item(
             job_title=job.get('title'),
             job_link=f'https://apply.workable.com/flowxai/j/{job.get("shortcode")}/',
             company='FlowxAI',
             country='Romania',
-            county=get_county(location),
-            city=location,
+            county=location_finish[0] if True in location_finish else None,
+            city='all' if location.lower() == location_finish[0].lower()\
+                        and True in location_finish and 'bucuresti' != location.lower()\
+                            else location,
             remote=job.get('workplace'),
         ).to_dict())
 

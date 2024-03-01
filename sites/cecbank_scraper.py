@@ -89,14 +89,18 @@ def scraper():
                     second_soup = html.unescape(GetStaticSoup(link))
                     location = second_soup.find('div', attrs={'class': 'col-12 col-sm-12 col-md-12 col-lg-3 col-xl-3'}).find('p').text.split()[-1].strip()
 
+                    location_finish = get_county(location=location)
+
                     # get jobs items from response
                     job_list.append(Item(
                         job_title=second_soup.title.text,
                         job_link=link,
                         company='CECBank',
-                        country='România',
-                        county=get_county(location),
-                        city=location,
+                        country='Romania',
+                        county=location_finish[0] if True in location_finish else None,
+                        city='all' if location.lower() == location_finish[0].lower()\
+                                    and True in location_finish and 'bucuresti' != location.lower()\
+                                        else location,
                         remote='on-site',
                     ).to_dict())
 

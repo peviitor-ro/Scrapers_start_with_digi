@@ -45,7 +45,7 @@ def scraper():
     '''
     ... scrape data from IQVIA scraper.
     '''
-    json_data = GetRequestJson("https://jobs.iqvia.com/search-jobs")
+    #json_data = GetRequestJson("https://jobs.iqvia.com/search-jobs")
 
     job_list = []
     page = 1

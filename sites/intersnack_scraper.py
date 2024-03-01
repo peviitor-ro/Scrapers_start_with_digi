@@ -32,14 +32,18 @@ def scraper():
         
         location = job.select_one('h3.text-center').text.strip()
 
+        location_finish = get_county(location=location)
+
         # get jobs items from response
         job_list.append(Item(
             job_title=job.select_one('h2.text-center.font__is').text.strip(),
             job_link=f"https://www.intersnack.ro{job.select_one('a.btn.btn-ghost.btn-ghost-light')['href']}",
             company='Intersnack',
             country='Romania',
-            county=get_county(location),
-            city=location,
+            county=location_finish[0] if True in location_finish else None,
+            city='all' if location.lower() == location_finish[0].lower()\
+                        and True in location_finish and 'bucuresti' != location.lower()\
+                            else location,
             remote='on-site',
         ).to_dict())
 

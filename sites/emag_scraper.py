@@ -79,13 +79,10 @@ def scraper():
         html_data = GetRequestJson(url=url_header[0], custom_headers=url_header[1])
 
         if len(all_job_elements := html_data.find_all('div', attrs={'class': 'oracletaleocwsv2-accordion oracletaleocwsv2-accordion-expandable clearfix'})) > 0:
-            
-            # extract data outsite, for city == ''
-            location = ''
+
             new_loc = ''
             for job_data in all_job_elements:
 
-                # loc here
                 location = job_data.find('div', attrs={'class': 'oracletaleocwsv2-accordion-head-info'}).find_all('div')[1].text
                 for search_city in counties:
                     for v in search_city.values():
@@ -98,6 +95,7 @@ def scraper():
                     if 'depozit' in location.lower() and 'emag' in location.lower() and 'retail' in location.lower():
                         new_loc = 'Stefanestii de Jos'
 
+                location_finish = get_county(location=location)
 
                 # find type job
                 job_type_f = ''
@@ -115,8 +113,10 @@ def scraper():
                     job_link=link_title['href'],
                     company='eMAG',
                     country='Romania',
-                    county=get_county(new_loc),
-                    city=new_loc,
+                    county=location_finish[0] if True in location_finish else None,
+                    city='all' if location.lower() == location_finish[0].lower()\
+                            and True in location_finish and 'bucuresti' != location.lower()\
+                                else location,
                     remote=job_type_f,
                 ).to_dict())
             

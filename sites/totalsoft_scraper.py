@@ -96,14 +96,19 @@ def scraper():
             type = 'remote'
         else:
             type = 'on-site'
+
+        location_finish = get_county(city)
+
         # get jobs items from response
         job_list.append(Item(
             job_title=nume_link.find('a').text.strip(),
             job_link=nume_link.find('a')['href'].strip(),
             company='TotalSoft',
             country='Romania',
-            county='' if type == 'remote' else get_county(city),
-            city=city,
+            county=location_finish[0] if True in location_finish else None,
+            city='all' if city.lower() == location_finish[0].lower()\
+                        and True in location_finish and 'bucuresti' != city.lower()\
+                            else city,
             remote=type,
         ).to_dict())
     return job_list

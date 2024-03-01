@@ -74,13 +74,18 @@ def scraper():
         if 'remote' in title.lower():
             job_type = 'remote'
 
+        # call counties
+        location_finish = get_county(location=location)
+
         job_list.append(Item(
             job_title=title,
             job_link='https://bertrandtgroup.onlyfy.jobs' + job.find('div', class_='inner').find('a')['href'],
             company='BertrandtGroup',
             country='Romania',
-            county=get_county(location),
-            city=location,
+            county=location_finish[0] if True in location_finish else None,
+            city='all' if location.lower() == location_finish[0].lower()\
+                    and True in location_finish and 'bucuresti' != location.lower()\
+                        else location,
             remote=job_type,
         ).to_dict())
 

@@ -33,6 +33,8 @@ def scraper():
         location = job.find_all('p', attrs={'class': 'job-info'})[0].text.strip()
         title_job = job.find('a').text
 
+        print(location)
+
         job_type = ''
         if 'remote' in title_job.lower():
             job_type = 'remote'
@@ -41,14 +43,18 @@ def scraper():
         else:
             job_type = 'on-site'
 
+        location_finish = get_county(location=location)
+
         # get jobs items from response
         job_list.append(Item(
             job_title=title_job,
             job_link=job.find('a')['href'],
             company='Crosswork',
             country='Romania',
-            county=get_county(location),
-            city=location,
+            county=location_finish[0] if True in location_finish else None,
+            city='all' if location.lower() == location_finish[0].lower()\
+                        and True in location_finish and 'bucuresti' != location.lower()\
+                            else location,
             remote=job_type,
         ).to_dict())
 

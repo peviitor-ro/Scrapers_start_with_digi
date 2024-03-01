@@ -35,14 +35,19 @@ def scraper():
         # search location
         location = GetStaticSoup(link).find_all('div', attrs={'class': 'text'})[-1].find('p').text.split()[-1].strip()
 
+        location_finish = get_county(location=location)
+
+        
         # get jobs items from response
         job_list.append(Item(
             job_title=job.find('div', attrs={'class': 'content-title'}).text,
             job_link=link,
             company='makita',
             country='România',
-            county=get_county(location),
-            city='All',
+            county=location_finish[0] if True in location_finish else None,
+            city='all' if location.lower() == location_finish[0].lower()\
+                        and True in location_finish and 'bucuresti' != location.lower()\
+                            else location,
             remote='on-site',
         ).to_dict())
 

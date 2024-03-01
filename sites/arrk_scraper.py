@@ -34,14 +34,18 @@ def scraper():
 
         if location in ['Cluj', 'Cluj-Napoca', 'Bucharest', 'Bucuresti']:
 
+            call_get_county = get_county(location=location)
+
             # get jobs items from response
             job_list.append(Item(
                 job_title=job.find('a').text.strip(),
                 job_link=job.find('a')['href'],
                 company='ARRK',
                 country='Romania',
-                county=get_county(location),
-                city=location,
+                county=call_get_county[0] if True in call_get_county else None,
+                city='all' if location.lower() == call_get_county[0].lower()\
+                    and True in call_get_county and 'bucuresti' != location.lower()\
+                        else location,
                 remote='on-site',
             ).to_dict())
 

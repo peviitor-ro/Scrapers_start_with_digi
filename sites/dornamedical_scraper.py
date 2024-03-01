@@ -38,6 +38,7 @@ def scraper():
         
         # get counties ---> ned for ternar operator
         job_counties = [get_county(city_ro) for city_ro in locations]
+        get_locations_with_none = [location_finish[0] if True in location_finish else None for location_finish in job_counties]
 
         # get jobs items from response
         job_list.append(Item(
@@ -45,7 +46,7 @@ def scraper():
             job_link=job.find('a')['href'].strip(),
             company='DornaMedical',
             country='Romania',
-            county=job_counties[0] if len(locations) == 1 else job_counties,
+            county=None if None in get_locations_with_none else get_locations_with_none,
             city=locations[0] if len(locations) == 1 else locations,
             remote='on-site',
         ).to_dict())

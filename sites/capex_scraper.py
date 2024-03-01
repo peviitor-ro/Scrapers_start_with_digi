@@ -88,14 +88,18 @@ def scraper():
             if (location := job.get('dcrs_location')).lower() in ['bucharest',]:
                 location = "Bucuresti"
 
+            location_finish = get_county(location=location)
+
             # get jobs items from response
             job_list.append(Item(
                 job_title=job.get('dcrs_jobtitle'),
                 job_link=job.get('JobUrl'),
                 company='Capex',
                 country='Romania',
-                county=get_county(location),
-                city=location,
+                county=location_finish[0] if True in location_finish else None,
+                city='all' if location.lower() == location_finish[0].lower()\
+                                    and True in location_finish and 'bucuresti' != location.lower()\
+                                        else location,
                 remote='on-site',
             ).to_dict())
 

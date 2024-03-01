@@ -86,14 +86,18 @@ def scraper():
                     # change Bucharest
                     if location.lower() in ['bucharest']:
                         location = "Bucuresti"
+
+                    location_finish = get_county(location=location)
                     
                     job_list.append(Item(
                         job_title=job['data']['title'],
                         job_link=f"https://careers.blackline.com/careers-home/jobs/{job['data']['slug']}?lang=en-us",
                         company='BlackLine',
                         country='Romania',
-                        county=get_county(location),
-                        city=location,
+                        county=location_finish[0] if True in location_finish else None,
+                        city='all' if location.lower() == location_finish[0].lower()\
+                                    and True in location_finish and 'bucuresti' != location.lower()\
+                                        else location,
                         remote='hybrid',
                     ).to_dict())
 

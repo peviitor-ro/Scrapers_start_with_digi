@@ -26,16 +26,6 @@ from __utils import (
 import unicodedata
 
 
-#
-def has_diacritics(char):
-    return any(unicodedata.combining(c) for c in char)
-
-
-def remove_diacritics(input_string):
-    normalized_string = unicodedata.normalize('NFD', input_string)
-    return ''.join(char for char in normalized_string if not has_diacritics(char))
-
-
 def scraper():
     '''
     ... scrape data from Eurofins scraper.
@@ -49,20 +39,8 @@ def scraper():
 
             if (location := job.get('locationCity')).lower() == 'bucharest':
                 location = 'București'
-            
-            #
-            location = remove_diacritics(location)
 
-            county_general = ''
-            for county_i in counties:
-                for key, value in county_i.items():
-
-                    # check this point
-                    check_location = value[0]
-                    for i in value:
-                        if location == i and location == check_location:
-                            county_general = i
-                            break
+            location_finish = get_county(location=location)
 
             # get jobs items from response
             job_list.append(Item(
@@ -70,8 +48,10 @@ def scraper():
                 job_link=job.get('applyUrl'),
                 company='Eurofins',
                 country='Romania',
-                county=county_general,
-                city=location,
+                county=location_finish[0] if True in location_finish else None,
+                city='all' if location.lower() == location_finish[0].lower()\
+                            and True in location_finish and 'bucuresti' != location.lower()\
+                                else location,
                 remote='remote' if job.get('remoteJob') == "True" else 'on-site'
         ).to_dict())
 

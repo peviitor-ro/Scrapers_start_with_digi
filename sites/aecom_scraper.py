@@ -45,14 +45,19 @@ def scraper():
                 if loc_f.lower() == 'bucharest':
                     loc_f = 'Bucuresti'
 
+                # make one call for locations
+                location_finish = get_county(location=loc_f)
+
                 # get jobs items from response
                 job_list.append(Item(
                     job_title=job.find('h4').text.strip(),
                     job_link='https://aecom.jobs' + job.find('a').get('href').strip(),
                     company='AECOM',
                     country='Romania',
-                    county=get_county(loc_f),
-                    city=loc_f,
+                    county=location_finish[0] if True in location_finish else None,
+                    city='all' if loc_f.lower() == location_finish[0].lower() and\
+                        True in location_finish and 'bucuresti' != loc_f.lower()\
+                            else loc_f,
                     remote=get_job_type('hybrid'),
                 ).to_dict())
 

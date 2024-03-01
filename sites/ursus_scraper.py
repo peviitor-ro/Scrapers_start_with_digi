@@ -95,12 +95,7 @@ def scraper():
         locatie = job.find('span', class_='jobLocation')
         county_ro = locatie.text.strip().split(',')[0].strip()
 
-        # get city
-        city = ''
-        for county_i in counties:
-            for key, value in county_i.items():
-                if key == county_ro:
-                    city = value[0]
+        location_finish = get_county(location=county_ro)
         
         # get jobs items from response
         job_list.append(Item(
@@ -108,8 +103,10 @@ def scraper():
             job_link='https://careers.asahiinternational.com' + link,
             company='ursus',
             country='Romania',
-            county=county_ro,
-            city=city,
+            county=location_finish[0] if True in location_finish else None,
+            city='all' if county_ro.lower() == location_finish[0].lower()\
+                        and True in location_finish and 'bucuresti' != county_ro.lower()\
+                            else county_ro,
             remote='on-site',
         ).to_dict())
     return job_list

@@ -65,9 +65,11 @@ def scraper():
                 new_city = '-'.join([element.title() for element in new_location[1:]])
             elif len(new_location) == 1:
                     if 'romania' in new_location:
-                        new_city = 'All'
+                        new_city = 'all'
                     elif 'multiple locations' in new_location:
-                        new_city = 'All'
+                        new_city = 'all'
+
+        location_finish = get_county(location=new_city)
 
         # get jobs items from response
         job_list.append(Item(
@@ -75,8 +77,12 @@ def scraper():
             job_link=f"https://molgroup.taleo.net/careersection/external/jobdetail.ftl?job={job.get('jobId')}&tz=GMT%2B02%3A00&tzname=Europe%2FBucharest",
             company='MOLRomania',
             country='Romania',
-            county='All' if new_city == 'All' else get_county(new_city.title()),
-            city=new_city.title(),
+            county=(
+                    'all' if 'all' in location_finish else
+                    location_finish[0] if location_finish and isinstance(location_finish[0], str) else
+                    None
+                ),
+            city='all' if new_city.lower() == 'all' else new_city.title(),
             remote='on-site',
         ).to_dict())
 

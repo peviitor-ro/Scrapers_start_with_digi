@@ -34,14 +34,18 @@ def scraper():
         if (location := job.select_one('span.jobLocation').text.strip().split(',')[0].lower()) == 'bucharest':
             location = 'Bucuresti'
 
+        location_finish = get_county(location=location)
+
         # get jobs items from response
         job_list.append(Item(
             job_title=job.select_one('a.jobTitle-link').text,
             job_link=f"https://careers.idemia.com{job.select_one('a.jobTitle-link')['href']}",
             company='Idemia',
             country='Romania',
-            county=get_county(location.title()),
-            city=location.title(),
+            county=location_finish[0] if True in location_finish else None,
+            city='all' if location.lower() == location_finish[0].lower()\
+                        and True in location_finish and 'bucuresti' != location.lower()\
+                            else location,
             remote='on-site',
         ).to_dict())
 
