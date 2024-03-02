@@ -26,7 +26,7 @@ def prepare_get_headers():
     '''
     ... prepare headers for get request'''
 
-    url = 'https://mingle.ro/api/boards/mingle/jobs?q=companyUid~eq~%22htss%22&page=0&pageSize=30&sort=modifiedDate~DESC'
+    url = 'https://mingle.ro/api/boards/careers-page/jobs?company=htss&location=195&location=3197&page=0&pageSize=30&sort='
 
     headers = {
         'authority': 'mingle.ro',
@@ -51,32 +51,42 @@ def scraper():
 
     job_list = []
     for job in json_data.get('data').get('results'):
-
-        job_type = ''
-        location_city = ''
-        if (data_locations := job.get('locations')) != None:          
-            if len(data_locations) > 1:
-                job_type = 'remote' if 'remote' in data_locations[0].get('name').lower() else data_locations[1].get('name').split()[0].lower()
-                location_city = data_locations[0].get('name').lower() if 'remote' not in data_locations[0].get('name').lower() else data_locations[1].get('name')
-            else:
+        
+        # location and type job
+        location = None
+        job_type = None
+        if len((data_locations := job.get('locations'))) == 1:
+            if (new_location := data_locations[0].get('label')) and 'remote' not in new_location.lower():
+                if new_location.lower() == 'bucharest':
+                    location = 'Bucuresti'
+                location = new_location
                 job_type = 'on-site'
-                location_city = data_locations[0].get('name')
 
-        if job_type == '' and location_city == '':
-            job_type = 'on-site'
-            location_city = 'Bucuresti'
+        elif len(data_locations) > 1:
+            if (new_location := data_locations[0].get('label')) and 'remote' not in new_location.lower():
+                location = new_location
+                job_type = data_locations[1].get('label').split()[0].lower()
+            else:
+                location = data_locations[1].get('label')
+                job_type = data_locations[0].get('label').split()[0].lower()
 
-        if location_city.lower() == 'bucharest':
-            location_city = 'Bucuresti'
+        # Location from Bucharest to Bucuresti
+        if location.lower() == 'bucharest':
+            location = 'Bucuresti'
 
-        # get jobs items from response
+        # function from get county = 
+        location_finish = get_county(location=location)
+
+        #get jobs items from response
         job_list.append(Item(
-            job_title=job.get('jobTitle'),
+            job_title=job.get('title'),
             job_link=f'https://htss.mingle.ro/en/embed/apply/{job.get("publicUid")}',
             company='HTSS',
             country='Romania',
-            county=get_county(location_city.title()),
-            city=location_city.title(),
+            county=location_finish[0] if True in location_finish else None,
+            city='all' if location.lower() == location_finish[0].lower()\
+                        and True in location_finish and 'bucuresti' != location.lower()\
+                            else location,
             remote=job_type,
         ).to_dict())
 
