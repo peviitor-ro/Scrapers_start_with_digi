@@ -3,7 +3,7 @@
 # Your custom scraper here ---> Last level!
 #
 # Company ---> OrionInnovation
-# Link ------> https://www.orioninc.com/careers/jobs/\?_job_location\=romania
+# Link ------> https://www.orioninc.com/careers/jobs/?_job_location=romania
 #
 #
 # Aici va invit sa va creati propriile metode de scraping cu Python,
