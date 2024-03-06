@@ -79,7 +79,7 @@ def scraper():
             country='Romania',
             county=(
                     'all' if 'all' in location_finish else
-                    location_finish[0] if location_finish and isinstance(location_finish[0], str) else
+                    location_finish[0] if True in location_finish and isinstance(location_finish[0], str) else
                     None
                 ),
             city='all' if new_city.lower() == 'all' else new_city.title(),
