@@ -68,9 +68,9 @@ def scraper():
                 company='pmi',
                 country='Romania',
                 county=location_finish[0] if True in location_finish else None,
-                city='all' if location.lower() == location_finish[0].lower()\
-                        and True in location_finish and 'bucuresti' != location.lower()\
-                            else location,
+                city='all' if new_loc.lower() == location_finish[0].lower()\
+                        and True in location_finish and 'bucuresti' != new_loc.lower()\
+                            else new_loc,
                 remote='on-site',
             ).to_dict())
 
