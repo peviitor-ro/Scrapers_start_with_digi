@@ -33,8 +33,6 @@ def scraper():
         location = job.find_all('p', attrs={'class': 'job-info'})[0].text.strip()
         title_job = job.find('a').text
 
-        print(location)
-
         job_type = ''
         if 'remote' in title_job.lower():
             job_type = 'remote'
