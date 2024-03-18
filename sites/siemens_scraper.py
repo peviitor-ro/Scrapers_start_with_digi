@@ -97,7 +97,7 @@ def scraper():
 
                 # data - search data in locations - list with locations from API
                 else:
-                    locations_else = ['cluj', 'bucharest', 'timis', 'iasi', 'sibiu', 'brasov', 'bucuresti',]
+                    locations_else = ['cluj', 'bucharest', 'timis', 'iasi', 'sibiu', 'brasov', 'bucuresti', 'craiova',]
                     for another_loc in job.get('locations'):
                         for city_ro in locations_else:
                             if (city_ro := remove_diacritics(city_ro)) and city_ro in another_loc.lower():
