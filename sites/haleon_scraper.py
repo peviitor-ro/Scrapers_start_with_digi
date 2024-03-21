@@ -60,11 +60,18 @@ def prepare_post_headers():
         'origin': 'https://gsknch.wd3.myworkdayjobs.com',
         'referer': 'https://gsknch.wd3.myworkdayjobs.com/GSKCareers?locations=03fe97f04c9a017ec1d4d4e8a757dd50',
         'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        'x-calypso-csrf-token': '5db977b7-c44a-431e-b2cd-a2c8117b93b7', 
+        'x-calypso-csrf-token': f"{all_ids[1].split('=')[1]}", 
     }
 
-    payload =  '{"appliedFacets":{"locations":["03fe97f04c9a017ec1d4d4e8a757dd50"]},"limit":20,"offset":0,"searchText":""}'
-  
+    payload = {
+            'appliedFacets': {
+                'locationCountry': [
+                    'f2e609fe92974a55a05fc1cdc2852122',
+                ],
+            },
+            'searchText': '',
+        }
+        
     return url, headers, payload
 
 
@@ -73,7 +80,7 @@ def scraper():
     ... scrape data from Haleon scraper.
     '''
     headers_data = prepare_post_headers()
-    post_data = PostRequestJson(url=headers_data[0], custom_headers=headers_data[1], data_raw=headers_data[2])
+    post_data = PostRequestJson(url=headers_data[0], custom_headers=headers_data[1], data_json=headers_data[2])
 
     job_list = []
     for job in post_data.get('jobPostings'):
