@@ -34,6 +34,10 @@ def scraper():
         if (location := job.select_one('span.jobLocation').text.strip().split(',')[0].lower()) == 'bucharest':
             location = 'Bucuresti'
 
+        # if location are diferent: dakar ---> or something else.
+        if location.lower != 'bucharest':
+            location = 'Bucuresti'
+
         location_finish = get_county(location=location)
 
         # get jobs items from response

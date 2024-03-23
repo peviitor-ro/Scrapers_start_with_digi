@@ -123,7 +123,7 @@ def scraper():
                         country='Romania',
                         county=None if any(x is None for x in get_locations_with_none) else (get_locations_with_none[0] if len(get_locations_with_none) == 1 else get_locations_with_none),
                         city=location_towns[0] if len(location_towns) == 1 else location_towns,
-                        remote=job.get('work_location_option'),
+                        remote=job.get('work_location_option').split('_')[0],
                     ).to_dict())
 
         else:
