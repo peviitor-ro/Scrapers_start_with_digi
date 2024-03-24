@@ -85,23 +85,23 @@ def scraper():
     if len(check_json := PostRequestJson(url=data_uhp[0], custom_headers=data_uhp[1], data_raw=data_uhp[2])) > 0:
         for job in check_json['Data']:
             
-            if (location := job.get('dcrs_location')).lower() in ['bucharest',]:
+            if (location := job.get('dcrs_location').lower().split('-')[0].strip()) and 'bucharest' in location:
                 location = "Bucuresti"
 
-            location_finish = get_county(location=location)
+                location_finish = get_county(location=location)
 
-            # get jobs items from response
-            job_list.append(Item(
-                job_title=job.get('dcrs_jobtitle'),
-                job_link=job.get('JobUrl'),
-                company='Capex',
-                country='Romania',
-                county=location_finish[0] if True in location_finish else None,
-                city='all' if location.lower() == location_finish[0].lower()\
-                                    and True in location_finish and 'bucuresti' != location.lower()\
-                                        else location,
-                remote='on-site',
-            ).to_dict())
+                # get jobs items from response
+                job_list.append(Item(
+                    job_title=job.get('dcrs_jobtitle'),
+                    job_link=job.get('JobUrl'),
+                    company='Capex',
+                    country='Romania',
+                    county=location_finish[0] if True in location_finish else None,
+                    city='all' if location.lower() == location_finish[0].lower()\
+                                        and True in location_finish and 'bucuresti' != location.lower()\
+                                            else location,
+                    remote='on-site',
+                ).to_dict())
 
     return job_list
 

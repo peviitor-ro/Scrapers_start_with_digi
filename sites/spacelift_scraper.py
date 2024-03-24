@@ -88,15 +88,21 @@ def scraper():
 
     job_list = []
     for job in soup_data:
-        job_list.append(Item(
-            job_title=job.find('p', attrs={'class': 'CareersPage_jobTitle__BC5ad Typography_styleBase__auQ0r Typography_styleH6__vex_U'}).text,
-            job_link=job.find('a', attrs={'class': 'CareersPage_jobItemLink__DIJo1'})["href"],
-            company='Spacelift',
-            country='Romania',
-            county='',
-            city='',
-            remote='remote',
-        ).to_dict())
+
+        title = job.find('p', attrs={'class': 'CareersPage_jobTitle__BC5ad Typography_styleBase__auQ0r Typography_styleH6__vex_U'}).text
+
+        # get only europe and remote location
+        if 'remote' in title.lower() and 'europe' in title.lower()\
+                                        or 'remote' in title.lower() and 'romania' in title.lower():
+            job_list.append(Item(
+                job_title=title,
+                job_link=job.find('a', attrs={'class': 'CareersPage_jobItemLink__DIJo1'})["href"],
+                company='Spacelift',
+                country='Romania',
+                county='',
+                city='',
+                remote='remote',
+            ).to_dict())
     return job_list
 
 def main():
