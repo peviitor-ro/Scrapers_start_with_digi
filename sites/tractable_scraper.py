@@ -21,6 +21,9 @@ from __utils import (
     UpdateAPI,
     #
     GetHeadersDict,
+    #
+    counties,
+    remove_diacritics,
 )
 
 
@@ -71,23 +74,31 @@ def scraper():
 
     url, headers = make_headers()
 
-    json_data = GetRequestJson(url=url, custom_headers=headers)
-    print(json_data)
-
     job_list = []
-    # for job in json_data['key']:
-    #     pass
+    for job in GetRequestJson(url=url, custom_headers=headers).get('jobs'):
 
-    #     # get jobs items from response
-    #     job_list.append(Item(
-    #         job_title='',
-    #         job_link='',
-    #         company='Tractable',
-    #         country='',
-    #         county='',
-    #         city='',
-    #         remote='',
-    #     ).to_dict())
+        # get location
+        if (location := remove_diacritics(job.get('location').lower().split(',')[0])) and 'bucharest' in location:
+            location = 'Bucuresti'
+
+        # search by location in counties
+        for search_loc in counties:
+            for key_d in search_loc.keys():
+                if location.lower().strip() == key_d.lower():
+                    location_finish = get_county(location=location)
+
+                    # get jobs items from response
+                    job_list.append(Item(
+                        job_title=job.get('title'),
+                        job_link=f"https://tractable.ai{job.get('href')}",
+                        company='Tractable',
+                        country='Romania',
+                        county=location_finish[0] if True in location_finish else None,
+                        city='all' if location.lower() == location_finish[0].lower()\
+                                    and True in location_finish and 'bucuresti' != location.lower()\
+                                        else location,
+                        remote='hybrid',
+                    ).to_dict())
 
     return job_list
 
@@ -100,13 +111,13 @@ def main():
     '''
 
     company_name = "Tractable"
-    logo_link = "logo_link"
+    logo_link = "https://cdn.dribbble.com/users/966/screenshots/3367258/media/da2b2cffc6ff03dbab15041037b6d61e.jpg?resize=400x300&vertical=center"
 
     jobs = scraper()
 
     # uncomment if your scraper done
-    #UpdateAPI().update_jobs(company_name, jobs)
-    #UpdateAPI().update_logo(company_name, logo_link)
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
 
 
 if __name__ == '__main__':
