@@ -34,8 +34,8 @@ from typing import Union
 
 def make_dict_jobs_dict(title: str,
                         job_link: str,
-                        county: Union[str | list],
-                        city: Union[str | list]):
+                        county: Union[str, list],
+                        city: Union[str, list]):
     '''
     >>> >>> >>> this function make dict for SustainAnalytics API --->
 
