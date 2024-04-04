@@ -3,7 +3,7 @@
 # Your custom scraper here ---> Last level!
 #
 # Company ---> OSFDigital
-# Link ------> https://osf.digital/careers/jobs\?location\=romania
+# Link ------> https://osf.digital/careers/jobs?location=romania
 #
 #
 # Aici va invit sa va creati propriile metode de scraping cu Python,
