@@ -22,54 +22,52 @@ class UpdateAPI:
     '''
 
     def __init__(self):
-        self.api_key = os.environ.get('API_KEY')
-        self.clean_url = 'https://api.peviitor.ro/v4/clean/'
-        self.post_url = 'https://api.peviitor.ro/v4/update/'
-        self.logo_url = 'https://api.peviitor.ro/v1/logo/add/'
-
-        self.clean_header = {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'apikey': self.api_key
-        }
-
-        self.post_header = {
-            'Content-Type': 'application/json',
-            'apikey': self.api_key
-        }
+        self.email = os.environ.get('EMAIL')
+        # self.logo_url = 'https://api.peviitor.ro/v1/logo/add/'
 
         self.logo_header = {
             'Content-Type': 'application/json',
         }
+        
+    def get_token(self):
+
+        payload = json.dumps({
+        "email": self.email
+        })
+        
+        post_header = {
+        'Content-Type': 'application/json'
+        }
+
+        self.access_token = requests.request("POST", "https://api.peviitor.ro/v5/get_token/", headers=post_header, data=payload).json()['access']
+
+    def add_jobs(self, data_jobs):
+
+        post_header = {
+        'Authorization': f'Bearer {self.access_token}',
+        'Content-Type': 'application/json'
+        }
+
+        requests.request("POST", "https://api.peviitor.ro/v5/add/", headers=post_header, data=json.dumps(data_jobs))
+    
 
     def update_jobs(self, company_name: str, data_jobs: list):
         '''
         ... update and clean data on peviitor
 
         '''
-        clean_request = requests.post(self.clean_url, headers=self.clean_header,
-                                      data={'company': company_name})
-
-        # time sleep for SOLR indexing
+        self.get_token()
         time.sleep(0.2)
+        self.add_jobs(data_jobs)
 
-        post_request_to_server = requests.post(self.post_url, headers=self.post_header,
-                                               data=json.dumps(data_jobs))
-
-        # not delete this lines if you want to see the graph on scraper's page
-        file = company_name.lower() + '_scraper.py'
-        data = {'data': len(data_jobs)}
-        dataset_url = f'https://dev.laurentiumarian.ro/dataset/Scrapy_peviitor_jobs/{file}/'
-        requests.post(dataset_url, json=data)
-        #######################################################################
-
-        print(json.dumps(data_jobs, indent=4))
 
     def update_logo(self, id_company: str, logo_link: str):
         '''
         ... update logo on peviitor.ro
         '''
+        pass
 
-        data = json.dumps([{"id": id_company, "logo": logo_link}])
-        response = requests.post(self.logo_url, headers=self.logo_header, data=data)
+        # data = json.dumps([{"id": id_company, "logo": logo_link}])
+        # response = requests.post(self.logo_url, headers=self.logo_header, data=data)
 
-        #  print(f'Logo update ---> succesfuly {response}')
+        # #  print(f'Logo update ---> succesfuly {response}')
