@@ -41,6 +41,7 @@ class UpdateAPI:
 
         self.access_token = requests.request("POST", "https://api.peviitor.ro/v5/get_token/", headers=post_header, data=payload).json()['access']
 
+
     def add_jobs(self, data_jobs):
 
         post_header = {
@@ -48,8 +49,8 @@ class UpdateAPI:
         'Content-Type': 'application/json'
         }
 
-        requests.request("POST", "https://api.peviitor.ro/v5/add/", headers=post_header, data=json.dumps(data_jobs))
-    
+        res = requests.request("POST", "https://api.peviitor.ro/v5/add/", headers=post_header, data=json.dumps(data_jobs))
+        print(res)
 
     def update_jobs(self, company_name: str, data_jobs: list):
         '''
