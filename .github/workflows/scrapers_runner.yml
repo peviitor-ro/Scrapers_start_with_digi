@@ -33,6 +33,6 @@ jobs:
         pip3 install -r requirements.txt
     - name: All scrapers runs
       env:
-        API_KEY: ${{ secrets.API_KEY }}
+        API_KEY: ${{ secrets.EMAIL }}
       run: |
         python3 sites/__main_RunnerFile.py
