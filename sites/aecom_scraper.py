@@ -16,7 +16,7 @@
 # Link ------> https://aecom.jobs/rom/jobs/
 #
 from __utils import (
-    GetStaticSoup,
+    GetRequestJson,
     get_county,
     get_job_type,
     Item,
@@ -29,40 +29,40 @@ def scraper():
     ... scrape data from AECOM scraper.
     '''
 
-    job_list = []
-    flag = True
-    offset = 0
-    while flag:
-        soup = GetStaticSoup(f"https://aecom.jobs/rom/jobs/ajax/joblisting/?num_items=15&offset={offset}")
-        soup_data = soup.find_all('li', class_='direct_joblisting with_description')
+    job_list = list()
 
-        if len(soup_data) < 1:
-            flag = False
+    data_jobs_api = GetRequestJson(url="https://prod-search-api.jobsyn.org/api/v1/solr/search?page=1&location=rom&num_items=100",
+                                    custom_headers={
+                                      'accept': 'application/json',
+                                      'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+                                      'x-origin': 'aecom.jobs'
+                                    }
+                                )
 
-        for job in soup_data:
-            if (loc := job.find('div', class_='direct_joblocation').text.strip().split('\n')) and 'romania' in [element.strip().lower() for element in loc]:
-                loc_f = loc[0].strip().split(',')[0]
-                if loc_f.lower() == 'bucharest':
-                    loc_f = 'Bucuresti'
+    # get all jobs
+    for job in data_jobs_api.get('jobs'):
+        slug_job    = job.get('title_slug')
+        idx         = job.get('guid') 
 
-                # make one call for locations
-                location_finish = get_county(location=loc_f)
+        location    = job.get('city_exact')
 
-                # get jobs items from response
-                job_list.append(Item(
-                    job_title=job.find('h4').text.strip(),
-                    job_link='https://aecom.jobs' + job.find('a').get('href').strip(),
-                    company='AECOM',
-                    country='Romania',
-                    county=location_finish[0] if True in location_finish else None,
-                    city='all' if loc_f.lower() == location_finish[0].lower() and\
-                        True in location_finish and 'bucuresti' != loc_f.lower()\
-                            else loc_f,
-                    remote=get_job_type('hybrid'),
-                ).to_dict())
+        # change Bucharest
+        if location.lower() in ['bucharest']:
+            location = "Bucuresti"
 
-        # don't forget this details in loops
-        offset += 15
+        location_finish = get_county(location=location)
+
+        job_list.append(Item(
+            job_title=job.get('title_exact'),
+            job_link=f"https://aecom.jobs/bucharest-rom/{slug_job}/{idx}/job/",
+            company='AECOM',
+            country='Romania',
+            county=location_finish[0] if True in location_finish else None,
+            city='all' if location.lower() == location_finish[0].lower()\
+                        and True in location_finish and 'bucuresti' != location.lower()\
+                            else location,
+            remote=job.get('job_type'),
+        ).to_dict())
 
     return job_list
 
@@ -78,6 +78,7 @@ def main():
     logo_link = "https://1000logos.net/wp-content/uploads/2021/12/AECOM-logo.png"
 
     jobs = scraper()
+    print(jobs)
 
     # uncomment if your scraper done
     UpdateAPI().update_jobs(company_name, jobs)

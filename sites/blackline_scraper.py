@@ -120,10 +120,11 @@ def main():
     logo_link = "https://cms.jibecdn.com/prod/blackline/assets/HEADER-NAV_LOGO-en-us-1640926577769.svg"
 
     jobs = scraper()
+    print(len(jobs))
 
     # uncomment if your scraper done
-    UpdateAPI().update_jobs(company_name, jobs)
-    UpdateAPI().update_logo(company_name, logo_link)
+    #UpdateAPI().update_jobs(company_name, jobs)
+    #UpdateAPI().update_logo(company_name, logo_link)
 
 
 if __name__ == '__main__':
