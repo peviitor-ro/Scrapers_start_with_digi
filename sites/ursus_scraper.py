@@ -122,6 +122,7 @@ def main():
     logo_link = "https://rmkcdn.successfactors.com/08275967/3714ed71-a6a4-423f-a4d4-a.png"
 
     jobs = scraper()
+    print(jobs)
 
     # uncomment if your scraper done
     UpdateAPI().update_jobs(company_name, jobs)

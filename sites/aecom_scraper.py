@@ -61,7 +61,7 @@ def scraper():
             city='all' if location.lower() == location_finish[0].lower()\
                         and True in location_finish and 'bucuresti' != location.lower()\
                             else location,
-            remote=job.get('job_type'),
+            remote='hybrid',
         ).to_dict())
 
     return job_list
