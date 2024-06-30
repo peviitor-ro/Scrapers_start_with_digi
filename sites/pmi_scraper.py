@@ -33,49 +33,57 @@ def scraper():
     # job list for all jobs
     job_list = []
     page = 1
-    while True:
+    flag = True
+    while flag:
         soup = GetStaticSoup(f"https://www.pmi.com/careers/explore-our-job-opportunities?title=&locations=Romania&departments=&contracts=&page={page}")
         soup_data = soup.find_all('a', attrs={'class': 'job-row'})
 
-        link_verification = 'https://www.pmi.com' + soup.find_all('a', attrs={'class': 'job-row'})[0]['href'].strip()
+        # check link verification --->
+        link_verification = None
+        try:
+            link_verification = 'https://www.pmi.com' + soup.find_all('a', attrs={'class': 'job-row'})[0]['href'].strip()
+        except:
+            flag = False
+
 
         # verification for link exists in job_list json
-        if job_list:
-            if link_verification in [job["job_link"] for job in job_list]:
-                break
+        if link_verification is not None:
+            if job_list:
+                if link_verification in [job["job_link"] for job in job_list]:
+                    break
 
-        for idx, job in enumerate(soup_data):
-            link_str = f"https://www.pmi.com{job['href'].strip()}"
+            for idx, job in enumerate(soup_data):
+                link_str = f"https://www.pmi.com{job['href'].strip()}"
 
-            req_page = GetStaticSoup(link_str)
+                req_page = GetStaticSoup(link_str)
 
-            #  search location
-            new_loc = list()
-            if len((location := req_page.find('p', attrs={'class': 'details--note details--positionIcon location'}).text.strip().split(',')[0].split())) > 1:
-                new_loc = '-'.join(location)
-            else:
-                new_loc = location[0]
+                #  search location
+                new_loc = list()
+                if len((location := req_page.find('p', attrs={'class': 'details--note details--positionIcon location'}).text.strip().split(',')[0].split())) > 1:
+                    new_loc = '-'.join(location)
+                else:
+                    new_loc = location[0]
 
-            if new_loc.lower() == 'bucharest':
-                new_loc = 'Bucuresti'
+                if new_loc.lower() == 'bucharest':
+                    new_loc = 'Bucuresti'
 
-            location_finish = get_county(location=new_loc)
+                location_finish = get_county(location=new_loc)
 
-            # get jobs items from response
-            job_list.append(Item(
-                job_title=job.find('h3', attrs={'class': 'job-row--title title8'}).text.strip(),
-                job_link=link_str,
-                company='pmi',
-                country='Romania',
-                county=location_finish[0] if True in location_finish else None,
-                city='all' if new_loc.lower() == location_finish[0].lower()\
-                        and True in location_finish and 'bucuresti' != new_loc.lower()\
-                            else new_loc,
-                remote='on-site',
-            ).to_dict())
+                # get jobs items from response
+                job_list.append(Item(
+                    job_title=job.find('h3', attrs={'class': 'job-row--title title8'}).text.strip(),
+                    job_link=link_str,
+                    company='pmi',
+                    country='Romania',
+                    county=location_finish[0] if True in location_finish else None,
+                    city='all' if new_loc.lower() == location_finish[0].lower()\
+                            and True in location_finish and 'bucuresti' != new_loc.lower()\
+                                else new_loc,
+                    remote='on-site',
+                ).to_dict())
 
-        page += 1
-
+            page += 1
+    
     return job_list
 
 
@@ -90,6 +98,7 @@ def main():
     logo_link = "https://www.pmi.com/resources/images/default-source/default-album/pmi-logoaaf115bd6c7468f696e2ff0400458fff.svg?sfvrsn=37857db4_2"
 
     jobs = scraper()
+    print(jobs)
 
     # uncomment if your scraper done
     UpdateAPI().update_jobs(company_name, jobs)
