@@ -87,13 +87,19 @@ def scraper():
     for job in response.get('result'):
 
         # get Romanian counties names
-        if (county_ro := job.get('location').get('state').lower()) == 'bucharest':
-            county_ro = 'Bucuresti'
+        county_ro = job.get('location').get('state')
+        if county_ro:
+            if county_ro.lower() == 'bucharest':
+                county_ro = 'Bucuresti'
 
         # get Romanian cities names
-        if (city_ro := job.get('location').get('city').split(',')[0].lower()) == 'bucharest':
-            city_ro = 'Bucuresti'
-        
+        city_ro = job.get('location').get('city')
+        if city_ro:
+            city_ro = city_ro.split(',')[0].lower()
+            if city_ro.lower() == 'bucharest':
+                city_ro = 'Bucuresti'
+
+        # remote
         is_remote = job.get('isRemote')
 
         # get jobs items from response
@@ -102,8 +108,8 @@ def scraper():
             job_link=f"https://skywindgroup.bamboohr.com/careers/{job.get('id')}",
             company='Skywind',
             country='Romania',
-            county=county_ro.title(),
-            city=city_ro.title(),
+            county=county_ro.title() if county_ro is not None else None,
+            city=city_ro.title() if city_ro is not None else None,
             remote='on-site' if is_remote == None else is_remote,
         ).to_dict())
 
