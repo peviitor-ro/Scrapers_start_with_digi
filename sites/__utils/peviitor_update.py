@@ -12,6 +12,10 @@ import os  # I do not have API KEY
 import json
 #
 import time
+#
+from fake_useragent import UserAgent
+
+UA = UserAgent()
 
 
 class UpdateAPI:
@@ -27,6 +31,7 @@ class UpdateAPI:
 
         self.logo_header = {
             'Content-Type': 'application/json',
+            'User-Agent': UA.random,
         }
         
     def get_token(self):
@@ -36,17 +41,20 @@ class UpdateAPI:
         })
         
         post_header = {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'User-Agent': UA.random,
         }
 
         self.access_token = requests.request("POST", "https://api.peviitor.ro/v5/get_token/", headers=post_header, data=payload).json()['access']
+        print(self.access_token)
 
 
     def add_jobs(self, data_jobs):
 
         post_header = {
         'Authorization': f'Bearer {self.access_token}',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'User-Agent': UA.random,
         }
 
         res = requests.request("POST", "https://api.peviitor.ro/v5/add/", headers=post_header, data=json.dumps(data_jobs))

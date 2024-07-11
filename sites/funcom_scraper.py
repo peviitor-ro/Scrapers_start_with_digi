@@ -114,10 +114,11 @@ def main():
     logo_link = "https://pr.funcom.com/Content/Themes/Funcom/img/Funcom_R_logo_Horz_med.png"
 
     jobs = scraper()
+    print(jobs, len(jobs))
 
-    # uncomment if your scraper done
-    UpdateAPI().update_jobs(company_name, jobs)
-    UpdateAPI().update_logo(company_name, logo_link)
+    # # uncomment if your scraper done
+    # UpdateAPI().update_jobs(company_name, jobs)
+    # UpdateAPI().update_logo(company_name, logo_link)
 
 
 if __name__ == '__main__':
