@@ -116,9 +116,9 @@ def main():
     jobs = scraper()
     print(jobs, len(jobs))
 
-    # # uncomment if your scraper done
-    # UpdateAPI().update_jobs(company_name, jobs)
-    # UpdateAPI().update_logo(company_name, logo_link)
+    # uncomment if your scraper done
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
 
 
 if __name__ == '__main__':
