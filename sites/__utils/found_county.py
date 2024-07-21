@@ -14005,7 +14005,9 @@ def get_county(location: str):
     :param location_data: A dictionary containing location information.
     :return: A tuple with county information and a boolean indicating whether the county was found.
     """
-
+    if location == None:
+        return None, None
+    
     location = remove_diacritics(location)
 
     for county_dict in counties:

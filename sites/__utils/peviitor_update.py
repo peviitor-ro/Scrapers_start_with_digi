@@ -57,7 +57,7 @@ class UpdateAPI:
         'User-Agent': UA.random,
         }
 
-        res = requests.request("POST", "https://api.peviitor.ro/v5/add/", headers=post_header, data=json.dumps(data_jobs))
+        res = requests.request("POST", "https://api.laurentiumarian.ro/jobs/add/", headers=post_header, data=json.dumps(data_jobs))
         print(res)
 
     def update_jobs(self, company_name: str, data_jobs: list):
