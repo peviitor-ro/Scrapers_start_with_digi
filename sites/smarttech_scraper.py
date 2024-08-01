@@ -63,6 +63,7 @@ def main():
     logo_link = "None"
 
     jobs = scraper()
+    print(jobs)
 
     # uncomment if your scraper done
     UpdateAPI().update_jobs(company_name, jobs)

@@ -81,12 +81,22 @@ def scraper():
         if len(json_data['jobs']) > 0:
             for job in json_data['jobs']:
                 if job['data']['country'] == "Romania":
-                    location = job['data']['city']
+                    location = job['data']['location_name']
 
                     # change Bucharest
                     if location.lower() in ['bucharest']:
                         location = "Bucuresti"
-
+                    
+                    job_type = 'on-site'
+                    if 'remote' in location.lower():
+                        location = 'Bucuresti'
+                        job_type = 'remote'
+                    elif 'hybrid' in location.lower():
+                        job_type = 'hybrid'
+                    else:
+                        job_type = 'on-site'                    
+                    
+                    # location
                     location_finish = get_county(location=location)
                     
                     job_list.append(Item(
@@ -98,11 +108,11 @@ def scraper():
                         city='all' if location.lower() == location_finish[0].lower()\
                                     and True in location_finish and 'bucuresti' != location.lower()\
                                         else location,
-                        remote='hybrid',
+                        remote=job_type,
                     ).to_dict())
 
         else:
-            break
+            flag = False
 
         count += 1
 
@@ -120,10 +130,9 @@ def main():
     logo_link = "https://cms.jibecdn.com/prod/blackline/assets/HEADER-NAV_LOGO-en-us-1640926577769.svg"
 
     jobs = scraper()
-    print(len(jobs))
 
     # uncomment if your scraper done
-    #UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_jobs(company_name, jobs)
     #UpdateAPI().update_logo(company_name, logo_link)
 
 
