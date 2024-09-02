@@ -66,7 +66,7 @@ def scraper():
     url, headers, data_raw = get_static_headers()
 
     post_data = PostRequestJson(url=url,
-                                custom_headers=headers, 
+                                custom_headers=headers,
                                 data_raw=data_raw)
 
     job_list = []
@@ -86,7 +86,7 @@ def scraper():
 
         # get correct location
         if new_loc != None:
-            location_finish = get_county(location=location.split()[1])
+            location_finish = get_county(location=new_loc)
         else:
             location_finish = 'all'
 
@@ -116,8 +116,7 @@ def main():
     logo_link = "https://spyro-soft.com/wp-content/uploads/2022/06/spyrosoft_color_rgb.png"
 
     jobs = scraper()
-
-    # uncomment if your scraper done
+    # # uncomment if your scraper done
     UpdateAPI().update_jobs(company_name, jobs)
     UpdateAPI().update_logo(company_name, logo_link)
 
