@@ -1,25 +1,13 @@
 #
+#
+#
+lst = [1, 1, 10, 1, 3, 2, 5, 10, 10, 11, 12, 11]
 
-# def get_flags (checkbox)
-    flags = {
-        'if_checkbox': false,
-        'if_input_field': false,
-    }
-
-    if_checkbox = driver.find_element(BY.ID, "")
-    
-
-# def perform_flags()
+new_list = []
+for i in lst:
+    if i not in new_list:
+        new_list.append(i)
 
 
-@when('Test random')
-while True
-
-    data = get_flags()
-    iddd = perform(flags)
-
-    if not_screenout() == True: 'account'
-        break
-
-    if button_next:
-        button_next.click()
+print(lst)
+print(new_list)

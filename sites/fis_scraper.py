@@ -33,8 +33,8 @@ def get_csrf_token():
     '''
     ... this func return a csrf token from html page
     '''
-    return [element for element in 
-            get_data_with_regex('"csrfToken":"([a-fA-F0-9]+)"', 
+    return [element for element in
+            get_data_with_regex('"csrfToken":"([a-fA-F0-9]+)"',
             str(GetStaticSoup('https://careers.fisglobal.com/us/en/search-results?s=1'))).split(':')[-1].split('"')
             if element.strip()][0]
 
@@ -83,7 +83,7 @@ def scraper():
     data_with_headers = prepare_headers()
 
     post_data = PostRequestJson(url=data_with_headers[0], custom_headers=data_with_headers[1], data_raw=data_with_headers[2])
-    
+
     job_list = []
     for job in post_data.get('eagerLoadRefineSearch').get('data').get('jobs'):
 
