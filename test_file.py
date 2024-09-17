@@ -1,8 +1,9 @@
 #
 #
 #
-import requests
+#import requests
 
+# ---> Daily update
 # cookies = {
 #     'PHPSESSID': 'sxi2PjU4lVYHwwU83juWfnNwS4VMrrHJ',
 #     '_cfuvid': '6nf6PvOXmaHQJN4so.LtllqhAS37tR9qtdujabj7RxY-1726315836551-0.0.1.1-604800000',
