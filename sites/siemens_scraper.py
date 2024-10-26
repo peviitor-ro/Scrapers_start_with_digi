@@ -109,8 +109,8 @@ def scraper():
 
                 # logic to catch towns ---> !
                 if location_towns:
-                    
-                    # get locations ---> 
+
+                    # get locations --->
                     location_towns = list(set(location_towns))
                     job_counties = [get_county(city_ro) for city_ro in location_towns]
                     get_locations_with_none = [location_finish[0] if True in location_finish else None for location_finish in job_counties]
@@ -129,8 +129,8 @@ def scraper():
         else:
             flag = False
 
-        page += 10  
-    
+        page += 10
+
 
 
     return job_list
@@ -147,10 +147,11 @@ def main():
     logo_link = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRy4X0h4JCY_Ex39Rq7sl1kIf4yXaF6In_BxJjl24CHFg&s"
 
     jobs = scraper()
+    print(len(jobs))
 
     # uncomment if your scraper done
-    UpdateAPI().update_jobs(company_name, jobs)
-    UpdateAPI().update_logo(company_name, logo_link)
+    # UpdateAPI().update_jobs(company_name, jobs)
+    # UpdateAPI().update_logo(company_name, logo_link)
 
 
 if __name__ == '__main__':

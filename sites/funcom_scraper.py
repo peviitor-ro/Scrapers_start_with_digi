@@ -62,7 +62,7 @@ def get_job_type_data(data_string_with_job_type: str):
     '''
     ... get only job type
     '''
-    job_type = '' 
+    job_type = ''
     if 'temporarily remote' in data_string_with_job_type:
         return 'hybrid'
     elif 'remote' in data_string_with_job_type and 'hybrid' in data_string_with_job_type:
@@ -114,7 +114,6 @@ def main():
     logo_link = "https://pr.funcom.com/Content/Themes/Funcom/img/Funcom_R_logo_Horz_med.png"
 
     jobs = scraper()
-    print(jobs, len(jobs))
 
     # uncomment if your scraper done
     UpdateAPI().update_jobs(company_name, jobs)

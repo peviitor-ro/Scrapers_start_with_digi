@@ -39,7 +39,7 @@ def scraper():
 
         for job in new_request.select('tr.data-row'):
             title_link = job.select_one('a.jobTitle-link')
-            
+
             # get location from site
             if (location := job.select_one('span.jobLocation').text.strip().split(',')[0]) == 'Bucharest':
                 location = 'Bucuresti'
