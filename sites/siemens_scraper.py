@@ -147,11 +147,10 @@ def main():
     logo_link = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRy4X0h4JCY_Ex39Rq7sl1kIf4yXaF6In_BxJjl24CHFg&s"
 
     jobs = scraper()
-    print(len(jobs))
 
     # uncomment if your scraper done
-    # UpdateAPI().update_jobs(company_name, jobs)
-    # UpdateAPI().update_logo(company_name, logo_link)
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
 
 
 if __name__ == '__main__':
