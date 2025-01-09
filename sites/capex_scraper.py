@@ -70,7 +70,7 @@ def make_headers():
             'filter': '',
             'formId': '347022b3-2e4e-48d2-9dac-9f7d78675080'
         }
-    
+
     return url, headers, data_raw
 
 
@@ -84,7 +84,7 @@ def scraper():
     job_list = []
     if len(check_json := PostRequestJson(url=data_uhp[0], custom_headers=data_uhp[1], data_raw=data_uhp[2])) > 0:
         for job in check_json['Data']:
-            
+
             if (location := job.get('dcrs_location').lower().split('-')[0].strip()) and 'bucharest' in location:
                 location = "Bucuresti"
 
@@ -117,6 +117,7 @@ def main():
     logo_link = "https://capex.com/assets/logo/capex-com-logo-red.svg"
 
     jobs = scraper()
+    print(jobs)
 
     # uncomment if your scraper done
     UpdateAPI().update_jobs(company_name, jobs)

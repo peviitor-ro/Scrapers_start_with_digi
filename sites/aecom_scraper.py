@@ -42,7 +42,7 @@ def scraper():
     # get all jobs
     for job in data_jobs_api.get('jobs'):
         slug_job    = job.get('title_slug')
-        idx         = job.get('guid') 
+        idx         = job.get('guid')
 
         location    = job.get('city_exact')
 
@@ -78,7 +78,6 @@ def main():
     logo_link = "https://1000logos.net/wp-content/uploads/2021/12/AECOM-logo.png"
 
     jobs = scraper()
-    print(jobs)
 
     # uncomment if your scraper done
     UpdateAPI().update_jobs(company_name, jobs)
