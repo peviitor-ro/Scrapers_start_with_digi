@@ -15,22 +15,22 @@ class GetDynamicSoup:
     '''
     ... This class returns soup object from dynamic pages using requests_html!
     '''
+    ...
+    # def __new__(cls, link, custom_headers=None):
 
-    def __new__(cls, link, custom_headers=None):
+    #     session = HTMLSession()
 
-        session = HTMLSession()
+    #     headers = DEFAULT_HEADERS.copy()
 
-        headers = DEFAULT_HEADERS.copy()
+    #     #  if user has custom headers,
+    #     #  update the headers
+    #     if custom_headers:
+    #         headers.update(custom_headers)
 
-        #  if user has custom headers,
-        #  update the headers
-        if custom_headers:
-            headers.update(custom_headers)
+    #     response = session.get(link, headers=headers)
 
-        response = session.get(link, headers=headers)
+    #     # Render Dynamic page with JS
+    #     response.html.render()
 
-        # Render Dynamic page with JS
-        response.html.render()
-
-        # return soup object from dynamic page
-        return BeautifulSoup(response.html.html, 'lxml')
+    #     # return soup object from dynamic page
+    #     return BeautifulSoup(response.html.html, 'lxml')
