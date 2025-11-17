@@ -28,9 +28,9 @@ import html
 from typing import Union
 
 
-def get_headers() -> Union[str, dict]:
+def get_headers() -> tuple:
     '''
-    ... This function return tuple[dict] with url and headers
+    ... This function returns a tuple (url: str, headers: dict) with url and headers
     '''
 
     url = 'https://mingle.ro/api/boards/careers-page/jobs?company=cec&page=0&pageSize=1000&sort='
@@ -81,13 +81,13 @@ def scraper():
                 location = location_brut
                 if ';' in location:
                     location = location.replace(';', '')
-        except:
-            pass
+        except (IndexError, TypeError, AttributeError):
+            location = None
         
         # # # Get correct location
         if location is not None:
             if location == 'Bucharest':
-                location = Bucuresti
+                location = 'Bucuresti'
 
         # GET correct county and city
         location_finish = get_county(location=location)
@@ -96,19 +96,19 @@ def scraper():
         city    = ''
 
         try:
-            county_brut     = location_finish[0] if True in location_finish else None
+            county_brut     = location_finish[0] if location_finish else None
             if county_brut:
                 county      = county_brut.strip()
-        except:
-            count = ''
+        except (IndexError, TypeError, AttributeError):
+            county = ''
         #
         try:
-            city_brut       = 'all' if location.lower() == location_finish[0].lower()\
-                                and True in location_finish and 'bucuresti' != location.lower()\
+            city_brut       = 'all' if location and location_finish and location.lower() == location_finish[0].lower()\
+                                and 'bucuresti' != location.lower()\
                                     else location
             if city_brut:
                 city        = city_brut.strip()
-        except:
+        except (IndexError, TypeError, AttributeError):
             city = ''
 
         # get jobs items from response
@@ -136,11 +136,11 @@ def main():
     logo_link = "https://cdn.mingle.ro/media/cec/img/93007091589.png?response-content-disposition=inline%3B+filename%3D%22logo_cec.png%22&Expires=1725694631&Signature=ZHKhaBUyEpB9GppMCNDNWg5rkHXrXlCtaiLRuzrbKu58SEnOBt0susjkGDEA1eltto4DWqLoz~S2hvpOmYvuyq4PdX1yF3lm-nBU8RX1jpJ5JuVoQr7v1y1ZITrYN8CM9VmAb4kMsfRCAz3dy9p5nDJLSk~tWeu-s06eosBjrpX000-QqP8JQHbEehhlB9MO1MRbHgJ5xQd6xjrf7u2cehFT7y7XC8dGOLO6FhTyrfJq9t8BxiIP26LR1S6cABcGd4geMdE5Uq~u5rjc4gJEMr6zBZ2OF0x-Wj8lYJo8OlUzp5n4AVQOBHrSjE6U0XZGo7wlNVfMvuiiU8KNB8SQvg__&Key-Pair-Id=K2ZGK0W1NCXI8F"
 
     jobs = scraper()
-    # print(jobs)
+    print(jobs)
     
     # uncomment if your scraper done
-    UpdateAPI().update_jobs(company_name, jobs)
-    UpdateAPI().update_logo(company_name, logo_link)
+    #UpdateAPI().update_jobs(company_name, jobs)
+    #UpdateAPI().update_logo(company_name, logo_link)
 
 
 if __name__ == '__main__':
