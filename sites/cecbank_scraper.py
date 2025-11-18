@@ -71,6 +71,7 @@ def scraper():
         if title:
             title   = html.unescape(title)
             title   = title.strip()
+            title = title.replace("\xa0", "")
 
         link_uid    = job.get('uid')
         #
