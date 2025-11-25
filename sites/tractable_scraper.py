@@ -46,7 +46,7 @@ def make_headers():
     returns: url: str, headers: dict
     '''
 
-    url = 'https://tractable.ai/api/joblist?board=tractable'
+    url = 'https://api.ashbyhq.com/posting-api/job-board/tractable'
     
     headers = {
         'authority': 'tractable.ai',
@@ -76,7 +76,9 @@ def scraper():
 
     job_list = []
     for job in GetRequestJson(url=url, custom_headers=headers).get('jobs'):
-
+        job.pop('descriptionHtml', None) 
+        job.pop('description', None)
+        job.pop('descriptionPlain', None)
         # get location
         if (location := remove_diacritics(job.get('location').lower().split(',')[0])) and 'bucharest' in location:
             location = 'Bucuresti'
