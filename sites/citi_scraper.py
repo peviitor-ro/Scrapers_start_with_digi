@@ -41,9 +41,23 @@ def scraper():
     # second for - scrape data from collected links
     for data in set(lst_jobs_links):
         second_soup = GetStaticSoup(f"https://jobs.citi.com{data}")
-        job_info = second_soup.find_all('span', attrs={'class': 'job-info__item'})
-        #
-        location = job_info[1].text.split()[1].replace(',', '').strip()
+
+        try:
+            # New structure logic
+            location_div = second_soup.find('div', class_='job-description__desc-job-info job-location')
+            if location_div:
+                location_text = location_div.find('dd', class_='job-description__desc-detail').text.strip()
+                # Use the first part of the location string (e.g. "Bucharest" from "Bucharest, București, Romania")
+                location = location_text.split(',')[0].strip()
+            else:
+                # Fallback to older logic if needed, or skip
+                continue
+
+            remote_div = second_soup.find('div', class_='job-description__desc-job-info job-remote-type')
+            remote = remote_div.find('dd', class_='job-description__desc-detail').text.strip() if remote_div else "On-site"
+        except Exception:
+            continue
+
         if location.lower() in ['bucharest']:
             location = "Bucuresti"
 
@@ -51,7 +65,7 @@ def scraper():
 
         # get jobs items from response
         job_list.append(Item(
-            job_title=second_soup.find('h1').text,
+            job_title=second_soup.find('h1').text.strip(),
             job_link=f"https://jobs.citi.com{data}",
             company='Citi',
             country='Romania',
@@ -59,7 +73,7 @@ def scraper():
             city='all' if location.lower() == location_finish[0].lower()\
                         and True in location_finish and 'bucuresti' != location.lower()\
                             else location,
-            remote=job_info[2].text.split()[-1].strip(),
+            remote=remote,
         ).to_dict())
 
     return job_list

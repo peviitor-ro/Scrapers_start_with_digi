@@ -52,8 +52,26 @@ def scraper():
     while flag:
         url, headers = prepare_get_headers(str(page))
 
-        if len(json_data := GetRequestJson(url=url, custom_headers=headers).get('operationResult').get('result').get('jobs')) > 1:
-            for job in json_data:
+        json_data = GetRequestJson(url=url, custom_headers=headers)
+        
+        # Check if response is valid JSON and contains expected data
+        if not isinstance(json_data, dict) or 'operationResult' not in json_data:
+            flag = False
+            continue
+        
+        operation_result = json_data.get('operationResult')
+        if not operation_result or 'result' not in operation_result:
+            flag = False
+            continue
+
+        result = operation_result.get('result')
+        if not result or 'jobs' not in result:
+            flag = False
+            continue
+
+        jobs = result.get('jobs')
+        if jobs and len(jobs) > 0:
+            for job in jobs:
                 
                 # logic to catch City and All ---> Start
                 set_data_loc = set()
@@ -81,7 +99,7 @@ def scraper():
                     elif 'on-site' in job_type_procent:
                         job_type = 'on-site'
                     else:
-                        job_type = None
+                        job_type = 'on-site'
                 # here the logic for jobType -------> END
 
                 # get jobs items from response

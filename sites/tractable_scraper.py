@@ -3,7 +3,7 @@
 # Config for Dynamic Get Method -> For Json format!
 #
 # Company ---> Tractable
-# Link ------> https://tractable.ai/en/jobs
+# Link ------> https://jobs.ashbyhq.com/tractable
 #
 # ------ IMPORTANT! ------
 # if you need return soup object:
@@ -15,92 +15,56 @@
 #
 from __utils import (
     GetRequestJson,
-    get_county,
-    get_job_type,
     Item,
     UpdateAPI,
-    #
-    GetHeadersDict,
-    #
-    counties,
-    remove_diacritics,
 )
 
 
-def get_etag_W_slash():
+def get_remote_type(job):
     '''
-    This function return the code: W/ for 304 redirect.
-
-    params: None
-    return: etag: str
+    ... normalize remote type from Ashby payload.
     '''
+    workplace_type = (job.get('workplaceType') or '').lower()
 
-    return GetHeadersDict('https://tractable.ai/en/jobs').get('Etag')
+    if workplace_type == 'hybrid':
+        return 'hybrid'
 
+    if job.get('isRemote'):
+        return 'remote'
 
-def make_headers():
-    '''
-    This function is about Headers for Tractable.ai's API.
-
-    params: None
-    returns: url: str, headers: dict
-    '''
-
-    url = 'https://api.ashbyhq.com/posting-api/job-board/tractable'
-    
-    headers = {
-        'authority': 'tractable.ai',
-        'accept': '*/*',
-        'accept-language': 'en-US,en;q=0.7',
-        'if-none-match': f'{get_etag_W_slash()}',
-        'referer': 'https://tractable.ai/en/jobs',
-        'sec-ch-ua': '"Not A(Brand";v="99", "Brave";v="121", "Chromium";v="121"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Linux"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-origin',
-        'sec-gpc': '1',
-        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-    }
-
-    return url, headers
+    return 'on-site'
 
 
 def scraper():
     '''
     ... scrape data from Tractable scraper.
     '''
-
-    url, headers = make_headers()
+    jobs_data = GetRequestJson("https://api.ashbyhq.com/posting-api/job-board/tractable")
 
     job_list = []
-    for job in GetRequestJson(url=url, custom_headers=headers).get('jobs'):
-        job.pop('descriptionHtml', None) 
-        job.pop('description', None)
-        job.pop('descriptionPlain', None)
-        # get location
-        if (location := remove_diacritics(job.get('location').lower().split(',')[0])) and 'bucharest' in location:
-            location = 'Bucuresti'
+    for job in jobs_data.get('jobs') or []:
+        location = job.get('location') or ''
+        secondary_locations = job.get('secondaryLocations') or []
 
-        # search by location in counties
-        for search_loc in counties:
-            for key_d in search_loc.keys():
-                if location.lower().strip() == key_d.lower():
-                    location_finish = get_county(location=location)
+        searchable_locations = ' '.join(
+            [location] + [str(item) for item in secondary_locations]
+        ).lower()
+        if 'romania' not in searchable_locations and 'bucharest' not in searchable_locations:
+            continue
 
-                    # get jobs items from response
-                    job_list.append(Item(
-                        job_title=job.get('title'),
-                        job_link=f"https://tractable.ai{job.get('href')}",
-                        company='Tractable',
-                        country='Romania',
-                        county=location_finish[0] if True in location_finish else None,
-                        city='all' if location.lower() == location_finish[0].lower()\
-                                    and True in location_finish and 'bucuresti' != location.lower()\
-                                        else location,
-                        remote='hybrid',
-                    ).to_dict())
+        city = location.split(',')[0].strip() if location else 'Romania'
+        county = 'Bucuresti' if city.lower() == 'bucharest' else ''
+        city = 'Bucuresti' if city.lower() == 'bucharest' else city
+
+        job_list.append(Item(
+            job_title=job.get('title'),
+            job_link=job.get('jobUrl'),
+            company='Tractable',
+            country='Romania',
+            county=county,
+            city=city,
+            remote=get_remote_type(job),
+        ).to_dict())
 
     return job_list
 
@@ -113,11 +77,10 @@ def main():
     '''
 
     company_name = "Tractable"
-    logo_link = "https://cdn.dribbble.com/users/966/screenshots/3367258/media/da2b2cffc6ff03dbab15041037b6d61e.jpg?resize=400x300&vertical=center"
+    logo_link = "https://media.graphassets.com/resize=w:1616,h:535,fit:crop/auto_image/compress/Q1HdbVpoSdnYkE3bf03V"
 
     jobs = scraper()
 
-    # uncomment if your scraper done
     UpdateAPI().update_jobs(company_name, jobs)
     UpdateAPI().update_logo(company_name, logo_link)
 

@@ -20,6 +20,12 @@ from __utils import (
     Item,
     UpdateAPI,
 )
+from __utils.req_bs4_shorts import session
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+session.verify = False
+
 
 
 def scraper():

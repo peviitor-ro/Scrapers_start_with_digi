@@ -13,6 +13,8 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 #
+import requests
+from __utils.req_bs4_shorts import session
 from __utils import (
     GetRequestJson,
     get_county,
@@ -27,18 +29,25 @@ from __utils import (
 
 def get_ids():
     '''
-    ... Get ids from site: _vs, traceID
-
+    ... Get ids from site: traceID
+    ... Also setups the global session cookies.
+    
     params: None
-    return: _vs: str, traceID: str
+    return: None, traceID: str
     '''
 
-    keys_data = GetHeadersDict('https://jobs.siemens.com/careers?location=bucharest%2B&pid=563156118434737&domain=siemens.com&sort_by=relevance&triggerGoButton=false')
+    url = 'https://jobs.siemens.com/careers?location=Romania&pid=563156118434737&domain=siemens.com&sort_by=relevance&triggerGoButton=true'
+    
+    # Use global session to capture cookies
+    response = session.head(url, allow_redirects=True)
+    
+    # Set manual cookies that were previously hardcoded in header string
+    session.cookies.set('s_cc', 'true', domain='jobs.siemens.com')
+    session.cookies.set('_vscid', '1', domain='jobs.siemens.com')
 
-    _vsID = keys_data.get('Set-Cookie').split()[0]
-    traceID = keys_data.get('X-EF-Trace-ID')
+    traceID = response.headers.get('X-EF-Trace-ID', '')
 
-    return _vsID, traceID
+    return None, traceID
 
 
 # get ids on time, for one session
@@ -53,17 +62,18 @@ def make_headers(star_page: str):
     return: url, headers
     '''
 
-    url = f'https://jobs.siemens.com/api/apply/v2/jobs?domain=siemens.com&start={star_page}&num=10&exclude_pid=563156119178765&location=Romania&pid=563156119178765&domain=siemens.com&sort_by=relevance&triggerGoButton=true'
+    url = f'https://jobs.siemens.com/api/apply/v2/jobs?domain=siemens.com&start={star_page}&num=10&location=Romania&pid=563156118434737&sort_by=relevance&triggerGoButton=true'
 
     headers = {
         'authority': 'jobs.siemens.com',
         'accept': '*/*',
         'content-type': 'application/json',
-        'cookie': f's_cc=true; {_vsID} _vscid=1',
-        'referer': 'https://jobs.siemens.com/careers?location=Romania&pid=563156119178765&domain=siemens.com&sort_by=relevance&triggerGoButton=true',
-        'sentry-trace': f'{traceID}',
+        'referer': 'https://jobs.siemens.com/careers?location=Romania&pid=563156118434737&domain=siemens.com&sort_by=relevance&triggerGoButton=true',
         'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
     }
+
+    if traceID:
+        headers['sentry-trace'] = f'{traceID}'
 
     return url, headers
 
@@ -80,7 +90,15 @@ def scraper():
     flag = True
     while flag:
         url, headers = make_headers(str(page))
-        if len(json_job_data := GetRequestJson(url=url, custom_headers=headers).get('positions')) > 0:
+        response_data = GetRequestJson(url=url, custom_headers=headers)
+        
+        # Validate response
+        if isinstance(response_data, dict):
+            json_job_data = response_data.get('positions')
+        else:
+            json_job_data = None
+
+        if json_job_data and len(json_job_data) > 0:
             for job in json_job_data:
 
                 # collect all data about locations

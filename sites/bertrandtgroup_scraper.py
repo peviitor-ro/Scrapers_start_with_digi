@@ -34,24 +34,23 @@ def scraper():
     This func() return all data from site.
     """
 
-    # facem request la pagina principala si extragem csrf_token
-    soup = return_soup(url=f'https://bertrandtgroup.onlyfy.jobs')
-    csrf_token = soup.find('meta', attrs={'name': 'csrf-token'})['content']
-
-    # setam un header nou cu csrf_token
+    # setam un header nou
     session = requests.Session()
 
     params = {
         "candidate_center_filter[country]": "RO",
         "candidate_center_filter[hasCityCluster]": 0,
-        "csrf_token": csrf_token
+        "display_length": 200,
+        "page": 1,
+        "sort": "matching",
+        "sort_dir": "DESC",
+        "candidate_center_filter[city]": "",  # Ensure city filter is cleared if needed
+        "candidate_center_filter[enc_city]": "",
+        "candidate_center_filter[sort]": "matching"
     }
 
-    # facem un post request cu parametrii de mai sus
-    first_call = session.post(url='https://bertrandtgroup.onlyfy.jobs/candidate/job/filter?search=', data=params, headers=DEFAULT_HEADERS)
-
-    # facem un get request pentru a lua toate joburile
-    last_call = session.get(url='https://bertrandtgroup.onlyfy.jobs/candidate/job/ajax_list?display_length=200&page=1&sort=matching&sort_dir=DESC&_=1684168027359', headers=DEFAULT_HEADERS)
+    # facem un get request pentru a lua toate joburile cu filtrele aplicate
+    last_call = session.get(url='https://bertrandtgroup.onlyfy.jobs/candidate/job/ajax_list', params=params, headers=DEFAULT_HEADERS)
 
     soup = BeautifulSoup(last_call.text, 'lxml')
 

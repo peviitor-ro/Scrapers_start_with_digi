@@ -27,15 +27,21 @@ from __utils import (
     GetStaticSoup,
 )
 import requests
+from bs4 import BeautifulSoup
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def get_csrf_token():
     '''
     ... this func return a csrf token from html page
     '''
+    response = requests.get('https://careers.fisglobal.com/us/en/search-results?s=1', verify=False)
+    soup = BeautifulSoup(response.text, 'lxml')
     return [element for element in
             get_data_with_regex('"csrfToken":"([a-fA-F0-9]+)"',
-            str(GetStaticSoup('https://careers.fisglobal.com/us/en/search-results?s=1'))).split(':')[-1].split('"')
+            str(soup)).split(':')[-1].split('"')
             if element.strip()][0]
 
 
@@ -43,7 +49,7 @@ def get_ids_from_site():
     '''
         ... get all needed ids for cod
     '''
-    string_regex_data = str(requests.head('https://careers.fisglobal.com/us/en/search-results?s=1').headers)
+    string_regex_data = str(requests.head('https://careers.fisglobal.com/us/en/search-results?s=1', verify=False).headers)
 
     play_session = get_data_with_regex('PLAY_SESSION=([a-zA-Z0-9._-]+);', string_regex_data)
     phppe_act = get_data_with_regex('PHPPPE_ACT=([a-fA-F0-9-]+);', string_regex_data)
@@ -82,7 +88,7 @@ def scraper():
     # __call__ here the hedears
     data_with_headers = prepare_headers()
 
-    post_data = PostRequestJson(url=data_with_headers[0], custom_headers=data_with_headers[1], data_raw=data_with_headers[2])
+    post_data = requests.post(data_with_headers[0], headers=data_with_headers[1], data=data_with_headers[2], verify=False).json()
 
     job_list = []
     for job in post_data.get('eagerLoadRefineSearch').get('data').get('jobs'):

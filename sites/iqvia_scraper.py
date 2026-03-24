@@ -14,28 +14,22 @@
 #
 #
 from __utils import (
-    GetRequestJson,
+    PostRequestJson,
     get_county,
     get_job_type,
     Item,
     UpdateAPI,
-    #
-    GetHtmlSoup,
 )
 
-
-def prepare_get_headers(page_req: str):
+def prepare_post_headers():
     '''
-    ... prepare headers for get request to IQVIA'''
+    ... prepare headers for post request to IQVIA'''
 
-    url = f'https://jobs.iqvia.com/search-jobs/results?ActiveFacetID=798549&CurrentPage={page_req}&RecordsPerPage=12&Distance=50&RadiusUnitType=0&Keywords=&Location=&ShowRadius=False&IsPagination=False&CustomFacetName=&FacetTerm=&FacetType=0&FacetFilters%5B0%5D.ID=798549&FacetFilters%5B0%5D.FacetType=2&FacetFilters%5B0%5D.Count=35&FacetFilters%5B0%5D.Display=Romania&FacetFilters%5B0%5D.IsApplied=true&FacetFilters%5B0%5D.FieldName=&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=1&SearchType=5&PostalCode=&ResultsType=0&fc=&fl=&fcf=&afc=&afl=&afcf='
+    url = 'https://iqvia.wd1.myworkdayjobs.com/wday/cxs/iqvia/IQVIA/jobs'
 
     headers = {
-        'Accept': '*/*',
-        'Content-Type': 'application/json; charset=utf-8',
-        'Referer': 'https://jobs.iqvia.com/search-jobs',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     }
 
     return url, headers
@@ -45,33 +39,83 @@ def scraper():
     '''
     ... scrape data from IQVIA scraper.
     '''
-    #json_data = GetRequestJson("https://jobs.iqvia.com/search-jobs")
-
+    
+    url, headers = prepare_post_headers()
+    
     job_list = []
-    page = 1
-    flag = True
-    while flag:
+    offset = 0
+    limit = 20
+    
+    while True:
+        payload = {
+            "appliedFacets": {},
+            "limit": limit,
+            "offset": offset,
+            "searchText": "Romania"
+        }
+        
+        data = PostRequestJson(url=url, custom_headers=headers, data_json=payload)
+        
+        if not isinstance(data, dict) or 'jobPostings' not in data:
+            break
+            
+        jobs = data['jobPostings']
+        if not jobs:
+            break
+            
+        for job in jobs:
+            title = job.get('title')
+            external_path = job.get('externalPath')
+            link = f"https://iqvia.wd1.myworkdayjobs.com/IQVIA{external_path}"
+            location_text = job.get('locationsText', '')
+            
+            # Check if job is in Romania
+            if 'Romania' not in location_text:
+                continue
 
-        url, headers = prepare_get_headers(page_req=str(page))
-        json_data = GetRequestJson(url=url, custom_headers=headers)
+            # Default values
+            country = 'Romania'
+            city = 'Bucuresti'
+            county = 'Bucuresti'
+            remote = 'on-site'
+            
+            if 'Remote' in location_text or 'Home Based' in location_text:
+                remote = 'remote'
+            elif 'Hybrid' in location_text:
+                remote = 'hybrid'
+                
+            # Extract city if possible
+            if ',' in location_text:
+                parts = location_text.split(',')
+                if len(parts) >= 1:
+                    city_candidate = parts[0].strip()
+                    # Check if city is not Romania or Remote
+                    if city_candidate and city_candidate != 'Romania' and 'Remote' not in city_candidate:
+                        city = city_candidate
+                        # Try to get county
+                        county_data = get_county(city)
+                        if county_data and county_data[0]:
+                             county = county_data[0]
+                        else:
+                             # If get_county fails, use city as county or keep default?
+                             # For Bucuresti it's fine. For others might be None.
+                             # If city is valid, use it.
+                             pass
+            
+            job_list.append(Item(
+                job_title=title,
+                job_link=link,
+                company='IQVIA',
+                country=country,
+                county=county,
+                city=city,
+                remote=remote,
+            ).to_dict())
 
-        if len(soup_data := GetHtmlSoup(json_data.get('results')).select('a.job-result-list')) > 0:
-            for job in soup_data:
-
-                # get jobs items from response
-                job_list.append(Item(
-                    job_title=job.select_one('h2.job-result-list-heading').text.strip(),
-                    job_link=f"https://jobs.iqvia.com{job['href']}",
-                    company='IQVIA',
-                    country='Romania',
-                    county='Bucuresti',
-                    city='Bucuresti',
-                    remote='on-site',
-                ).to_dict())
-        else:
-            flag = False
-
-        page += 1
+        if len(jobs) < limit:
+            break
+            
+        offset += limit
 
     return job_list
 

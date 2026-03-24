@@ -57,7 +57,7 @@ def make_headers():
             'accept': '*/*',
             'accept-language': 'en-US,en;q=0.5',
             'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'cookie': f'{id_from_function[0]} {id_from_function[:-1]}',
+            'cookie': f'{id_from_function[0]} {id_from_function[1]}' if id_from_function[0] else f'{id_from_function[1]}',
             'origin': 'https://portal.dynamicsats.com',
             'referer': 'https://portal.dynamicsats.com/JobListing/347022b3-2e4e-48d2-9dac-9f7d78675080',
             'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
