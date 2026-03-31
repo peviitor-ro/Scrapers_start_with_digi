@@ -13,14 +13,27 @@
 # Link ------> https://inside.wpriders.com/careers/
 #
 #
-from __utils import Item, GetStaticSoup, UpdateAPI
+from __utils import Item, UpdateAPI
+from bs4 import BeautifulSoup
+import requests
 
 
 def scraper():
     '''
     ... scrape data from WPRiders scraper.
     '''
-    soup = GetStaticSoup("https://inside.wpriders.com/careers/")
+    url = "https://inside.wpriders.com/careers/"
+    soup = None
+    try:
+        response = requests.get(url, headers={
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }, timeout=10)
+        soup = BeautifulSoup(response.text, 'lxml')
+    except Exception:
+        return []
+
+    if soup is None:
+        return []
 
     job_list = []
     seen_links = set()
