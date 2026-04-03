@@ -13,6 +13,7 @@
 # Link ------> https://makitajobs.ro/locuri-de-munca/
 #
 #
+import time
 from __utils import (
     GetStaticSoup,
     get_county,
@@ -32,8 +33,17 @@ def scraper():
     for job in soup.find_all('div', attrs={'class': 'box-right'}):
         link = "https://makitajobs.ro" + job.find('div', attrs={'class': 'content-button'}).find('a')['href']
 
-        # search location
-        location = GetStaticSoup(link).find_all('div', attrs={'class': 'text'})[-1].find('p').text.split()[-1].strip()
+        location = None
+        for _ in range(3):
+            try:
+                location = GetStaticSoup(link).find_all('div', attrs={'class': 'text'})[-1].find('p').text.split()[-1].strip()
+                break
+            except Exception:
+                time.sleep(2)
+                continue
+
+        if location is None:
+            continue
 
         location_finish = get_county(location=location)
 
