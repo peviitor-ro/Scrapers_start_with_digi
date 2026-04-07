@@ -30,7 +30,7 @@ class GetStaticSoup:
     ... This class return soup object from static page!
     '''
 
-    def __new__(cls, url, custom_headers=None):
+    def __new__(cls, url, custom_headers=None, verify=True):
 
         headers = DEFAULT_HEADERS.copy()
 
@@ -39,7 +39,7 @@ class GetStaticSoup:
         if custom_headers:
             headers.update(custom_headers)
 
-        response = session.get(url, headers=headers)
+        response = session.get(url, headers=headers, verify=verify)
 
         # return soup object from static page
         return BeautifulSoup(response.text, 'lxml')
@@ -57,7 +57,7 @@ class GetRequestJson:
         if custom_headers:
             headers.update(custom_headers)
 
-        response = session.get(url, headers=headers)
+        response = session.get(url, headers=headers, verify=False)
 
         # Parse response to JSON and return ditct oject
         try:

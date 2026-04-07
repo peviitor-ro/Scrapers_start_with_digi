@@ -25,7 +25,7 @@ def scraper():
     '''
     ... scrape data from Verifone scraper.
     '''
-    soup = GetStaticSoup("https://connect.verifone.com/en/global/careers/jobs?title=&departments=All&locations=686")
+    soup = GetStaticSoup("https://connect.verifone.com/en/global/careers/jobs?title=&departments=All&locations=686", verify=False)
 
     job_list = []
     for job in soup.find_all('tr'):
