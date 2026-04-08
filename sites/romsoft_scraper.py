@@ -21,12 +21,21 @@ from __utils import (
     UpdateAPI,
 )
 
+import time
+import requests
+
 
 def scraper():
     '''
     ... scrape data from RomSoft scraper.
     '''
-    soup = GetStaticSoup("https://www.rms.ro/careers/")
+    url = "https://www.rms.ro/careers/"
+
+    try:
+        soup = GetStaticSoup(url)
+    except (requests.exceptions.ConnectTimeout, requests.exceptions.Timeout, 
+            requests.exceptions.ConnectionError) as e:
+        return []
 
     job_list = []
     for job in soup.select('div.awsm-job-listing-item.awsm-list-item'):

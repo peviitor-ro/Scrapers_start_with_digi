@@ -32,7 +32,7 @@ def scraper():
     '''
     ... scrape data from Systematic scraper.
     '''
-    soup: GetStaticSoup = GetStaticSoup("https://jobs.systematic.com/search/?createNewAlert=false&q=&locationsearch=&optionsFacetsDD_country=RO")
+    soup: GetStaticSoup = GetStaticSoup("https://jobs.systematic.com/search/?createNewAlert=false&q=&locationsearch=&optionsFacetsDD_country=RO", verify=False)
 
     jobs_num: int = int(soup.select_one('span.paginationLabel').text.split()[-1])
 
@@ -41,7 +41,7 @@ def scraper():
     start_row_page: int = 0
     while start_row_page < jobs_num:
         #
-        soup_jobs: GetStaticSoup = GetStaticSoup(url=f'https://jobs.systematic.com/search/?q=&sortColumn=referencedate&sortDirection=desc&optionsFacetsDD_country=RO&startrow={str(start_row_page)}')
+        soup_jobs: GetStaticSoup = GetStaticSoup(url=f'https://jobs.systematic.com/search/?q=&sortColumn=referencedate&sortDirection=desc&optionsFacetsDD_country=RO&startrow={str(start_row_page)}', verify=False)
 
         for job in soup_jobs.select('tr.data-row'):
             if (location := job.select_one('span.jobLocation').text.strip().split(',')[0]) and location.lower() == 'bucharest':

@@ -11,6 +11,8 @@
 # ... plus sa fac aceeasi chestie ca la PostRequestJson si in GetRequestJson
 #
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 #
 import cfscrape
@@ -23,6 +25,16 @@ import xml.etree.ElementTree as ET
 # Global Session -> avoid multiple requests
 # ... and all classes can use it in one script
 session = requests.Session()
+
+retry_strategy = Retry(
+    total=1,
+    backoff_factor=0.5,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=["HEAD", "GET", "OPTIONS"]
+)
+adapter = HTTPAdapter(max_retries=retry_strategy)
+session.mount("http://", adapter)
+session.mount("https://", adapter)
 
 
 class GetStaticSoup:
@@ -39,7 +51,7 @@ class GetStaticSoup:
         if custom_headers:
             headers.update(custom_headers)
 
-        response = session.get(url, headers=headers, verify=verify)
+        response = session.get(url, headers=headers, verify=verify, timeout=10)
 
         # return soup object from static page
         return BeautifulSoup(response.text, 'lxml')
