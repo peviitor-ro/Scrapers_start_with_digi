@@ -3,7 +3,7 @@
 # Config for Dynamic Get Method -> For Json format!
 #
 # Company ---> eMAG
-# Link ------> https://lde.tbe.taleo.net/lde02/ats/careers/v2/searchResults\?org\=EMAG\&cws\=37
+# Link ------> https://boards-api.greenhouse.io/v1/boards/emag/jobs
 #
 # ------ IMPORTANT! ------
 # if you need return soup object:
@@ -16,14 +16,8 @@
 from __utils import (
     GetRequestJson,
     get_county,
-    get_job_type,
     Item,
     UpdateAPI,
-
-    # only this time
-    GetHeadersDict,
-    #
-    get_data_with_regex,
     counties,
 )
 from time import sleep
@@ -31,104 +25,83 @@ from random import randint
 import re
 
 
-def get_only_jsession_id():
-    '''
-    ... get session id for get requests.
-    '''
-    dict_response = GetHeadersDict('https://lde.tbe.taleo.net/lde02/ats/careers/v2/searchResults?org=EMAG&cws=37')
-    match_data_re = get_data_with_regex('JSESSIONID=([a-zA-Z0-9]+);', str(dict_response))
-
-    return match_data_re
-
-
-# get ID on time for scraping in session
-jsession_id_for_session = get_only_jsession_id()
-
-
-def make_headers(page_count: str):
-    '''
-        ... this function make headers for get requests to API
-        In this function I have parameter "page_count" - it increment with + 10 from 0 -> for pages
-    '''
-
-    url = f'https://lde.tbe.taleo.net/lde02/ats/careers/v2/searchResults?next&rowFrom={page_count}&act=null&sortColumn=null&sortOrder=null&currentTime=1707341012108'
-
-    headers = {
-        'Accept': 'text/html, */*; q=0.01',
-        'Accept-Language': 'en-US,en;q=0.6',
-        'Connection': 'keep-alive',
-        'Cookie': f'{jsession_id_for_session}',
-        'Referer': 'https://lde.tbe.taleo.net/lde02/ats/careers/v2/searchResults?org=EMAG&cws=37',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'X-Requested-With': 'XMLHttpRequest',
-        }
+def extract_city(location_name: str) -> str:
+    if not location_name:
+        return 'all'
     
-    return url, headers
+    if location_name.lower() == 'romania':
+        return 'all'
+    
+    parts = [p.strip() for p in location_name.split(',')]
+    if parts:
+        return parts[0]
+    return location_name
+
+
+def get_city_county(location_name: str):
+    city = extract_city(location_name)
+    
+    if city == 'all':
+        return 'all', None
+    
+    county_result = get_county(location=city)
+    county = county_result[0] if True in county_result else None
+    
+    return city, county
 
 
 def scraper():
     '''
-    ... scrape data from eMAG scraper.
+    ... scrape data from eMAG scraper using Greenhouse API.
     '''
-
     job_list = []
-    page = 0
+    page = 1
     flag = True
+    
     while flag:
-        url_header = make_headers(str(page))
-        html_data = GetRequestJson(url=url_header[0], custom_headers=url_header[1])
-
-        if len(all_job_elements := html_data.find_all('div', attrs={'class': 'oracletaleocwsv2-accordion oracletaleocwsv2-accordion-expandable clearfix'})) > 0:
-
-            new_loc = ''
-            for job_data in all_job_elements:
-
-                location = job_data.find('div', attrs={'class': 'oracletaleocwsv2-accordion-head-info'}).find_all('div')[1].text
-                for search_city in counties:
-                    for v in search_city.values():
-                        for ccity in v:
-                            if re.search(r'\b{}\b'.format(re.escape(ccity.split()[-1].lower())), location.lower()):
-                                new_loc = ccity
-                                break
-                
-                if new_loc.strip() != True:
-                    if 'depozit' in location.lower() and 'emag' in location.lower() and 'retail' in location.lower():
-                        new_loc = 'Stefanestii de Jos'
-
-                location_finish = get_county(location=location)
-
-                # find type job
-                job_type_f = ''
-                if 'remote' in location.lower():
-                    job_type_f = 'remote'
-                elif 'hybrid' in location.lower():
-                    job_type_f = 'hybrid'
-                else:
-                    job_type_f = 'on-site'
-                
-                link_title = job_data.find('h4', attrs={'class', 'oracletaleocwsv2-head-title'}).find('a')
-                # get jobs items from response
-                job_list.append(Item(
-                    job_title=link_title.text,
-                    job_link=link_title['href'],
-                    company='eMAG',
-                    country='Romania',
-                    county=location_finish[0] if True in location_finish else None,
-                    city='all' if location.lower() == location_finish[0].lower()\
-                            and True in location_finish and 'bucuresti' != location.lower()\
-                                else location,
-                    remote=job_type_f,
-                ).to_dict())
-            
-        else:
+        url = f'https://boards-api.greenhouse.io/v1/boards/emag/jobs?page={page}'
+        json_data = GetRequestJson(url=url)
+        
+        if not json_data or 'jobs' not in json_data or len(json_data['jobs']) == 0:
             flag = False
-
-        # increment for new page request
-        page += 10
-
-        # sleep for better work
-        sleep(randint(1,3))
-
+            break
+            
+        for job in json_data['jobs']:
+            job_title = job.get('title', '')
+            job_link = job.get('absolute_url', '')
+            location_name = job.get('location', {}).get('name', '')
+            
+            way_of_working = 'on-site'
+            for meta in job.get('metadata', []):
+                if meta.get('name') == 'Way of working':
+                    way_val = meta.get('value', '').lower()
+                    if 'remote' in way_val:
+                        way_of_working = 'remote'
+                    elif 'hybrid' in way_val:
+                        way_of_working = 'hybrid'
+                    elif 'site' in way_val:
+                        way_of_working = 'on-site'
+                    break
+            
+            city, county = get_city_county(location_name)
+            
+            job_list.append(Item(
+                job_title=job_title,
+                job_link=job_link,
+                company='eMAG',
+                country='Romania',
+                county=county,
+                city=city,
+                remote=way_of_working,
+            ).to_dict())
+        
+        total = json_data.get('meta', {}).get('total', 0)
+        if page * 100 >= total:
+            flag = False
+        
+        page += 1
+        sleep(randint(1, 3))
+    
     return job_list
 
 
@@ -138,13 +111,12 @@ def main():
     ---> call scraper()
     ---> update_jobs() and update_logo()
     '''
-
+    
     company_name = "eMAG"
     logo_link = "https://s13emagst.akamaized.net/layout/ro/images/logo//59/88362.svg"
-
+    
     jobs = scraper()
-
-    # uncomment if your scraper done
+    
     UpdateAPI().update_jobs(company_name, jobs)
     UpdateAPI().update_logo(company_name, logo_link)
 
