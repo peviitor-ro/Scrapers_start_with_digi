@@ -59,26 +59,26 @@ def scraper():
     # collect data!
     job_list = []
     for job in jobs:
-        location = job.find_all('div', class_='inner')[1].text.strip()
+        inner_divs = job.find_all('div', class_='inner')
+        if len(inner_divs) < 2:
+            continue
         
-        # scrape title to use for find job type remote
-        title = job.find('div', class_='inner').find('a').text
+        location = inner_divs[1].text.strip()
+        
+        title = inner_divs[0].find('a').text
 
-        # if location == Bucharest
         if location.lower() in ['bucharest',]:
             location = 'Bucuresti'
 
-        # remote job type can find in the title of job
         job_type = 'on-site'
         if 'remote' in title.lower():
             job_type = 'remote'
 
-        # call counties
         location_finish = get_county(location=location)
 
         job_list.append(Item(
             job_title=title,
-            job_link='https://bertrandtgroup.onlyfy.jobs' + job.find('div', class_='inner').find('a')['href'],
+            job_link='https://bertrandtgroup.onlyfy.jobs' + inner_divs[0].find('a')['href'],
             company='BertrandtGroup',
             country='Romania',
             county=location_finish[0] if True in location_finish else None,
