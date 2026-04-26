@@ -12,7 +12,8 @@
 # Company ---> Systematic
 # Link ------> https://jobs.systematic.com/search/\?createNewAlert\=false\&q\=\&locationsearch\=\&optionsFacetsDD_country\=RO
 #
-#
+
+
 from __utils import (
     GetStaticSoup,
     get_county,
@@ -24,45 +25,63 @@ from __utils.req_bs4_shorts import session
 import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-session.verify = False
-
 
 
 def scraper():
     '''
     ... scrape data from Systematic scraper.
+    try jobs.systematic.com first, fall back to hipo.ro if unavailable.
     '''
-    soup: GetStaticSoup = GetStaticSoup("https://jobs.systematic.com/search/?createNewAlert=false&q=&locationsearch=&optionsFacetsDD_country=RO", verify=False)
-
-    jobs_num: int = int(soup.select_one('span.paginationLabel').text.split()[-1])
-
     job_list: list = list()
-    #
-    start_row_page: int = 0
-    while start_row_page < jobs_num:
-        #
-        soup_jobs: GetStaticSoup = GetStaticSoup(url=f'https://jobs.systematic.com/search/?q=&sortColumn=referencedate&sortDirection=desc&optionsFacetsDD_country=RO&startrow={str(start_row_page)}', verify=False)
+    location = 'Bucuresti'
+    location_finish = get_county(location=location)
 
-        for job in soup_jobs.select('tr.data-row'):
-            if (location := job.select_one('span.jobLocation').text.strip().split(',')[0]) and location.lower() == 'bucharest':
-                location = 'Bucuresti'
+    try:
+        soup: GetStaticSoup = GetStaticSoup("https://jobs.systematic.com/search/?createNewAlert=false&q=&locationsearch=&optionsFacetsDD_country=RO", verify=False)
+        jobs_num: int = int(soup.select_one('span.paginationLabel').text.split()[-1])
 
-            location_finish = get_county(location=location)
+        start_row_page: int = 0
+        while start_row_page < jobs_num:
+            soup_jobs: GetStaticSoup = GetStaticSoup(url=f'https://jobs.systematic.com/search/?q=&sortColumn=referencedate&sortDirection=desc&optionsFacetsDD_country=RO&startrow={str(start_row_page)}', verify=False)
 
-            # get jobs items from response
-            job_list.append(Item(
-                job_title=job.select_one('a.jobTitle-link').text,
-                job_link=f"https://jobs.systematic.com{job.select_one('a.jobTitle-link').get('href')}",
-                company='Systematic',
-                country='Romania',
-                county=location_finish[0] if True in location_finish else None,
-                city='all' if location.lower() == location_finish[0].lower()\
-                        and True in location_finish and 'bucuresti' != location.lower()\
-                            else location,
-                remote='on-site',
-            ).to_dict())
+            for job in soup_jobs.select('tr.data-row'):
+                if (loc := job.select_one('span.jobLocation').text.strip().split(',')[0]) and loc.lower() == 'bucharest':
+                    loc = 'Bucuresti'
+                location_finish = get_county(location=loc)
 
-        start_row_page += 10
+                job_list.append(Item(
+                    job_title=job.select_one('a.jobTitle-link').text,
+                    job_link=f"https://jobs.systematic.com{job.select_one('a.jobTitle-link').get('href')}",
+                    company='Systematic',
+                    country='Romania',
+                    county=location_finish[0] if True in location_finish else None,
+                    city='all' if loc.lower() == location_finish[0].lower()\
+                            and True in location_finish and 'bucuresti' != loc.lower()\
+                                else loc,
+                    remote='on-site',
+                ).to_dict())
+
+            start_row_page += 10
+
+    except Exception:
+        soup = GetStaticSoup("https://www.hipo.ro/locuri-de-munca/vizualizareFirma/2240/Systematic/", verify=False)
+        base_url = "https://www.hipo.ro"
+        seen_links = set()
+
+        for job in soup.select('a[href*="/locuri-de-munca/locuri_de_munca/"]'):
+            job_title = job.get_text(strip=True)
+            job_link = base_url + job.get('href')
+            if job_title and job_title != 'Vezi detalii' and '/Systematic/' in job_link and job_link not in seen_links:
+                seen_links.add(job_link)
+                job_list.append(Item(
+                    job_title=job_title,
+                    job_link=job_link,
+                    company='Systematic',
+                    country='Romania',
+                    county=location_finish[0] if True in location_finish else None,
+                    city='Bucuresti',
+                    remote='hybrid',
+                ).to_dict())
 
     return job_list
 

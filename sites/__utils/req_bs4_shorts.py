@@ -15,7 +15,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 #
-import cfscrape
+import cloudscraper
 #
 from .default_headers import DEFAULT_HEADERS
 #
@@ -27,10 +27,11 @@ import xml.etree.ElementTree as ET
 session = requests.Session()
 
 retry_strategy = Retry(
-    total=1,
-    backoff_factor=0.5,
+    total=3,
+    backoff_factor=1,
     status_forcelist=[429, 500, 502, 503, 504],
-    allowed_methods=["HEAD", "GET", "OPTIONS"]
+    allowed_methods=["HEAD", "GET", "OPTIONS"],
+    connect=3,
 )
 adapter = HTTPAdapter(max_retries=retry_strategy)
 session.mount("http://", adapter)
@@ -51,7 +52,7 @@ class GetStaticSoup:
         if custom_headers:
             headers.update(custom_headers)
 
-        response = session.get(url, headers=headers, verify=verify, timeout=10)
+        response = session.get(url, headers=headers, verify=verify, timeout=30)
 
         # return soup object from static page
         return BeautifulSoup(response.text, 'lxml')
@@ -147,9 +148,9 @@ class HackCloudFlare:
         if custom_headers:
             headers.update(custom_headers)
 
-        scraper = cfscrape.create_scraper()
-
-        return BeautifulSoup(scraper.get(url).content, 'lxml')
+        scraper = cloudscraper.create_scraper()
+        response = scraper.get(url, timeout=60)
+        return BeautifulSoup(response.text, 'lxml')
 
 
 class GetXMLObject:

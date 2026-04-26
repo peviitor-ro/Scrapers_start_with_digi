@@ -14,7 +14,7 @@
 #
 #
 from __utils import (
-    GetStaticSoup,
+    HackCloudFlare,
     get_county,
     get_job_type,
     Item,
@@ -26,7 +26,7 @@ def scraper():
     '''
     ... scrape data from SAP scraper.
     '''
-    soup = GetStaticSoup("https://jobs.sap.com/search/?q=&locationsearch=Romania&startrow=0&scrollToTable=True")
+    soup = HackCloudFlare("https://jobs.sap.com/search/?q=&locationsearch=Romania&startrow=0&scrollToTable=True")
 
     # extrat numbers of jobs for requests without errors
     pagination_string = int(list(set([elem.text.strip() for elem in soup.select('span.paginationLabel')]))[0].split()[-1])
@@ -35,7 +35,7 @@ def scraper():
     pages = 0
     while pages < pagination_string:
 
-        new_request = GetStaticSoup(f"https://jobs.sap.com/search/?q=&locationsearch=Romania&startrow={str(pages)}&scrollToTable=True")
+        new_request = HackCloudFlare(f"https://jobs.sap.com/search/?q=&locationsearch=Romania&startrow={str(pages)}&scrollToTable=True")
 
         for job in new_request.select('tr.data-row'):
             title_link = job.select_one('a.jobTitle-link')

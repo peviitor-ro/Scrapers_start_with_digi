@@ -10,23 +10,30 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 # Company ---> Idemia
-# Link ------> https://careers.idemia.com/search/\?createNewAlert\=false\&q\=\&locationsearch\=Romania\&optionsFacetsDD_city\=\&optionsFacetsDD_customfield2\=\&optionsFacetsDD_customfield3\=
+# Link ------> https://careers.idemia.com/search/\?createNewAlert\=false\&q\=\&locationsearch\=Romania\&optionsFacetsDD_city\=\&optionsFacetsDD_customfield2\=\&optionsFacetsDD_customfield3=
 #
 #
 from __utils import (
-    GetStaticSoup,
     get_county,
-    get_job_type,
     Item,
     UpdateAPI,
 )
+from bs4 import BeautifulSoup
+
+import requests
 
 
 def scraper():
     '''
     ... scrape data from Idemia scraper.
     '''
-    soup = GetStaticSoup("https://careers.idemia.com/search/?createNewAlert=false&q=&locationsearch=Romania&optionsFacetsDD_city=&optionsFacetsDD_customfield2=&optionsFacetsDD_customfield3=")
+    url = "https://careers.idemia.com/search/?createNewAlert=false&q=&locationsearch=Romania&optionsFacetsDD_city=&optionsFacetsDD_customfield2=&optionsFacetsDD_customfield3="
+    
+    try:
+        response = requests.get(url, timeout=5)
+        soup = BeautifulSoup(response.text, 'lxml')
+    except Exception:
+        return []
 
     job_list = []
     for job in soup.select('tr.data-row'):
@@ -64,13 +71,15 @@ def main():
     '''
 
     company_name = "Idemia"
-    logo_link = "https://www.nist.gov/sites/default/files/images/2022/07/20/IDEMIA.png"
+    logo_link = "https://www.nist.gov/sites/default_files/images/2022/07/20/IDEMIA.png"
 
     jobs = scraper()
 
-    # uncomment if your scraper done
-    UpdateAPI().update_jobs(company_name, jobs)
-    UpdateAPI().update_logo(company_name, logo_link)
+    if not jobs:
+        print("No jobs found or connection failed", flush=True)
+    else:
+        UpdateAPI().update_jobs(company_name, jobs)
+        UpdateAPI().update_logo(company_name, logo_link)
 
 
 if __name__ == '__main__':
