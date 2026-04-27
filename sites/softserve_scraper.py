@@ -14,39 +14,32 @@
 #
 #
 from __utils import (
-    GetRequestJson,
     get_county,
     get_job_type,
     Item,
     UpdateAPI,
-    #
-    GetHeadersDict,
 )
-import re
+import requests
 
 
-def get_dynamic_ids():
+def get_session():
     '''
-    >>>>>>> This function return dynamic ids for SoftServe.
+    >>>>>>> This function creates a session for SoftServe.
 
     params: None
-    return: tuple[str] -> XSRF_token, softserve_session, vis_incap_id
+    return: requests.Session
     '''
-
-    headers_string = str(GetHeadersDict('https://career.softserveinc.com/en-us/vacancies/country-romania'))
-
-    XSRF_token = re.search(r'XSRF-TOKEN=([^;]+)', headers_string).group(1)
-    softserve_session = re.search(r'softserve_session=([^;]+)', headers_string).group(1)
-    vis_incap_id = re.search(r'2401886=([^;]+)', headers_string).group(1)
-
-    return XSRF_token, softserve_session, vis_incap_id
+    from __utils import DEFAULT_HEADERS
+    
+    session = requests.Session()
+    session.get('https://career.softserveinc.com/en-us/vacancies/country-romania', headers=DEFAULT_HEADERS)
+    return session
 
 
-# call keys one time
-XSRF_token, softserve_session, vis_incap_id = get_dynamic_ids()
+session = get_session()
 
 
-def get_dynamic_headers(page: str):
+def get_dynamic_headers(page: str, req_session):
     '''
     >>>>> This function make dynamic headers for SoftServe.
 
@@ -59,7 +52,6 @@ def get_dynamic_headers(page: str):
     headers = {
         'authority': 'career.softserveinc.com',
         'accept': 'application/json, text/plain, */*',
-        'cookie': f'incap_ses_1083_2401886={vis_incap_id}; XSRF-TOKEN={XSRF_token}; softserve_session={softserve_session}',
         'referer': f'https://career.softserveinc.com/en-us/vacancies/country-romania/page-{page}',
         'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
     }
@@ -78,12 +70,15 @@ def scraper():
     while flag:
 
         # make dynamic headers
-        url_for_API, headers_for_API = get_dynamic_headers(str(page))
+        url_for_API, headers_for_API = get_dynamic_headers(str(page), session)
         
         # make req with new headers
-        if len(json_data := GetRequestJson(url=url_for_API, custom_headers=headers_for_API).get('data')) > 0:
+        response = session.get(url_for_API, headers=headers_for_API, verify=False)
+        json_data = response.json()
+        
+        if len(json_data.get('data', [])) > 0:
 
-            for job in json_data:
+            for job in json_data['data']:
                 #
                 job_type = job.get('remote')
 
