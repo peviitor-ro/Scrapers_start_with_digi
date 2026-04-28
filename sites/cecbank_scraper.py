@@ -137,11 +137,10 @@ def main():
     logo_link = "https://cdn.mingle.ro/media/cec/img/93007091589.png?response-content-disposition=inline%3B+filename%3D%22logo_cec.png%22&Expires=1725694631&Signature=ZHKhaBUyEpB9GppMCNDNWg5rkHXrXlCtaiLRuzrbKu58SEnOBt0susjkGDEA1eltto4DWqLoz~S2hvpOmYvuyq4PdX1yF3lm-nBU8RX1jpJ5JuVoQr7v1y1ZITrYN8CM9VmAb4kMsfRCAz3dy9p5nDJLSk~tWeu-s06eosBjrpX000-QqP8JQHbEehhlB9MO1MRbHgJ5xQd6xjrf7u2cehFT7y7XC8dGOLO6FhTyrfJq9t8BxiIP26LR1S6cABcGd4geMdE5Uq~u5rjc4gJEMr6zBZ2OF0x-Wj8lYJo8OlUzp5n4AVQOBHrSjE6U0XZGo7wlNVfMvuiiU8KNB8SQvg__&Key-Pair-Id=K2ZGK0W1NCXI8F"
 
     jobs = scraper()
-    print(jobs)
     
     # uncomment if your scraper done
-    #UpdateAPI().update_jobs(company_name, jobs)
-    #UpdateAPI().update_logo(company_name, logo_link)
+    UpdateAPI().update_jobs(company_name, jobs)
+    UpdateAPI().update_logo(company_name, logo_link)
     #
 
 
