@@ -47,7 +47,7 @@ def get_dynamic_headers(page: str, req_session):
     return: url, headers
     '''
 
-    url = f'https://career.softserveinc.com/en-us/vacancy/search?country[]=romania&page={page}'
+    url = f'https://career.softserveinc.com/en-us/vacancy/search?country=romania&page={page}'
 
     headers = {
         'authority': 'career.softserveinc.com',
