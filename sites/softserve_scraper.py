@@ -19,27 +19,10 @@ from __utils import (
     Item,
     UpdateAPI,
 )
-import requests
+import cloudscraper
 
 
-def get_session():
-    '''
-    >>>>>>> This function creates a session for SoftServe.
-
-    params: None
-    return: requests.Session
-    '''
-    from __utils import DEFAULT_HEADERS
-    
-    session = requests.Session()
-    session.get('https://career.softserveinc.com/en-us/vacancies/country-romania', headers=DEFAULT_HEADERS)
-    return session
-
-
-session = get_session()
-
-
-def get_dynamic_headers(page: str, req_session):
+def get_dynamic_headers(page: str):
     '''
     >>>>> This function make dynamic headers for SoftServe.
 
@@ -47,13 +30,12 @@ def get_dynamic_headers(page: str, req_session):
     return: url, headers
     '''
 
-    url = f'https://career.softserveinc.com/en-us/vacancy/search?country=romania&page={page}'
+    url = f'https://career.softserveinc.com/en-us/vacancy/search?country[]=romania&page={page}'
 
     headers = {
         'authority': 'career.softserveinc.com',
         'accept': 'application/json, text/plain, */*',
         'referer': f'https://career.softserveinc.com/en-us/vacancies/country-romania/page-{page}',
-        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
     }
 
     return url, headers
@@ -64,16 +46,17 @@ def scraper():
     ... scrape data from SoftServe scraper.
     '''
 
-    job_list = [] # stored data jobs
+    scraper = cloudscraper.create_scraper()
+    job_list = []
     page = 1
     flag = True
     while flag:
 
         # make dynamic headers
-        url_for_API, headers_for_API = get_dynamic_headers(str(page), session)
-        
-        # make req with new headers
-        response = session.get(url_for_API, headers=headers_for_API, verify=False)
+        url_for_API, headers_for_API = get_dynamic_headers(str(page))
+
+        # make req with new headers via cloudscraper to bypass Incapsula
+        response = scraper.get(url_for_API, headers=headers_for_API)
         json_data = response.json()
         
         if len(json_data.get('data', [])) > 0:
