@@ -29,13 +29,10 @@ def scraper():
     soup = GetStaticSoup("https://www.neptun-gears.ro/ro/cariere/")
 
     job_list = []
-    for job in soup.select_one('#contact_data_eon').select('li'):
-        title_link = job.select_one('a')
-
-        # get jobs items from response
+    for job in soup.select_one('.fusion-text-2 ul').select('li'):
         job_list.append(Item(
-            job_title=title_link.text,
-            job_link=title_link['href'],
+            job_title=job.text.strip(),
+            job_link='https://www.neptun-gears.ro/ro/cariere/',
             company='Neptun',
             country='Romania',
             county='Prahova',

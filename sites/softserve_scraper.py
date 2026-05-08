@@ -20,6 +20,7 @@ from __utils import (
     UpdateAPI,
 )
 import cloudscraper
+import time
 
 
 def get_dynamic_headers(page: str):
@@ -46,7 +47,6 @@ def scraper():
     ... scrape data from SoftServe scraper.
     '''
 
-    scraper = cloudscraper.create_scraper()
     job_list = []
     page = 1
     flag = True
@@ -56,10 +56,19 @@ def scraper():
         url_for_API, headers_for_API = get_dynamic_headers(str(page))
 
         # make req with new headers via cloudscraper to bypass Incapsula
-        response = scraper.get(url_for_API, headers=headers_for_API)
-        json_data = response.json()
-        
-        if len(json_data.get('data', [])) > 0:
+        json_data = None
+        for _ in range(5):
+            scraper = cloudscraper.create_scraper()
+            response = scraper.get(url_for_API, headers=headers_for_API)
+            if response.status_code == 200:
+                try:
+                    json_data = response.json()
+                    break
+                except:
+                    pass
+            time.sleep(2)
+
+        if json_data and len(json_data.get('data', [])) > 0:
 
             for job in json_data['data']:
                 #
