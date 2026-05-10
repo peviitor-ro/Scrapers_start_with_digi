@@ -26,7 +26,10 @@ def scraper():
     '''
     ... scrape data from Crosswork scraper.
     '''
-    soup = GetStaticSoup("https://crosswork.sincron.biz/")
+    try:
+        soup = GetStaticSoup("https://crosswork.sincron.biz/")
+    except Exception:
+        return []
 
     job_list = []
     for job in soup.find_all('div', attrs={'class': 'col-md-9'}):
