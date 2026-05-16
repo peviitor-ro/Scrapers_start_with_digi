@@ -3,56 +3,53 @@
 # Config for Dynamic Get Method -> For Json format!
 #
 # Company ---> Eurofins
-# Link ------> https://atsintegration.eurofins.com/ATSWebService.asmx/GetJobs?language=ro
-#
-# ------ IMPORTANT! ------
-# if you need return soup object:
-# you cand import from __utils -> GetHtmlSoup
-# if you need return regex object:
-# you cand import from __utils ->
-# ---> get_data_with_regex(expression: str, object: str)
-#
+# Link ------> https://api.smartrecruiters.com/v1/companies/Eurofins/postings?country=ro
 #
 from __utils import (
     GetRequestJson,
     get_county,
-    get_job_type,
     Item,
     UpdateAPI,
-
-    #
-    counties,
 )
-import unicodedata
 
 
 def scraper():
     '''
     ... scrape data from Eurofins scraper.
     '''
-    json_data = GetRequestJson("https://atsintegration.eurofins.com/ATSWebService.asmx/GetJobs?language=ro")
+    json_data = GetRequestJson(
+        "https://api.smartrecruiters.com/v1/companies/Eurofins/postings?country=ro&limit=100"
+    )
 
     job_list = []
-    for job in json_data:
+    for job in json_data.get('content', []):
 
-        if 'ro' == job.get('countryCode'):
+        if job.get('location', {}).get('country') != 'ro':
+            continue
 
-            if (location := job.get('locationCity')).lower() == 'bucharest':
-                location = 'București'
+        location = job.get('location', {})
+        city = location.get('city', '')
+        if city.lower() == 'bucharest':
+            city = 'București'
 
-            location_finish = get_county(location=location)
+        location_finish = get_county(location=city)
 
-            # get jobs items from response
-            job_list.append(Item(
-                job_title=job.get('title'),
-                job_link=job.get('applyUrl'),
-                company='Eurofins',
-                country='Romania',
-                county=location_finish[0] if True in location_finish else None,
-                city='all' if location.lower() == location_finish[0].lower()\
-                            and True in location_finish and 'bucuresti' != location.lower()\
-                                else location,
-                remote='remote' if job.get('remoteJob') == "True" else 'on-site'
+        remote = location.get('remote', False)
+        hybrid = location.get('hybrid', False)
+        remote_type = 'remote' if remote else ('hybrid' if hybrid else 'on-site')
+
+        apply_url = f"https://www.smartrecruiters.com/Eurofins/{job.get('id')}"
+
+        job_list.append(Item(
+            job_title=job.get('name'),
+            job_link=apply_url,
+            company='Eurofins',
+            country='Romania',
+            county=location_finish[0] if True in location_finish else None,
+            city='all' if city.lower() == location_finish[0].lower()
+                        and True in location_finish and 'bucuresti' != city.lower()
+                            else city,
+            remote=remote_type,
         ).to_dict())
 
     return job_list
