@@ -13,6 +13,8 @@
 # Link ------> https://www.upteam.com/careers
 #
 #
+import requests
+
 from __utils import (
     GetStaticSoup,
     get_county,
@@ -41,7 +43,11 @@ def scraper():
     '''
     ... scrape data from UpTeam scraper.
     '''
-    soup = GetStaticSoup("https://www.upteam.com/careers")
+    try:
+        soup = GetStaticSoup("https://www.upteam.com/careers")
+    except (requests.exceptions.ConnectTimeout, requests.exceptions.Timeout,
+            requests.exceptions.ConnectionError):
+        return []
 
     job_list = []
     for job in soup.find_all('div', class_='w-dyn-item'):
