@@ -35,10 +35,14 @@ def scraper():
 
         for job in data_from_soup:
 
-            # get jobs items from response
+            job_title_elem = job.select_one('div.item-details > h2')
+            job_link_elem = job.select_one('a')
+            if not job_title_elem or not job_link_elem:
+                continue
+
             job_list.append(Item(
-                job_title=job.select_one('div.item-details > h2').text,
-                job_link=job.select_one('a')['href'],
+                job_title=job_title_elem.text,
+                job_link=job_link_elem['href'],
                 company='DaislerPrintHouse',
                 country='Romania',
                 county='Cluj',
