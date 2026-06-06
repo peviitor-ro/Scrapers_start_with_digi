@@ -26,13 +26,13 @@ def scraper():
     '''
     ... scrape data from Neptun scraper.
     '''
-    soup = GetStaticSoup("https://www.neptun-gears.ro/ro/cariere/")
+    soup = GetStaticSoup("https://www.neptun-gears.ro/cariere/")
 
     job_list = []
     for job in soup.select_one('.fusion-text-2 ul').select('li'):
         job_list.append(Item(
             job_title=job.text.strip(),
-            job_link='https://www.neptun-gears.ro/ro/cariere/',
+            job_link='https://www.neptun-gears.ro/cariere/',
             company='Neptun',
             country='Romania',
             county='Prahova',
