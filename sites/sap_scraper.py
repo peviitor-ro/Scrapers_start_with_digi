@@ -14,7 +14,7 @@
 #
 #
 from __utils import (
-    HackCloudFlare,
+    GetStaticSoup,
     get_county,
     get_job_type,
     Item,
@@ -26,41 +26,44 @@ def scraper():
     '''
     ... scrape data from SAP scraper.
     '''
-    soup = HackCloudFlare("https://jobs.sap.com/search/?q=&locationsearch=Romania&startrow=0&scrollToTable=True")
-
-    # extrat numbers of jobs for requests without errors
-    pagination_string = int(list(set([elem.text.strip() for elem in soup.select('span.paginationLabel')]))[0].split()[-1])
-
     job_list = []
-    pages = 0
-    while pages < pagination_string:
+    startrow = 0
 
-        new_request = HackCloudFlare(f"https://jobs.sap.com/search/?q=&locationsearch=Romania&startrow={str(pages)}&scrollToTable=True")
+    while True:
+        soup = GetStaticSoup(f"https://jobs.sap.com/search/?q=&locationsearch=Romania&startrow={startrow}&scrollToTable=True")
 
-        for job in new_request.select('tr.data-row'):
+        rows = soup.select('tr.data-row')
+        if not rows:
+            break
+
+        for job in rows:
             title_link = job.select_one('a.jobTitle-link')
+            if not title_link:
+                continue
 
-            # get location from site
-            if (location := job.select_one('span.jobLocation').text.strip().split(',')[0]) == 'Bucharest':
+            location_elem = job.select_one('span.jobLocation')
+            if not location_elem:
+                continue
+
+            location = location_elem.text.strip().split(',')[0]
+            if location == 'Bucharest':
                 location = 'Bucuresti'
 
-            # get county from location gather from site
             location_finish = get_county(location=location)
 
-            # get jobs items from response
             job_list.append(Item(
-                job_title=title_link.text,
+                job_title=title_link.text.strip(),
                 job_link=f"https://jobs.sap.com{title_link['href']}",
                 company='SAP',
                 country='Romania',
                 county=location_finish[0] if True in location_finish else None,
-                city='all' if location.lower() == location_finish[0].lower()\
-                        and True in location_finish and 'bucuresti' != location.lower()\
+                city='all' if location.lower() == location_finish[0].lower()
+                        and True in location_finish and 'bucuresti' != location.lower()
                             else location,
                 remote='on-site',
             ).to_dict())
 
-        pages += 25
+        startrow += 25
 
     return job_list
 
