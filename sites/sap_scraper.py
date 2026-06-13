@@ -13,8 +13,10 @@
 # Link ------> https://jobs.sap.com/search/?q=&locationsearch=Romania&startrow=0&scrollToTable=True
 #
 #
+import requests
+
 from __utils import (
-    GetStaticSoup,
+    HackCloudFlare,
     get_county,
     get_job_type,
     Item,
@@ -30,7 +32,10 @@ def scraper():
     startrow = 0
 
     while True:
-        soup = GetStaticSoup(f"https://jobs.sap.com/search/?q=&locationsearch=Romania&startrow={startrow}&scrollToTable=True")
+        try:
+            soup = HackCloudFlare(f"https://jobs.sap.com/search/?q=&locationsearch=Romania&startrow={startrow}&scrollToTable=True")
+        except requests.exceptions.ConnectionError:
+            break
 
         rows = soup.select('tr.data-row')
         if not rows:
