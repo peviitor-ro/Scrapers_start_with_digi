@@ -121,8 +121,11 @@ def main():
 
     jobs = scraper()
 
-    UpdateAPI().update_jobs(company_name, jobs)
-    UpdateAPI().update_logo(company_name, logo_link)
+    try:
+        UpdateAPI().update_jobs(company_name, jobs)
+        UpdateAPI().update_logo(company_name, logo_link)
+    except Exception as e:
+        print(f"API update failed (non-fatal): {e}")
 
 
 if __name__ == '__main__':
