@@ -13,6 +13,8 @@
 # Link ------> https://connect.verifone.com/en/global/careers/jobs?title=&departments=All&locations=686
 #
 #
+import requests
+
 from __utils import (
     get_county,
     GetStaticSoup,
@@ -25,7 +27,11 @@ def scraper():
     '''
     ... scrape data from Verifone scraper.
     '''
-    soup = GetStaticSoup("https://connect.verifone.com/en/global/careers/jobs?title=&departments=All&locations=686", verify=False)
+    try:
+        soup = GetStaticSoup("https://connect.verifone.com/en/global/careers/jobs?title=&departments=All&locations=686", verify=False)
+    except (requests.exceptions.ConnectTimeout, requests.exceptions.Timeout,
+            requests.exceptions.ConnectionError):
+        return []
 
     job_list = []
     for job in soup.find_all('tr'):
