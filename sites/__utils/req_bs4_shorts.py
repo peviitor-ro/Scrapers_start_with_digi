@@ -15,8 +15,6 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 #
-import cloudscraper
-#
 from .default_headers import DEFAULT_HEADERS
 #
 import xml.etree.ElementTree as ET
@@ -148,6 +146,7 @@ class HackCloudFlare:
         if custom_headers:
             headers.update(custom_headers)
 
+        import cloudscraper
         scraper = cloudscraper.create_scraper()
         response = scraper.get(url, timeout=60)
         return BeautifulSoup(response.text, 'lxml')
