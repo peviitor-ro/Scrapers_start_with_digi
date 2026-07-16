@@ -79,7 +79,7 @@ def scraper():
 
         if len(json_data['jobs']) > 0:
             for job in json_data['jobs']:
-                if job['data']['country'] == "Romania":
+                if job.get('data', {}).get('country') == "Romania":
                     location = job['data']['location_name']
 
                     # change Bucharest

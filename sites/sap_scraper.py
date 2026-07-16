@@ -16,7 +16,7 @@
 import requests
 
 from __utils import (
-    HackCloudFlare,
+    GetStaticSoup,
     get_county,
     get_job_type,
     Item,
@@ -33,7 +33,7 @@ def scraper():
 
     while True:
         try:
-            soup = HackCloudFlare(f"https://jobs.sap.com/search/?q=&locationsearch=Romania&startrow={startrow}&scrollToTable=True")
+            soup = GetStaticSoup(f"https://jobs.sap.com/search/?q=&locationsearch=Romania&startrow={startrow}&scrollToTable=True")
         except requests.exceptions.ConnectionError:
             break
 

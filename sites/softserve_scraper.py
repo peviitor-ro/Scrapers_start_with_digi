@@ -14,13 +14,12 @@
 #
 #
 from __utils import (
+    GetRequestJson,
     get_county,
     get_job_type,
     Item,
     UpdateAPI,
 )
-import cloudscraper
-import time
 
 
 def get_dynamic_headers(page: str):
@@ -55,20 +54,9 @@ def scraper():
         # make dynamic headers
         url_for_API, headers_for_API = get_dynamic_headers(str(page))
 
-        # make req with new headers via cloudscraper to bypass Incapsula
-        json_data = None
-        for _ in range(5):
-            scraper = cloudscraper.create_scraper()
-            response = scraper.get(url_for_API, headers=headers_for_API)
-            if response.status_code == 200:
-                try:
-                    json_data = response.json()
-                    break
-                except:
-                    pass
-            time.sleep(2)
+        json_data = GetRequestJson(url=url_for_API, custom_headers=headers_for_API)
 
-        if json_data and len(json_data.get('data', [])) > 0:
+        if isinstance(json_data, dict) and len(json_data.get('data', [])) > 0:
 
             for job in json_data['data']:
                 #
