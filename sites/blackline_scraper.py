@@ -1,119 +1,105 @@
 #
 #
-# Config for Dynamic Get Method -> For Json format!
+# Config for Workday API -> For Json format!
 #
 # Company ---> BlackLine
-# Link ------> https://careers.blackline.com/careers-home/jobs\?page\=2\&location\=Romania\&woe\=12\&stretchUnit\=MILES\&stretch\=10
-#
-# ------ IMPORTANT! ------
-# if you need return soup object:
-# you cand import from __utils -> GetHtmlSoup
-# if you need return regex object:
-# you cand import from __utils ->
-# ---> get_data_with_regex(expression: str, object: str)
+# Link ------> https://careers.blackline.com/careers-home/jobs
 #
 #
 from __utils import (
-    GetRequestJson,
     get_county,
-    get_job_type,
     Item,
     UpdateAPI,
-
-    # get headers
-    GetHeadersDict,
 )
-import re
+import requests
 
 
-def get_keys():
+WORKDAY_BASE = 'https://blackline.wd108.myworkdayjobs.com'
+WORKDAY_CXS = '/wday/cxs/blackline/BlackLineCareers'
+CAREERS_URL = 'https://careers.blackline.com/careers-home/jobs?page=2&location=Romania&woe=12&stretchUnit=MILES&stretch=10'
+
+BUCHAREST_FACET_IDS = [
+    '9574f3b33005100115a8fa1088a30000',
+    'b14bb3de74cd1000ac19826a86a00000',
+]
+
+
+def init_session():
     '''
-    ... get keys from site
+    ... init session and get cookies from site
     '''
-    data_headers = GetHeadersDict('https://careers.blackline.com/careers-home/jobs?page=2&location=Romania&woe=12&stretchUnit=MILES&stretch=10')
-    n_data = str(data_headers)
-
-    jrasession = re.search('jrasession=([a-fA-F0-9\\-]+);', n_data).group(1)
-    jassesion = re.search('jasession=([a-zA-Z0-9%._-]+);', n_data).group(1)
-
-    return jrasession, jassesion
-
-
-# define here and call one time
-data_keys = get_keys()
-
-
-def get_headers(page: str):
-    '''
-    ... get headers from site.
-    '''
-
-
-    url = f'https://careers.blackline.com/api/jobs?page={page}&location=Romania&woe=12&stretchUnit=MILES&stretch=10&sortBy=relevance&descending=false&internal=false'
-    headers = {
-        'authority': 'careers.blackline.com',
-        'accept': 'application/json, text/plain, */*',
-        'accept-language': 'en-US,en;q=0.5',
-        'cookie': f'i18n=en-US; searchSource=external; jrasession={data_keys[0]}; jasession={data_keys[1]}; _janalytics_ses.79de=*; _janalytics_id.79de=84147b7a-cd35-4f96-9c73-9c81c95a8df9.1706736342.1.1706736367.1706736342.95d2b4b9-e905-41de-a790-4c2226fd0e10',
-        'referer': f'https://careers.blackline.com/careers-home/jobs?page={page}&location=Romania&woe=12&stretchUnit=MILES&stretch=10',
-        'sec-ch-ua': '"Not_A Brand";v="8", "Chromium";v="120", "Brave";v="120"',
+    sess = requests.Session()
+    sess.headers.update({
         'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    }
-
-    return url, headers
+    })
+    sess.get(CAREERS_URL, verify=False)
+    return sess
 
 
 def scraper():
     '''
     ... scrape data from BlackLine scraper.
     '''
-
+    sess = init_session()
     job_list = list()
-    count = 1
-    flag = True
+    offset = 0
+    limit = 20
 
-    while flag:
+    while True:
+        payload = {
+            'appliedFacets': {'locations': BUCHAREST_FACET_IDS},
+            'limit': limit,
+            'offset': offset,
+            'searchText': '',
+        }
+        resp = sess.post(
+            WORKDAY_BASE + WORKDAY_CXS + '/jobs',
+            json=payload,
+            headers={'Accept': 'application/json', 'Content-Type': 'application/json'},
+            verify=False,
+        )
+        data = resp.json()
+        postings = data.get('jobPostings', [])
 
-        data_h = get_headers(str(count))
-        json_data = GetRequestJson(data_h[0], custom_headers=data_h[1])
+        if not postings:
+            break
 
-        if len(json_data['jobs']) > 0:
-            for job in json_data['jobs']:
-                if job.get('data', {}).get('country') == "Romania":
-                    location = job['data']['location_name']
+        for jp in postings:
+            path = jp.get('externalPath', '')
+            detail_resp = sess.get(
+                WORKDAY_BASE + WORKDAY_CXS + path,
+                headers={'Accept': 'application/json'},
+                verify=False,
+            )
+            detail = detail_resp.json().get('jobPostingInfo', {})
 
-                    # change Bucharest
-                    if location.lower() in ['bucharest']:
-                        location = "Bucuresti"
+            location = detail.get('location', 'Bucharest')
+            remote_type = (detail.get('remoteType') or '').lower()
 
-                    job_type = 'on-site'
-                    if 'remote' in location.lower():
-                        location = 'Bucuresti'
-                        job_type = 'remote'
-                    elif 'hybrid' in location.lower():
-                        job_type = 'hybrid'
-                    else:
-                        job_type = 'on-site'
+            if remote_type == 'remote':
+                job_type = 'remote'
+            elif remote_type == 'hybrid':
+                job_type = 'hybrid'
+            else:
+                job_type = 'on-site'
 
-                    # location
-                    location_finish = get_county(location=location)
+            location_finish = get_county(location=location)
 
-                    job_list.append(Item(
-                        job_title=job['data']['title'],
-                        job_link=f"https://careers.blackline.com/careers-home/jobs/{job['data']['slug']}?lang=en-us",
-                        company='BlackLine',
-                        country='Romania',
-                        county=location_finish[0] if True in location_finish else None,
-                        city='all' if location.lower() == location_finish[0].lower()\
-                                    and True in location_finish and 'bucuresti' != location.lower()\
-                                        else location,
-                        remote=job_type,
-                    ).to_dict())
+            job_list.append(Item(
+                job_title=detail.get('title', jp.get('title', '')),
+                job_link=WORKDAY_BASE + path,
+                company='BlackLine',
+                country='Romania',
+                county=location_finish[0] if True in location_finish else None,
+                city='all' if location.lower() == location_finish[0].lower()
+                    and True in location_finish and 'bucuresti' != location.lower()
+                    else location,
+                remote=job_type,
+            ).to_dict())
 
-        else:
-            flag = False
-
-        count += 1
+        offset += limit
+        if offset >= data.get('total', 0):
+            break
 
     return job_list
 
