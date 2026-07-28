@@ -3,119 +3,92 @@
 # Config for Dynamic Post Method -> For Json format!
 #
 # Company ---> Morningstar
-# Link ------> https://careers.morningstar.com/widgets
-#
-# ------ IMPORTANT! ------
-# if you need return soup object:
-# you cand import from __utils -> GetHtmlSoup
-# if you need return regex object:
-# you cand import from __utils ->
-# ---> get_data_with_regex(expression: str, object: str)
-#
+# Link ------> https://morningstar.wd5.myworkdayjobs.com/en-US/Morningstar
 #
 from __utils import (
     PostRequestJson,
     get_county,
-    get_job_type,
     Item,
     UpdateAPI,
 )
 
-import json
+import re
+
 
 def get_headers():
-    url = "https://careers.morningstar.com/widgets"
+    url = "https://morningstar.wd5.myworkdayjobs.com/wday/cxs/morningstar/Morningstar/jobs"
 
-    payload = json.dumps({
-    "lang": "en_us",
-    "deviceType": "desktop",
-    "country": "us",
-    "pageName": "search-results",
-    "ddoKey": "refineSearch",
-    "sortBy": "",
-    "subsearch": "",
-    "from": 0,
-    "jobs": True,
-    "counts": True,
-    "all_fields": [
-        "category",
-        "country",
-        "state",
-        "city",
-        "type",
-        "visibilityType",
-        "brand"
-    ],
-    "size": 100,
-    "clearAll": False,
-    "jdsource": "facets",
-    "isSliderEnable": False,
-    "pageId": "page14",
-    "siteType": "external",
-    "keywords": "Romania",
-    "global": True,
-    "selected_fields": {
-        "country": [
-        "Romania"
-        ]
-    }
-    })
     headers = {
-    'accept': '*/*',
-    'content-type': 'application/json',
-    'referer': 'https://careers.morningstar.com/us/en/search-results?keywords=Romania',
-    'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
-    'Cookie': 'PHPPPE_ACT=82c6ec1c-ee53-4020-b536-a9fb682647b3; PLAY_SESSION=eyJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7IkpTRVNTSU9OSUQiOiI4MmM2ZWMxYy1lZTUzLTQwMjAtYjUzNi1hOWZiNjgyNjQ3YjMifSwibmJmIjoxNzQzMjczODYwLCJpYXQiOjE3NDMyNzM4NjB9.QrI4DK3nAM9ZWNtZLl-BdL_dayI3KLS430Ky_x2Rh-0'
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
     }
-    
 
-    return url, payload, headers
+    return url, headers
+
 
 def scraper():
-
-    url, payload, headers = get_headers()
-    post_data = PostRequestJson(url , custom_headers=headers, data_raw=payload)
-    jobs = post_data.get("refineSearch").get("data").get("jobs")
-
+    url, headers = get_headers()
 
     job_list = []
 
-        
+    payload = {
+        "appliedFacets": {"locationCountry": ["f2e609fe92974a55a05fc1cdc2852122"]},
+        "limit": 20,
+        "offset": 0,
+        "searchText": "",
+    }
+
+    data = PostRequestJson(url=url, custom_headers=headers, data_json=payload)
+
+    if not isinstance(data, dict) or "jobPostings" not in data:
+        return job_list
+
+    jobs = data["jobPostings"]
+
     for job in jobs:
-        location= "Bucuresti" if job.get('cityState')=="Bucharest" else job.get('cityState')
+        title = job.get("title")
+        external_path = job.get("externalPath")
+        if not title or not external_path:
+            continue
 
+        link = f"https://morningstar.wd5.myworkdayjobs.com/en-US/Morningstar{external_path}"
 
-        # get jobs items from response
+        city = "Bucuresti"
+        county = "Bucuresti"
+        remote = "on-site"
+
+        city_match = re.search(r"/job/([^/]+)/", external_path)
+        if city_match:
+            city_name = city_match.group(1).replace("-", " ")
+            if city_name.lower() == "bucharest":
+                city_name = "Bucuresti"
+            city = city_name
+            county_data = get_county(city)
+            if county_data and county_data[0]:
+                county = county_data[0]
+
         job_list.append(Item(
-            job_title=job.get('title'),
-            job_link= 'https://careers.morningstar.com/us/en/job/'+ job['jobId']+'/'+ '-'.join(job['title'].split()),
-            company='Morningstar',
-            country='Romania',
-            county= location,
-            city="all" if not job["city"] else job["city"],
-            remote=job.get('type', '').lower() if job.get('type','') else None,
+            job_title=title,
+            job_link=link,
+            company="Morningstar",
+            country="Romania",
+            county=county,
+            city=city,
+            remote=remote,
         ).to_dict())
 
-    # for i in job_list:
-    #     print (i)
     return job_list
 
 
 def main():
-    '''
-    ... Main:
-    ---> call scraper()
-    ---> update_jobs() and update_logo()
-    '''
-
     company_name = "Morningstar"
     logo_link = "https://upload.wikimedia.org/wikipedia/commons/6/67/Morningstar_Logo.svg"
 
     jobs = scraper()
     print(jobs)
-    # uncomment if your scraper done
     UpdateAPI().update_jobs(company_name, jobs)
     UpdateAPI().update_logo(company_name, logo_link)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
