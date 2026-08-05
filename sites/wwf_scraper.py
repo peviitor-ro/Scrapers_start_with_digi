@@ -20,7 +20,7 @@ def scraper():
     '''
     ... scrape data from WWF scraper.
     '''
-    soup = GetStaticSoup("https://wwf.ro/despre-wwf/wwf-romania/cariere/")
+    soup = GetStaticSoup("https://wwf.ro/despre-wwf/wwf-romania/cariere/", timeout=90)
 
     job_list = []
     for job in soup.find_all('div', attrs={'class': 'elementor-image-box-content'}):

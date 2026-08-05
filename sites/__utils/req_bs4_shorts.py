@@ -41,7 +41,7 @@ class GetStaticSoup:
     ... This class return soup object from static page!
     '''
 
-    def __new__(cls, url, custom_headers=None, verify=True):
+    def __new__(cls, url, custom_headers=None, verify=True, timeout=30):
 
         headers = DEFAULT_HEADERS.copy()
 
@@ -50,7 +50,7 @@ class GetStaticSoup:
         if custom_headers:
             headers.update(custom_headers)
 
-        response = session.get(url, headers=headers, verify=verify, timeout=30)
+        response = session.get(url, headers=headers, verify=verify, timeout=timeout)
 
         # return soup object from static page
         return BeautifulSoup(response.text, 'lxml')
