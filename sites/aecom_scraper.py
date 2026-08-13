@@ -31,38 +31,48 @@ def scraper():
 
     job_list = list()
 
-    data_jobs_api = GetRequestJson(url="https://prod-search-api.jobsyn.org/api/v1/solr/search?page=1&location=rom&num_items=100",
-                                    custom_headers={
-                                      'accept': 'application/json',
-                                      'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-                                      'x-origin': 'aecom.jobs'
-                                    }
-                                )
+    api_url = "https://prod-search-api.jobsyn.org/api/v1/solr/search"
+    custom_headers = {
+        'accept': 'application/json',
+        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+        'x-origin': 'aecom.jobs'
+    }
 
-    # get all jobs
-    for job in data_jobs_api.get('jobs'):
-        slug_job    = job.get('title_slug')
-        idx         = job.get('guid')
+    # fetch first page to get total number of pages
+    data_jobs_api = GetRequestJson(url=f"{api_url}?page=1&location=rom&num_items=10",
+                                   custom_headers=custom_headers)
 
-        location    = job.get('city_exact')
+    total_pages = data_jobs_api.get('pagination', {}).get('total_pages', 1)
 
-        # change Bucharest
-        if location.lower() in ['bucharest']:
-            location = "Bucuresti"
+    # get all jobs (the API caps num_items at 10, so paginate)
+    for page in range(1, total_pages + 1):
+        if page > 1:
+            data_jobs_api = GetRequestJson(url=f"{api_url}?page={page}&location=rom&num_items=10",
+                                           custom_headers=custom_headers)
 
-        location_finish = get_county(location=location)
+        for job in data_jobs_api.get('jobs'):
+            slug_job    = job.get('title_slug')
+            idx         = job.get('guid')
 
-        job_list.append(Item(
-            job_title=job.get('title_exact'),
-            job_link=f"https://aecom.jobs/bucharest-rom/{slug_job}/{idx}/job/",
-            company='AECOM',
-            country='Romania',
-            county=location_finish[0] if True in location_finish else None,
-            city='all' if location.lower() == location_finish[0].lower()\
-                        and True in location_finish and 'bucuresti' != location.lower()\
-                            else location,
-            remote='hybrid',
-        ).to_dict())
+            location    = job.get('city_exact')
+
+            # change Bucharest
+            if location.lower() in ['bucharest']:
+                location = "Bucuresti"
+
+            location_finish = get_county(location=location)
+
+            job_list.append(Item(
+                job_title=job.get('title_exact'),
+                job_link=f"https://aecom.jobs/bucharest-rom/{slug_job}/{idx}/job/",
+                company='AECOM',
+                country='Romania',
+                county=location_finish[0] if True in location_finish else None,
+                city='all' if location.lower() == location_finish[0].lower()\
+                            and True in location_finish and 'bucuresti' != location.lower()\
+                                else location,
+                remote='hybrid',
+            ).to_dict())
 
     return job_list
 
