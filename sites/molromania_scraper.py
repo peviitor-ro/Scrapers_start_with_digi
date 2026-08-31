@@ -52,6 +52,11 @@ def scraper():
     url, headers, data_raw = prepare_post_headers()
     post_data = PostRequestJson(url=url, custom_headers=headers, data_json=data_raw)
 
+    # when the endpoint is unavailable the response isn't JSON,
+    # so there is no requisition list to iterate over
+    if not isinstance(post_data, dict) or not post_data.get('requisitionList'):
+        return []
+
     job_list = []
     for job in post_data.get('requisitionList'):
 
