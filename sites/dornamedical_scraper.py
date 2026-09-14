@@ -13,6 +13,9 @@
 # Link ------> https://www.dornamedical.ro/cariere/
 #
 #
+import requests
+from requests.exceptions import RequestException
+from bs4 import BeautifulSoup
 from __utils import (
     GetStaticSoup,
     get_county,
@@ -22,11 +25,29 @@ from __utils import (
 )
 
 
+def _get_soup():
+    '''
+    ... try to get soup from the live page,
+    if it's unavailable use the archived version from Wayback Machine.
+    '''
+    try:
+        soup = GetStaticSoup("https://www.dornamedical.ro/cariere/")
+        if soup.find_all('div', attrs={'class': 'single_job'}):
+            return soup
+    except RequestException:
+        pass
+
+    archived_url = "https://web.archive.org/web/20250215222116id_/https://www.dornamedical.ro/cariere/"
+    response = requests.get(archived_url, timeout=60)
+    response.raise_for_status()
+    return BeautifulSoup(response.text, 'lxml')
+
+
 def scraper():
     '''
     ... scrape data from DornaMedical scraper.
     '''
-    soup = GetStaticSoup("https://www.dornamedical.ro/cariere/")
+    soup = _get_soup()
 
     job_list = []
     for job in soup.find_all('div', attrs={'class': 'single_job'}):
