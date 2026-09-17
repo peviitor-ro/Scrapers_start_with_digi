@@ -15,6 +15,13 @@
 # Company ---> AECOM
 # Link ------> https://aecom.jobs/rom/jobs/
 #
+import time
+
+from requests.exceptions import (
+    RetryError,
+    ConnectionError as RequestsConnectionError,
+)
+
 from __utils import (
     GetRequestJson,
     get_county,
@@ -22,6 +29,21 @@ from __utils import (
     Item,
     UpdateAPI,
 )
+
+
+def get_api_page(url, headers, attempts=4):
+    '''
+    ... fetch a page from the jobs API, retrying transient
+    ... server errors (e.g. 504) that exhaust the shared session retries.
+    '''
+
+    for attempt in range(attempts):
+        try:
+            return GetRequestJson(url=url, custom_headers=headers)
+        except (RetryError, RequestsConnectionError):
+            if attempt == attempts - 1:
+                raise
+            time.sleep(2 ** attempt)
 
 
 def scraper():
@@ -39,16 +61,16 @@ def scraper():
     }
 
     # fetch first page to get total number of pages
-    data_jobs_api = GetRequestJson(url=f"{api_url}?page=1&location=rom&num_items=10",
-                                   custom_headers=custom_headers)
+    data_jobs_api = get_api_page(f"{api_url}?page=1&location=rom&num_items=10",
+                                 custom_headers)
 
     total_pages = data_jobs_api.get('pagination', {}).get('total_pages', 1)
 
     # get all jobs (the API caps num_items at 10, so paginate)
     for page in range(1, total_pages + 1):
         if page > 1:
-            data_jobs_api = GetRequestJson(url=f"{api_url}?page={page}&location=rom&num_items=10",
-                                           custom_headers=custom_headers)
+            data_jobs_api = get_api_page(f"{api_url}?page={page}&location=rom&num_items=10",
+                                         custom_headers)
 
         for job in data_jobs_api.get('jobs'):
             slug_job    = job.get('title_slug')
