@@ -31,14 +31,25 @@ def get_ids_from_api():
     '''
         ... get all ids from external API
     '''
-    string_headers_cookie = str(GetHeadersDict('https://gsknch.wd3.myworkdayjobs.com/GSKCareers'))
+    response_headers = GetHeadersDict('https://gsknch.wd3.myworkdayjobs.com/GSKCareers')
+    string_headers_cookie = str(response_headers.get('Set-Cookie', ''))
 
-    wd_browser_ID = get_data_with_regex('wd-browser-id=([a-fA-F0-9-]+);',  string_headers_cookie)
-    calypso_csrf = get_data_with_regex('CALYPSO_CSRF_TOKEN=([a-fA-F0-9-]+);', string_headers_cookie)
-    play_session = get_data_with_regex('PLAY_SESSION=([a-fA-F0-9-]+-[a-zA-Z0-9&;=_]+);', string_headers_cookie)
-    wday_vps_cookie = get_data_with_regex('wday_vps_cookie=([0-9]+\.[0-9]+\.[0-9]+);', string_headers_cookie)
-    __cf_bm = get_data_with_regex('__cf_bm=([^;]+);', string_headers_cookie)
-    __cflb = get_data_with_regex('__cflb=([A-Za-z0-9+/=]+);', string_headers_cookie)
+    def get_cookie(cookie_name):
+        '''
+            ... return the full "name=value" pair from Set-Cookie header
+        '''
+        return get_data_with_regex(f'{cookie_name}=([^;,\\s]+)', string_headers_cookie)
+
+    wd_browser_ID = get_cookie('wd-browser-id')
+    calypso_csrf = get_cookie('CALYPSO_CSRF_TOKEN')
+    play_session = get_cookie('PLAY_SESSION')
+    wday_vps_cookie = get_cookie('wday_vps_cookie')
+    __cf_bm = get_cookie('__cf_bm')
+    __cflb = get_cookie('__cflb')
+
+    # csrf token is also returned as dedicated header by workday
+    if not calypso_csrf:
+        calypso_csrf = str(response_headers.get('X-CALYPSO-CSRF-TOKEN', ''))
 
     return wd_browser_ID, calypso_csrf, play_session, wday_vps_cookie, __cf_bm, __cflb
 
@@ -50,17 +61,27 @@ def prepare_post_headers():
 
     all_ids = get_ids_from_api()
 
+    cookies = '; '.join(part for part in (
+        all_ids[3],
+        'timezoneOffset=-120',
+        all_ids[0],
+        all_ids[1],
+        all_ids[2],
+        all_ids[4],
+        all_ids[5],
+    ) if part)
+
     url = 'https://gsknch.wd3.myworkdayjobs.com/wday/cxs/gsknch/GSKCareers/jobs'
     headers = {
         'authority': 'gsknch.wd3.myworkdayjobs.com',
         'accept': 'application/json',
         'accept-language': 'en-US',
         'content-type': 'application/json',
-        'cookie': f'{all_ids[3]} timezoneOffset=-120; {all_ids[0]} {all_ids[1]} {all_ids[2]}; {all_ids[4]} {all_ids[5]}',
+        'cookie': cookies,
         'origin': 'https://gsknch.wd3.myworkdayjobs.com',
         'referer': 'https://gsknch.wd3.myworkdayjobs.com/GSKCareers?locations=03fe97f04c9a017ec1d4d4e8a757dd50',
         'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        'x-calypso-csrf-token': f"{all_ids[1].split('=')[1]}", 
+        'x-calypso-csrf-token': all_ids[1].split('=', 1)[-1],
     }
 
     payload = {
