@@ -43,11 +43,26 @@ jobs:
       - name: Verify OpenCode installation
         run: opencode --version
 
+      - name: Restore empty-jobs repair state
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache
+          key: empty-jobs-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            empty-jobs-${{ runner.os }}-
+
       - name: Run all scrapers
         env:
           EMAIL: ${{ secrets.EMAIL }}
         run: |
           python3 sites/__main_RunnerFile.py
+
+      - name: Save empty-jobs repair state
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: .cache
+          key: empty-jobs-${{ runner.os }}-${{ github.run_id }}
 
       - name: Commit and push changes if needed
         env:

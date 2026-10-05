@@ -6,3 +6,5 @@ sites/000_delete_api_data.py
 /venv
 /.venv
 /env
+/.cache
+.DS_Store

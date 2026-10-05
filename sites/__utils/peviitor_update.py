@@ -18,6 +18,12 @@ from pathlib import Path
 #
 from fake_useragent import UserAgent
 
+from __utils.empty_jobs_repair import (
+    NO_JOBS_MARKER,
+    clear_cooldown_for_calling_scraper,
+    maybe_repair_empty_jobs_output,
+)
+
 UA = UserAgent()
 TOKEN_CACHE_PATH = Path(
     os.environ.get('PEVIITOR_TOKEN_CACHE_PATH')
@@ -125,6 +131,14 @@ class UpdateAPI:
         ... update and clean data on peviitor
 
         '''
+        # nu posta o lista goala: ar sterge joburile companiei de pe API
+        if not data_jobs:
+            print(json.dumps(data_jobs, indent=4))
+            print(f'{NO_JOBS_MARKER} {company_name}', flush=True)
+            maybe_repair_empty_jobs_output(company_name)
+            return None
+
+        clear_cooldown_for_calling_scraper()
         self.get_token()
         time.sleep(0.2)
         self.add_jobs(data_jobs)
