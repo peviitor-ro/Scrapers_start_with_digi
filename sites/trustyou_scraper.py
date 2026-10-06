@@ -41,6 +41,9 @@ def scraper():
     '''
     jobs_data = GetRequestJson('https://api.lever.co/v0/postings/trustyou?mode=json&skip=0&limit=50')
 
+    if not isinstance(jobs_data, list):
+        return []
+
     job_list = []
     for job in jobs_data:
         categories = job.get('categories') or {}
