@@ -1,23 +1,23 @@
 
-# This workflow installs Python dependencies, installs OpenCode,
-# runs all scrapers, and pushes any resulting file changes.
+# Daily repair run for scrapers that returned no jobs.
 #
-# Detection run: scrapers returning 0 jobs are recorded in the .cache repair
-# state and nothing else happens to them. Repair itself is disabled here on
-# purpose - it is reserved for repair_empty_jobs.yml (10 scrapers per day).
+# scrapers_runner.yml runs first (19:00 UTC) and only detects empty scrapers,
+# recording them in .cache. This workflow picks them up from there, oldest
+# first, at most 10 per day (OPENCODE_EMPTY_JOBS_REPAIR_DAILY_BUDGET).
+# Scheduled at 05:00 UTC so it never overlaps with the detection run.
 
-name: General point run Scrapers
+name: Daily empty-jobs repair queue
 
 on:
   schedule:
-    - cron: '00 19 * * *'
+    - cron: '0 5 * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  repair:
     if: ${{ github.event.repository.fork == false }}
     runs-on: ubuntu-latest
 
@@ -55,12 +55,11 @@ jobs:
           restore-keys: |
             empty-jobs-${{ runner.os }}-
 
-      - name: Run all scrapers
+      - name: Repair queued scrapers
         env:
           EMAIL: ${{ secrets.EMAIL }}
-          OPENCODE_EMPTY_JOBS_REPAIR_DISABLED: "1"
         run: |
-          python3 sites/__main_RunnerFile.py
+          python3 sites/__main_RunnerFile.py --repair-backlog
 
       - name: Save empty-jobs repair state
         uses: actions/cache/save@v4

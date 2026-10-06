@@ -11,8 +11,12 @@ from __utils.empty_jobs_repair import (
     DEPTH_ENV,
     NO_JOBS_MARKER,
     STATE_PATH,
+    count_scrapers,
     format_timestamp,
     get_cooldown_until,
+    get_daily_budget,
+    get_repair_backlog,
+    get_remaining_daily_budget,
     load_state,
     parse_timestamp,
     utc_now,
@@ -148,6 +152,69 @@ def print_no_jobs_summary(all_no_jobs):
     else:
         print("Toate firmele au joburi disponibile.")
     print("=" * 50)
+
+
+def print_repair_plan(limit=None):
+    backlog = get_repair_backlog(limit)
+    print_cache_summary()
+    print()
+    print(
+        f"Repair budget: {get_remaining_daily_budget()}/{get_daily_budget()} left today | "
+        f"{count_scrapers()} scrapers total | {len(backlog)} queued for repair."
+    )
+    if not backlog:
+        print("  Nothing to repair right now.")
+    else:
+        for state_key, company, _script_path in backlog:
+            print(f"  - {state_key} | {company}")
+    print()
+    return backlog
+
+
+def run_repair_backlog(limit=None):
+    """
+    ... ruleaza doar scraperele din cache care asteapta reparare, cel mult
+    cate permite bugetul zilei. Rularea lunara completa ramane separata.
+    """
+    remaining = get_remaining_daily_budget()
+    if limit is None:
+        limit = remaining
+
+    if limit <= 0:
+        print(f"Daily repair budget already spent today ({get_daily_budget()}/day).")
+        return False
+
+    backlog = print_repair_plan(limit)
+    if not backlog:
+        return False
+
+    all_no_jobs = []
+    succeeded = 0
+
+    for _state_key, _company, script_path in backlog:
+        existing_files = snapshot_sibling_files(script_path)
+        try:
+            action = run_scraper(script_path)
+        except subprocess.TimeoutExpired:
+            cleanup_created_sibling_files(script_path, existing_files)
+            log_scraper_timeout(script_path)
+            continue
+
+        cleanup_created_sibling_files(script_path, existing_files)
+        all_no_jobs.extend(parse_no_jobs(action.stdout))
+
+        if action.returncode == 0:
+            succeeded += 1
+            print(f"Processed {script_path.name} (exit 0)")
+        else:
+            print(f"Error scraping {script_path.name}")
+            print(truncate_output(action.stderr))
+
+    print_no_jobs_summary(all_no_jobs)
+    print()
+    print_cache_summary()
+    print(f"Repair queue: {succeeded}/{len(backlog)} scraper(s) exited successfully.")
+    return True
 
 
 def snapshot_sibling_files(script_path):
@@ -444,6 +511,10 @@ class Scraper:
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        test_scraper_repair(sys.argv[1])
+        if sys.argv[1] == "--repair-backlog":
+            limit = int(sys.argv[2]) if len(sys.argv) > 2 else None
+            run_repair_backlog(limit)
+        else:
+            test_scraper_repair(sys.argv[1])
     else:
         main()
