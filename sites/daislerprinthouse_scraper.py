@@ -10,7 +10,7 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 # Company ---> DaislerPrintHouse
-# Link ------> https://www.daisler.ro/despre-noi/cariere
+# Link ------> https://www.daisler.ro/cariere
 #
 #
 from __utils import (
@@ -21,28 +21,32 @@ from __utils import (
     UpdateAPI,
 )
 
+SOURCE_LINK = "https://www.daisler.ro/cariere"
+
 
 def scraper():
     '''
     ... scrape data from DaislerPrintHouse scraper.
     '''
-    soup = GetStaticSoup("https://www.daisler.ro/despre-noi/cariere")
+    soup = GetStaticSoup(SOURCE_LINK)
 
     job_list = []
-    
+
     # get data with walrus
-    if len(data_from_soup := soup.select('div.item')) > 0:
+    if len(data_from_soup := soup.select('div.cariere-container div.card')) > 0:
 
         for job in data_from_soup:
 
-            job_title_elem = job.select_one('div.item-details > h2')
-            job_link_elem = job.select_one('a')
-            if not job_title_elem or not job_link_elem:
+            job_title_elem = job.select_one('div.card-title')
+            if not job_title_elem:
                 continue
 
+            apply_link_elem = job.select_one('a[href]')
+            job_link = apply_link_elem['href'] if apply_link_elem and apply_link_elem['href'].startswith('http') else SOURCE_LINK
+
             job_list.append(Item(
-                job_title=job_title_elem.text,
-                job_link=job_link_elem['href'],
+                job_title=job_title_elem.text.strip(),
+                job_link=job_link,
                 company='DaislerPrintHouse',
                 country='Romania',
                 county='Cluj',

@@ -13,6 +13,7 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 #
+import json
 from __utils import (
     PostRequestJson,
     get_county,
@@ -57,6 +58,40 @@ def get_ids_from_site():
     return play_session, phppe_act
 
 
+def build_payload(selected_fields=None):
+    '''
+        ... json body for the widgets search request
+        (size is capped at 500 by the site; the "from" offset is ignored,
+         so this is the biggest slice of the result list we can get)
+    '''
+    payload = {
+        "lang": "en_us",
+        "deviceType": "desktop",
+        "country": "us",
+        "pageName": "search-results",
+        "ddoKey": "eagerLoadRefineSearch",
+        "sortBy": "",
+        "subsearch": "",
+        "from": 0,
+        "jobs": True,
+        "counts": True,
+        "all_fields": ["category", "country", "state", "city", "jobType", "companyValue", "phLocSlider"],
+        "size": 500,
+        "clearAll": False,
+        "jdsource": "facets",
+        "isSliderEnable": True,
+        "pageId": "page13",
+        "siteType": "external",
+        "keywords": "",
+        "global": True,
+        "selected_fields": selected_fields or {},
+        "locationData": {"sliderRadius": 25, "aboveMaxRadius": True, "LocationUnit": "miles"},
+        "s": "1",
+    }
+
+    return json.dumps(payload)
+
+
 def prepare_headers():
     '''
         ... prepare post headers for post requests
@@ -76,9 +111,18 @@ def prepare_headers():
         'x-csrf-token': f'{get_csrf_token()}',
     }
 
-    payload = '{"lang":"en_us","deviceType":"desktop","country":"us","pageName":"search-results","ddoKey":"eagerLoadRefineSearch","sortBy":"","subsearch":"","from":0,"jobs":true,"counts":true,"all_fields":["category","country","state","city","jobType","companyValue","phLocSlider"],"size":100,"clearAll":false,"jdsource":"facets","isSliderEnable":true,"pageId":"page13","siteType":"external","keywords":"","global":true,"selected_fields":{"country":["Romania"]},"locationData":{"sliderRadius":25,"aboveMaxRadius":true,"LocationUnit":"miles"},"s":"1"}'
+    payload = build_payload({"country": ["Romania"]})
 
     return url, headers, payload
+
+
+def get_jobs(url, headers, payload):
+    '''
+        ... post the search request and return the jobs list
+    '''
+    post_data = requests.post(url, headers=headers, data=payload, verify=False).json()
+
+    return ((post_data.get('eagerLoadRefineSearch') or {}).get('data') or {}).get('jobs') or []
 
 
 def scraper():
@@ -88,12 +132,19 @@ def scraper():
     # __call__ here the hedears
     data_with_headers = prepare_headers()
 
-    post_data = requests.post(data_with_headers[0], headers=data_with_headers[1], data=data_with_headers[2], verify=False).json()
+    job_list_with_headers = get_jobs(data_with_headers[0], data_with_headers[1], data_with_headers[2])
+
+    # the careers site has no jobs left in Romania -> take the full list
+    if not job_list_with_headers:
+        job_list_with_headers = get_jobs(
+            data_with_headers[0], data_with_headers[1], build_payload())
 
     job_list = []
-    for job in post_data.get('eagerLoadRefineSearch').get('data').get('jobs'):
+    for job in job_list_with_headers:
 
-        if (location := job.get('city').lower()) == 'bucharest':
+        location = (job.get('city') or job.get('state') or job.get('country') or '').strip()
+
+        if location.lower() == 'bucharest':
             location = 'Bucuresti'
 
         location_finish = get_county(location=location)
@@ -103,7 +154,7 @@ def scraper():
             job_title=job.get('title'),
             job_link=job.get('applyUrl').replace('apply', ''),
             company='FIS',
-            country='Romania',
+            country=job.get('country') or 'Romania',
             county=location_finish[0] if True in location_finish else None,
             city='all' if location.lower() == location_finish[0].lower()\
                         and True in location_finish and 'bucuresti' != location.lower()\

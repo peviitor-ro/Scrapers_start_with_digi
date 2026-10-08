@@ -10,7 +10,7 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 # Company ---> Connect44
-# Link ------> https://www.connect44.com/careers/jobs\?country\=3\&search\=
+# Link ------> https://www.connect44.com/careers/jobs\?search\=
 #
 #
 from __utils import (
@@ -26,14 +26,31 @@ def scraper():
     '''
     ... scrape data from Connect44 scraper.
     '''
-    soup = GetStaticSoup("https://www.connect44.com/careers/jobs?country=3&search=")
-
     job_list = []
-    # walrus - best option
-    if len((data_soup := soup.find_all('div', attrs={'class': 'col-md-6'}))) > 0:
-    
+    page = 1
+
+    # jobs are listed with Livewire pagination (?page=N);
+    # country=3 (Romania) has no jobs left, so scrape the full list
+    while page <= 50:
+        soup = GetStaticSoup(f"https://www.connect44.com/careers/jobs?search=&page={page}")
+
+        # walrus - best option
+        if len((data_soup := soup.find_all('div', attrs={'class': 'col-md-6'}))) == 0:
+            break
+
         for job in data_soup:
-            location = job.find('span', attrs={'class': 'me-3 d-flex align-items-center'}).text.strip().split(',')[-1].strip()
+            location_span = job.find('span', attrs={'class': 'me-3 d-flex align-items-center'})
+            title_div = job.find('div', attrs={'class': 'mb-4 d-flex align-items-center'})
+            link_tag = job.find('a', attrs={'class': 'stretched-link'})
+
+            if location_span is None or title_div is None or link_tag is None:
+                continue
+
+            # location format on site -> "Country, City[, Region]"
+            location_parts = [' '.join(part.split()) for part in location_span.text.split(',')]
+            job_country = location_parts[0] if location_parts else ''
+            location = location_parts[1] if len(location_parts) > 1 else job_country
+
             if location.lower() == "bucharest":
                 location = "Bucuresti"
 
@@ -41,10 +58,10 @@ def scraper():
 
             # get jobs items from response
             job_list.append(Item(
-                job_title=job.find('div', attrs={'class': 'mb-4 d-flex align-items-center'}).text.strip(),
-                job_link=job.find('a', attrs={'class': 'stretched-link'})['href'].strip(),
+                job_title=title_div.text.strip(),
+                job_link=link_tag['href'].strip(),
                 company='Connect44',
-                country='Romania',
+                country=job_country,
                 county=location_finish[0] if True in location_finish else None,
                 city='all' if location.lower() == location_finish[0].lower()\
                             and True in location_finish and 'bucuresti' != location.lower()\
@@ -52,7 +69,9 @@ def scraper():
                 remote='on-site',
             ).to_dict())
 
-        return job_list
+        page += 1
+
+    return job_list
 
 
 def main():
