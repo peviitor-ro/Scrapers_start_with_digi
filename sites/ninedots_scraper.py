@@ -30,18 +30,23 @@ def scraper():
 
     job_list = []
     for job in soup.select('a.job-card'):
-        
-        location = [element.text.lower() for element in job.select('p')]
-        if 'remote' in str(location) and 'europe' in str(location):
+        title_tag = job.find('h3')
+        location_tag = job.select_one('div.info.location p')
+
+        if not title_tag or not location_tag:
+            continue
+
+        location = location_tag.get_text(strip=True)
+        if 'remote' in location.lower():
 
             # get jobs items from response
             job_list.append(Item(
-                job_title=location[-1].title(),
+                job_title=title_tag.get_text(strip=True),
                 job_link=f'https://ninedots.io{job["href"]}',
                 company='NINEDOTS',
                 country='Romania',
                 county='',
-                city='',
+                city=location,
                 remote='remote',
             ).to_dict())
 

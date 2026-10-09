@@ -14,69 +14,79 @@
 #
 from __utils import (
     Item,
-    GetHtmlSoup,
     get_county,
     UpdateAPI,
 )
+import json
+import re
 import requests
-# from requests_html import HTMLSession
 
 
-def prepare_post_request_headers():
+def get_embedded_jobs(html):
     '''
-    ... prepare post requests headers for OSFDigital company.
+    ... extract the jobs list embedded in the Next.js flight data.
+    The careers page no longer exposes the old "OsfCommerceJob/GetItems"
+    endpoint, the jobs are rendered from the RSC payload instead.
     '''
 
-    cookies = {
-            '__RequestVerificationToken': 'grLon0gehq2vJD1akIYBLDAYQjZQPDHb3pbkaey-RMVBQCajp4LQ4gCD8r8TuDD5EmJeRIDUK_WkjSYp48LP7CinLAI1',
-        }
+    flight_data = ''
+    for chunk in re.findall(r'self\.__next_f\.push\((\[.*?\])\)</script>', html, re.S):
+        try:
+            data = json.loads(chunk)
+        except json.JSONDecodeError:
+            continue
+        if len(data) > 1 and isinstance(data[1], str):
+            flight_data += data[1]
 
-    headers = {
-            'Accept': '*/*',
-            'Accept-Language': 'en-US,en;q=0.7',
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'Origin': 'https://osf.digital',
-            'Referer': 'https://osf.digital/careers/jobs?location=romania',
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-            'X-Requested-With': 'XMLHttpRequest',
-    }
+    marker = '"jobsBoxes":'
+    index = flight_data.find(marker)
+    if index == -1:
+        return []
 
-    params = {
-            'location': 'romania',
-        }
+    array_start = flight_data.find('[', index + len(marker))
+    jobs, _ = json.JSONDecoder().raw_decode(flight_data[array_start:])
+    return jobs
 
-    data = {
-        'scController': 'OsfCommerceJob',
-        'scAction': 'GetItems',
-        'parameter': 'request',
-        '__RequestVerificationToken': 'n5wlTj0ZO_KUdQAbO7xpolMiBny2fH0UOaRkbjGfwUYfe5Qv3WZeNnHuHaPcldg_g_ByjygGvgATyKQw8DVirM7PREA1',
-    }
 
-    return cookies, headers, params, data
+def is_romanian_job(job):
+    '''
+    ... check if a job is available in Romania.
+    '''
+
+    if 'romania' in (job.get('location') or '').lower():
+        return True
+
+    return any(
+        'romania' in (job_location.get('label') or '').lower()
+        for job_location in (job.get('jobLocation') or [])
+    )
+
 
 def scraper():
     '''
     ... scrape data from OSFDigital scraper.
     Your solution!
     '''
-    cookies, headers, params, data = prepare_post_request_headers()
 
-    response = GetHtmlSoup(requests.post('https://osf.digital/careers/jobs',\
-                                         params=params, cookies=cookies, headers=headers, data=data).text)
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+    }
+
+    response = requests.get('https://osf.digital/careers/jobs',
+                            params={'location': 'romania'}, headers=headers)
 
     job_list = []
-    for job in response.select('div.section-positions.section-border'):
-        if (location := [element.text for element in\
-                    job.select('p.blue-title-jobs.job-title')][1].lower()) and 'romania' in location:
-            location = 'Bucuresti'
+    for job in get_embedded_jobs(response.text):
+        if not is_romanian_job(job):
+            continue
 
+        location = 'Bucuresti'
         location_finish = get_county(location=location)
 
         # get jobs items from response
         job_list.append(Item(
-            job_title=job.select_one('a.blue-link > h4').text,
-            job_link=f"https://osf.digital{job.select_one('a.blue-link')['href']}",
+            job_title=job['title'],
+            job_link=f"https://osf.digital{job['jobUrl']['href']}",
             company='OSFDigital',
             country='Romania',
             county=location_finish[0] if True in location_finish else None,
