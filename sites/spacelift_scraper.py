@@ -13,6 +13,8 @@
 # Link ------> https://spacelift.io/careers
 #
 #
+import re
+
 from __utils import (
     GetStaticSoup,
     get_county,
@@ -84,19 +86,19 @@ def scraper():
     ... scrape data from Spacelift scraper.
     '''
     soup = GetStaticSoup("https://spacelift.io/careers")
-    soup_data = soup.find_all('li', attrs={'class': 'CareersPage_jobItem__8bB0o'})
+    soup_data = soup.find_all('li', class_=re.compile(r'jobItem\b'))
 
     job_list = []
     for job in soup_data:
 
-        title = job.find('p', attrs={'class': 'CareersPage_jobTitle__BC5ad Typography_styleBase__auQ0r Typography_styleH6__vex_U'}).text
+        title = job.find('p', class_=re.compile(r'jobTitle\b')).text
 
         # get only europe and remote location
         if 'remote' in title.lower() and 'europe' in title.lower()\
                                         or 'remote' in title.lower() and 'romania' in title.lower():
             job_list.append(Item(
                 job_title=title,
-                job_link=job.find('a', attrs={'class': 'CareersPage_jobItemLink__DIJo1'})["href"],
+                job_link=job.find('a', class_=re.compile(r'jobItemLink\b'))["href"],
                 company='Spacelift',
                 country='Romania',
                 county='',

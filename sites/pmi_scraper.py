@@ -13,13 +13,14 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 # Company ---> pmi
-# Link ------> https://www.pmi.com/careers/explore-our-job-opportunities?title=&locations=Romania&departments=&contracts=&page=1
+# Link ------> https://join.pmicareers.com/gb/en/search-results?location=Romania
 #
+#
+import re
 #
 from __utils import (
-    GetStaticSoup,
+    PostRequestJson,
     get_county,
-    get_job_type,
     Item,
     UpdateAPI,
 )
@@ -32,58 +33,103 @@ def scraper():
 
     # job list for all jobs
     job_list = []
-    page = 1
+    seen_links = set()
+
+    api_url = "https://join.pmicareers.com/widgets"
+    custom_headers = {
+        "Content-Type": "application/json",
+        "Referer": "https://join.pmicareers.com/gb/en/search-results",
+    }
+
+    page_size = 100
+    offset = 0
     flag = True
     while flag:
-        soup = GetStaticSoup(f"https://www.pmi.com/careers/explore-our-job-opportunities?title=&locations=Romania&departments=&contracts=&page={page}")
-        soup_data = soup.find_all('a', attrs={'class': 'job-row'})
+        payload = {
+            "lang": "en_gb",
+            "deviceType": "desktop",
+            "country": "gb",
+            "pageName": "search-results",
+            "ddoKey": "refineSearch",
+            "sortBy": "",
+            "subsearch": "",
+            "from": offset,
+            "jobs": True,
+            "counts": True,
+            "all_fields": ["category", "country", "state", "city", "type"],
+            "size": page_size,
+            "clicks": 0,
+            "isSliderEnable": False,
+            "pageId": "page15",
+            "siteType": "external",
+            "keywords": "",
+            "global": True,
+            "selected_fields": {"country": ["Romania"]},
+            "sort": {},
+            "locationData": {},
+            "refNum": "PMIPMIGB",
+            "search": "",
+        }
 
-        # check link verification --->
-        link_verification = None
-        try:
-            link_verification = 'https://www.pmi.com' + soup.find_all('a', attrs={'class': 'job-row'})[0]['href'].strip()
-        except:
+        response = PostRequestJson(
+            api_url,
+            custom_headers=custom_headers,
+            data_json=payload,
+        )
+
+        if not isinstance(response, dict):
+            flag = False
+            break
+
+        soup_data = response.get("refineSearch", {}).get("data", {}).get("jobs") or []
+
+        # stop when the API has no more jobs for the requested page
+        if not soup_data:
+            flag = False
+            break
+
+        for job in soup_data:
+            job_id = job.get("jobId")
+            job_title = (job.get("title") or "").strip()
+
+            # build the canonical job link from the job id + title slug
+            title_slug = re.sub(r'[^A-Za-z0-9]+', '-', job_title).strip('-')
+            link_str = f"https://join.pmicareers.com/gb/en/job/{job_id}/{title_slug}"
+
+            # avoid duplicates between pages
+            if link_str in seen_links:
+                continue
+            seen_links.add(link_str)
+
+            # search location
+            raw_location = (job.get("city") or job.get("location") or "").split(',')[0].strip()
+            if len(raw_location.split()) > 1:
+                new_loc = '-'.join(raw_location.split())
+            else:
+                new_loc = raw_location
+
+            if new_loc.lower() == 'bucharest':
+                new_loc = 'Bucuresti'
+
+            location_finish = get_county(location=new_loc)
+
+            # get jobs items from response
+            job_list.append(Item(
+                job_title=job_title,
+                job_link=link_str,
+                company='pmi',
+                country='Romania',
+                county=location_finish[0] if True in location_finish else None,
+                city='all' if new_loc.lower() == location_finish[0].lower()\
+                        and True in location_finish and 'bucuresti' != new_loc.lower()\
+                            else new_loc,
+                remote='on-site',
+            ).to_dict())
+
+        offset += page_size
+        if len(soup_data) < page_size:
             flag = False
 
-
-        # verification for link exists in job_list json
-        if link_verification is not None:
-            if job_list:
-                if link_verification in [job["job_link"] for job in job_list]:
-                    break
-
-            for idx, job in enumerate(soup_data):
-                link_str = f"https://www.pmi.com{job['href'].strip()}"
-
-                req_page = GetStaticSoup(link_str)
-
-                #  search location
-                new_loc = list()
-                if len((location := req_page.find('p', attrs={'class': 'details--note details--positionIcon location'}).text.strip().split(',')[0].split())) > 1:
-                    new_loc = '-'.join(location)
-                else:
-                    new_loc = location[0]
-
-                if new_loc.lower() == 'bucharest':
-                    new_loc = 'Bucuresti'
-
-                location_finish = get_county(location=new_loc)
-
-                # get jobs items from response
-                job_list.append(Item(
-                    job_title=job.find('h3', attrs={'class': 'job-row--title title8'}).text.strip(),
-                    job_link=link_str,
-                    company='pmi',
-                    country='Romania',
-                    county=location_finish[0] if True in location_finish else None,
-                    city='all' if new_loc.lower() == location_finish[0].lower()\
-                            and True in location_finish and 'bucuresti' != new_loc.lower()\
-                                else new_loc,
-                    remote='on-site',
-                ).to_dict())
-
-            page += 1
-    
     return job_list
 
 

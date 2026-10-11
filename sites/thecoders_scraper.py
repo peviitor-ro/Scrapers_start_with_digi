@@ -27,8 +27,12 @@ def get_jobs_from_page(page):
     '''
     soup = GetStaticSoup(f"https://thecoders.ro/en/joburi/all/?page={page}")
 
+    job_boxes = soup.find_all('div', class_='inner')
+    if not job_boxes:
+        return None
+
     job_list = []
-    for job in soup.find_all('div', class_='inner'):
+    for job in job_boxes:
         title_tag = job.find('a', class_='fancy red')
         link_tag = job.find('a', class_='button bg-blue white iblock fs-12 mb-30 fancy')
         tags_tag = job.find('li', class_='tags no-wrap pb-30')
@@ -73,7 +77,7 @@ def scraper():
 
     while True:
         jobs = get_jobs_from_page(page)
-        if not jobs:
+        if jobs is None:
             break
 
         job_list.extend(jobs)
