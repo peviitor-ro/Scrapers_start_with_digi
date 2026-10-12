@@ -11,6 +11,7 @@
 #
 # Company ---> UpTeam
 # Link ------> https://www.upteam.com/careers
+#              (redirects to https://www.cloudgeometry.com/careers)
 #
 #
 import requests
@@ -21,6 +22,9 @@ from __utils import (
     Item,
     UpdateAPI,
 )
+
+CAREERS_URL = "https://www.cloudgeometry.com/careers"
+BASE_URL = "https://www.cloudgeometry.com"
 
 
 def get_location_data(job_text):
@@ -36,6 +40,9 @@ def get_location_data(job_text):
     if 'romania' in text_lower and 'remote' in text_lower:
         return '', 'Romania', 'remote'
 
+    if 'remote' in text_lower:
+        return '', 'Romania', 'remote'
+
     return '', 'Romania', 'on-site'
 
 
@@ -44,7 +51,7 @@ def scraper():
     ... scrape data from UpTeam scraper.
     '''
     try:
-        soup = GetStaticSoup("https://www.upteam.com/careers")
+        soup = GetStaticSoup(CAREERS_URL)
     except (requests.exceptions.ConnectTimeout, requests.exceptions.Timeout,
             requests.exceptions.ConnectionError):
         return []
@@ -52,20 +59,22 @@ def scraper():
     job_list = []
     for job in soup.find_all('div', class_='w-dyn-item'):
         link_tag = job.find('a', href=True)
-        title_tag = job.find('h2')
+        title_tag = job.find('h2') or job.find(class_='semi-20')
 
         if link_tag is None or title_tag is None:
             continue
 
-        job_text = ' '.join(job.get_text(' ', strip=True).split())
-        if 'romania' not in job_text.lower() and 'cluj' not in job_text.lower():
-            continue
+        location_tag = job.find(class_='semi-18')
+        location_text = location_tag.get_text(' ', strip=True) if location_tag else ''
 
-        county, city, remote = get_location_data(job_text)
+        county, city, remote = get_location_data(location_text)
+
+        link = link_tag['href']
+        job_link = link if link.startswith('http') else BASE_URL + link
 
         job_list.append(Item(
             job_title=title_tag.get_text(strip=True),
-            job_link='https://www.upteam.com' + link_tag['href'],
+            job_link=job_link,
             company='UpTeam',
             country='Romania',
             county=county,

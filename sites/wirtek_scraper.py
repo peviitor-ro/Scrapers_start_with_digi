@@ -10,43 +10,44 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 # Company ---> Wirtek
-# Link ------> https://www.wirtek.com/company/careers
+# Link ------> https://wirtek.bamboohr.com/careers
 #
 #
-from __utils import GetStaticSoup, Item, UpdateAPI
+from __utils import GetRequestJson, Item, UpdateAPI, get_county
 
 
 def scraper():
     '''
     ... scrape data from Wirtek scraper.
     '''
-    soup = GetStaticSoup("https://www.wirtek.com/company/careers")
+    data = GetRequestJson("https://wirtek.bamboohr.com/careers/list")
 
     job_list = []
-    for job in soup.find_all('div', class_='single_article manual'):
-        link_tag = job.find('a', href=True)
-        title_tag = job.find('h2')
-        meta_tag = job.find('h5', class_='body-sm')
-
-        if link_tag is None or title_tag is None or meta_tag is None:
+    for job in data.get('result', []):
+        ats_location = job.get('atsLocation') or {}
+        country = (ats_location.get('country') or '').strip()
+        if country.lower() != 'romania':
             continue
 
-        meta_text = ' '.join(meta_tag.get_text(' ', strip=True).split())
-        if 'romania' not in meta_text.lower():
-            continue
-
-        city = 'Romania'
-        if 'cluj' in meta_text.lower():
+        city = (ats_location.get('city') or '').strip()
+        if city.lower() == 'cluj':
             city = 'Cluj-Napoca'
 
-        remote = 'remote' if 'remote' in meta_text.lower() else 'hybrid' if 'hybrid' in meta_text.lower() else 'on-site'
+        county, _ = get_county(city) if city else (None, None)
+
+        location_type = str(job.get('locationType'))
+        remote = {
+            '0': 'on-site',
+            '1': 'remote',
+            '2': 'hybrid',
+        }.get(location_type, 'on-site')
 
         job_list.append(Item(
-            job_title=title_tag.get_text(strip=True),
-            job_link=link_tag['href'],
+            job_title=job.get('jobOpeningName'),
+            job_link=f"https://wirtek.bamboohr.com/careers/{job.get('id')}",
             company='Wirtek',
             country='Romania',
-            county='Cluj' if city == 'Cluj-Napoca' else '',
+            county=county or '',
             city=city,
             remote=remote,
         ).to_dict())
