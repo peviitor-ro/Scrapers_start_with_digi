@@ -46,7 +46,7 @@ def scraper():
             # New structure logic
             location_div = second_soup.find('div', class_='job-description__desc-job-info job-location')
             if location_div:
-                location_text = location_div.find('dd', class_='job-description__desc-detail').text.strip()
+                location_text = location_div.find('p', class_='job-description__desc-detail').text.strip()
                 # Use the first part of the location string (e.g. "Bucharest" from "Bucharest, București, Romania")
                 location = location_text.split(',')[0].strip()
             else:
@@ -54,7 +54,7 @@ def scraper():
                 continue
 
             remote_div = second_soup.find('div', class_='job-description__desc-job-info job-remote-type')
-            remote = remote_div.find('dd', class_='job-description__desc-detail').text.strip() if remote_div else "On-site"
+            remote = remote_div.find('p', class_='job-description__desc-detail').text.strip() if remote_div else "On-site"
         except Exception:
             continue
 

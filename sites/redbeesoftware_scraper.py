@@ -10,7 +10,7 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 # Company ---> RedBeeSoftware
-# Link ------> https://redbeesoftware.com/job-openings/
+# Link ------> https://redbeesoftware.com/career
 #
 #
 from __utils import (
@@ -26,27 +26,27 @@ def scraper():
     '''
     ... scrape data from RedBeeSoftware scraper.
     '''
-    soup = GetStaticSoup("https://redbeesoftware.com/job-openings/")
+    soup = GetStaticSoup("https://redbeesoftware.com/career")
 
     job_list = []
-    for job in soup.select('div.elementor-widget-container'):
+    for job in soup.select('#career_post_list a[href^="/career/"]'):
 
-        if (button_learn_more := job.select_one('span.elementor-button-text')) is not None\
-                                    and button_learn_more.text.lower() == 'learn more':
+        job_link = f"https://redbeesoftware.com{job['href']}"
 
-            # second request
-            soup_2 = GetStaticSoup(job.select_one('a')['href'])      
+        # second request -> get the work regime (remote / on-site)
+        soup_2 = GetStaticSoup(job_link)
+        job_text = soup_2.get_text(" ", strip=True).lower()
 
-            # get jobs items from response
-            job_list.append(Item(
-                job_title=soup_2.select_one('h1.elementor-heading-title.elementor-size-default').text.strip(),
-                job_link=job.select_one('a')['href'],
-                company='RedBeeSoftware',
-                country='Romania',
-                county='Cluj',
-                city='Cluj-Napoca',
-                remote='on-site',
-            ).to_dict())
+        # get jobs items from response
+        job_list.append(Item(
+            job_title=job.select_one('h3').text.strip(),
+            job_link=job_link,
+            company='RedBeeSoftware',
+            country='Romania',
+            county='Cluj',
+            city='Cluj-Napoca',
+            remote='remote' if 'regim de lucru: remote' in job_text else 'on-site',
+        ).to_dict())
 
     return job_list
 
