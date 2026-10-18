@@ -13,6 +13,8 @@
 # Link ------> https://seedblink.com/careers
 #
 #
+import re
+
 from __utils import (
     GetStaticSoup,
     get_county,
@@ -21,33 +23,130 @@ from __utils import (
     UpdateAPI,
 )
 
+BASE_URL = "https://seedblink.com"
+CAREERS_URL = f"{BASE_URL}/careers"
+
+# careers page runs on Webflow now; open positions live in the #open-positions
+# section and each job links to /careers/<job-slug>
+JOB_LINK_SELECTOR = 'a[href^="/careers/"]'
+HEADING_SELECTOR = 'h1, h2, h3, h4, h5, h6'
+
+
+def count_job_links(card):
+    '''
+    ... job links found in card (the card itself counts if it is the link).
+    '''
+    count = len(card.select(JOB_LINK_SELECTOR))
+
+    if card.name == 'a' and (card.get('href') or '').startswith('/careers/'):
+        count += 1
+
+    return count
+
+
+def get_job_card(link):
+    '''
+    ... get the wrapper holding this single job link and its title;
+    ... None when the card could not be isolated (use the link itself then).
+    '''
+    card = link
+
+    for _ in range(5):
+        if card.select_one(HEADING_SELECTOR) and count_job_links(card) == 1:
+            return card
+
+        parent = card.parent
+        if parent is None or parent.name in ('body', 'html'):
+            return None
+
+        card = parent
+
+    return None
+
+
+def get_location(card, job_title):
+    '''
+    ... get the job location from the open position card text;
+    ... default to the country when the card has no location details.
+    '''
+    for tag in card.select('p, span'):
+        text = tag.get_text(' ', strip=True)
+        if not text or text == job_title or len(text) > 60:
+            continue
+
+        location = text.split(',')[0].strip()
+
+        # remote / hybrid are work place types, not locations
+        if location.lower() in ('remote', 'hybrid'):
+            continue
+
+        if ',' in text or get_county(location=location)[1]:
+            return location
+
+    return 'Romania'
+
+
+def get_remote(card):
+    '''
+    ... get the work place type from the open position card.
+    '''
+    words = set(re.findall(r'[a-z]+', card.get_text(' ', strip=True).lower()))
+
+    for place in ('remote', 'hybrid'):
+        if place in words:
+            return get_job_type(place)
+
+    return get_job_type('')
+
 
 def scraper():
     '''
     ... scrape data from SeedBlink scraper.
     '''
-    soup = GetStaticSoup("https://seedblink.com/careers")
+    soup = GetStaticSoup(CAREERS_URL)
+
+    # when SeedBlink has no openings, this section only shows an empty state
+    section = soup.select_one('#open-positions') or soup
 
     job_list = []
-    for job in soup.select('div.MuiGrid-root.MuiGrid-item.MuiGrid-grid-xs-12.MuiGrid-grid-sm-6.MuiGrid-grid-md-4'):
+    scraped_links = set()
+    for link in section.select(JOB_LINK_SELECTOR):
+        href = link.get('href', '').split('#')[0].split('?')[0].strip()
+        if href.endswith('/'):
+            href = href.rstrip('/')
 
-        if (location := job.select_one('div.MuiCardContent-root').select('p')[1].text)\
-                                and location.lower() == 'bucharest':
+        slug = href.rsplit('/', 1)[-1]
+        if not slug or href == '/careers' or href in scraped_links:
+            continue
+
+        scraped_links.add(href)
+
+        card = get_job_card(link) or link
+        title_tag = card.select_one(HEADING_SELECTOR)
+
+        job_title = title_tag.get_text(' ', strip=True) if title_tag \
+                        else link.get_text(' ', strip=True)
+        if not job_title:
+            job_title = slug.replace('-', ' ').title()
+
+        location = get_location(card, job_title)
+
+        if location.lower() == 'bucharest':
             location = 'Bucuresti'
 
         location_finish = get_county(location=location)
 
         # get jobs items from response
         job_list.append(Item(
-            job_title=job.select_one('div.MuiCardContent-root').select('p')[0].text,
-            job_link=f"https://seedblink.com{job.select_one('a')['href']}",
+            job_title=job_title,
+            job_link=f"{BASE_URL}{href}",
             company='SeedBlink',
             country='Romania',
             county=location_finish[0] if True in location_finish else None,
             city='all' if location.lower() == location_finish[0].lower()\
                         and True in location_finish and 'bucuresti' != location.lower()\
                             else location,
-            remote='on-site',
+            remote=get_remote(card),
         ).to_dict())
 
     return job_list

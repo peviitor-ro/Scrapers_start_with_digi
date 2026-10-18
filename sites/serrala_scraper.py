@@ -12,6 +12,11 @@
 # Company ---> Serrala
 # Link ------> https://careers.serrala.com/search/\?searchby\=distance\&createNewAlert\=false\&q\=\&geolocation\=\&d\=10\&lat\=\&lon\=\&optionsFacetsDD_dept\=\&optionsFacetsDD_location\=\&optionsFacetsDD_country\=RO
 #
+# Note ---> careers.serrala.com has no jobs in Romania at the moment, so the
+#           country RO search is tried first and, while it returns nothing, the
+#           full job list is scraped and every job keeps the country reported
+#           by the site.
+#
 #
 from __utils import (
     GetStaticSoup,
@@ -21,18 +26,91 @@ from __utils import (
     UpdateAPI,
 )
 
+SEARCH_URL = (
+    "https://careers.serrala.com/search/"
+    "?searchby=distance&createNewAlert=false&q=&geolocation=&d=10&lat=&lon="
+    "&optionsFacetsDD_dept=&optionsFacetsDD_location=&optionsFacetsDD_country={country}"
+    "&startrow={startrow}"
+)
+
+# the search results show the country as a two letters code (DE, ES, IN, US...)
+COUNTRY_NAMES = {
+    'AT': 'Austria',
+    'BE': 'Belgium',
+    'BG': 'Bulgaria',
+    'CA': 'Canada',
+    'CH': 'Switzerland',
+    'CZ': 'Czechia',
+    'DE': 'Germany',
+    'DK': 'Denmark',
+    'ES': 'Spain',
+    'FI': 'Finland',
+    'FR': 'France',
+    'GB': 'United Kingdom',
+    'GR': 'Greece',
+    'HR': 'Croatia',
+    'HU': 'Hungary',
+    'IE': 'Ireland',
+    'IN': 'India',
+    'IT': 'Italy',
+    'NL': 'Netherlands',
+    'NO': 'Norway',
+    'PL': 'Poland',
+    'PT': 'Portugal',
+    'RO': 'Romania',
+    'RS': 'Serbia',
+    'SE': 'Sweden',
+    'SI': 'Slovenia',
+    'SK': 'Slovakia',
+    'TR': 'Turkey',
+    'US': 'United States',
+}
+
+
+def get_jobs_rows(country):
+    '''
+    ... job rows from the search results, following the site pagination
+    '''
+    job_rows = []
+    start_row = 0
+
+    while True:
+        soup = GetStaticSoup(SEARCH_URL.format(country=country, startrow=start_row))
+        rows = soup.find_all('tr', class_='data-row')
+        if not rows:
+            break
+
+        job_rows.extend(rows)
+        start_row += len(rows)
+
+        pagination = soup.find('span', class_='paginationLabel')
+        try:
+            jobs_num = int(pagination.text.split()[-1])
+        except (AttributeError, ValueError):
+            break
+
+        if start_row >= jobs_num:
+            break
+
+    return job_rows
+
 
 def scraper():
     '''
     ... scrape data from serrala scraper.
     '''
-    soup = GetStaticSoup("https://careers.serrala.com/search/?searchby=distance&createNewAlert=false&q=&geolocation=&d=10&lat=&lon=&optionsFacetsDD_dept=&optionsFacetsDD_location=&optionsFacetsDD_country=RO")
+    job_rows = get_jobs_rows('RO')
+
+    # the careers site has no jobs left in Romania -> take the full list
+    if not job_rows:
+        job_rows = get_jobs_rows('')
 
     job_list = []
-    for job in soup.find_all('tr', class_='data-row'):
+    for job in job_rows:
 
         link = job.find('a')
         location = job.find('span', class_='jobLocation').text.strip().split(',')[0]
+        location = COUNTRY_NAMES.get(location.upper(), location)
         if location.lower() == 'bucharest':
             location = 'Bucuresti'
 
@@ -43,10 +121,10 @@ def scraper():
             job_title=job.find('a').text.strip(),
             job_link="https://careers.serrala.com" + link['href'],
             company='serrala',
-            country='Romania',
+            country='Romania' if True in location_finish else location,
             county=location_finish[0] if True in location_finish else None,
-            city='all' if location.lower() == location_finish[0].lower()\
-                        and True in location_finish and 'bucuresti' != location.lower()\
+            city='all' if location.lower() == location_finish[0].lower\
+                        and True in location_finish and 'bucuresti' != location.lower\
                             else location,
             remote='on-site',
         ).to_dict())
