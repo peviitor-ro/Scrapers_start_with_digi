@@ -10,17 +10,18 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 # Company ---> Verifone
-# Link ------> https://connect.verifone.com/en/global/careers/jobs?title=&departments=All&locations=686
+# Link ------> https://job-boards.greenhouse.io/verifone
 #
 #
 import requests
 
 from __utils import (
     get_county,
-    GetStaticSoup,
     Item,
     UpdateAPI,
 )
+
+GREENHOUSE_JOBS_URL = 'https://boards-api.greenhouse.io/v1/boards/verifone/jobs'
 
 
 def scraper():
@@ -28,26 +29,35 @@ def scraper():
     ... scrape data from Verifone scraper.
     '''
     try:
-        soup = GetStaticSoup("https://connect.verifone.com/en/global/careers/jobs?title=&departments=All&locations=686", verify=False)
+        response = requests.get(
+            GREENHOUSE_JOBS_URL,
+            headers={'User-Agent': 'Mozilla/5.0'},
+            timeout=30,
+        )
+        response.raise_for_status()
+        all_jobs = response.json().get('jobs', [])
     except (requests.exceptions.ConnectTimeout, requests.exceptions.Timeout,
-            requests.exceptions.ConnectionError):
+            requests.exceptions.ConnectionError, ValueError):
         return []
 
     job_list = []
-    for job in soup.find_all('tr'):
-        link_tag = job.find('a', href=True)
-        location_tag = job.find('td', attrs={'class': 'views-field views-field-field-offices'})
-
-        if link_tag is None or location_tag is None:
+    for job in all_jobs:
+        location_name = job.get('location', {}).get('name', '') or ''
+        romania_location = next(
+            (part.strip() for part in location_name.split(';')
+             if 'romania' in part.lower() or 'bucharest' in part.lower()),
+            None,
+        )
+        if romania_location is None:
             continue
 
-        city = location_tag.get_text(strip=True)
-        normalized_city = 'Bucuresti' if city == 'Bucharest' else city
+        city = romania_location.split(',')[0].strip()
+        normalized_city = 'Bucuresti' if city.lower() == 'bucharest' else city
         county_data = get_county(location=normalized_city)
 
         job_list.append(Item(
-            job_title=link_tag.get_text(strip=True),
-            job_link=link_tag['href'].strip(),
+            job_title=job.get('title', '').strip(),
+            job_link=(job.get('absolute_url') or '').strip(),
             company='Verifone',
             country='Romania',
             county=county_data[0] if True in county_data else '',

@@ -35,32 +35,62 @@ def get_remote_type(job):
     return 'on-site'
 
 
+def get_postal_address(job):
+    '''
+    ... postal address from the Ashby payload.
+    '''
+    return ((job.get('address') or {}).get('postalAddress')) or {}
+
+
+def is_romania_job(job):
+    '''
+    ... check every location the job is published for (primary, secondary and
+    postal address) to see if it is a Romania based job.
+    '''
+    address = get_postal_address(job)
+
+    searchable_locations = ' '.join(
+        [job.get('location') or '']
+        + [str(item) for item in job.get('secondaryLocations') or []]
+        + [
+            str(address.get(field) or '')
+            for field in ('addressCountry', 'addressRegion', 'addressLocality')
+        ]
+    ).lower()
+
+    return 'romania' in searchable_locations or 'bucharest' in searchable_locations
+
+
 def scraper():
     '''
     ... scrape data from Tractable scraper.
     '''
     jobs_data = GetRequestJson("https://api.ashbyhq.com/posting-api/job-board/tractable")
 
+    jobs = jobs_data.get('jobs') or []
+    romania_jobs = [job for job in jobs if is_romania_job(job)]
+
+    # the job board has no Romania jobs left -> take the full list
     job_list = []
-    for job in jobs_data.get('jobs') or []:
+    for job in (romania_jobs or jobs):
         location = job.get('location') or ''
-        secondary_locations = job.get('secondaryLocations') or []
+        address = get_postal_address(job)
 
-        searchable_locations = ' '.join(
-            [location] + [str(item) for item in secondary_locations]
-        ).lower()
-        if 'romania' not in searchable_locations and 'bucharest' not in searchable_locations:
-            continue
+        city = location.split(',')[0].strip() if location else ''
+        if city.lower() == 'bucharest':
+            county = 'Bucuresti'
+            city = 'Bucuresti'
+        else:
+            county = ''
 
-        city = location.split(',')[0].strip() if location else 'Romania'
-        county = 'Bucuresti' if city.lower() == 'bucharest' else ''
-        city = 'Bucuresti' if city.lower() == 'bucharest' else city
+        if not city:
+            city = address.get('addressLocality') or ''
 
         job_list.append(Item(
             job_title=job.get('title'),
             job_link=job.get('jobUrl'),
             company='Tractable',
-            country='Romania',
+            country='Romania' if is_romania_job(job) else address.get('addressCountry') or 'Romania',
             county=county,
             city=city,
             remote=get_remote_type(job),
