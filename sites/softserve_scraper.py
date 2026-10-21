@@ -13,13 +13,26 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 #
+import time
+
+import requests
+
 from __utils import (
-    GetRequestJson,
     get_county,
     get_job_type,
     Item,
     UpdateAPI,
 )
+
+# The career site is behind Imperva/Incapsula. From time to time it answers
+# with its html challenge page instead of the json payload, so every request
+# is repeated until the json answer shows up.
+MAX_ATTEMPTS = 6
+WAIT_BETWEEN_ATTEMPTS = 3
+WAIT_BETWEEN_PAGES = 1
+REQUEST_TIMEOUT = 60
+
+session = requests.Session()
 
 
 def get_dynamic_headers(page: str):
@@ -41,6 +54,35 @@ def get_dynamic_headers(page: str):
     return url, headers
 
 
+def get_api_data(url: str, headers: dict):
+    '''
+    >>>>> Request the json API and return the parsed payload.
+    >>>>> None when the site keeps answering with the Incapsula challenge.
+    '''
+
+    for attempt in range(MAX_ATTEMPTS):
+        json_data = None
+
+        try:
+            response = session.get(
+                url,
+                headers=headers,
+                verify=False,
+                timeout=REQUEST_TIMEOUT,
+            )
+            json_data = response.json()
+        except (requests.RequestException, ValueError):
+            json_data = None
+
+        if isinstance(json_data, dict) and isinstance(json_data.get('data'), list):
+            return json_data
+
+        # Incapsula challenge page (or a broken answer) -> wait and try again
+        time.sleep(WAIT_BETWEEN_ATTEMPTS * (attempt + 1))
+
+    return None
+
+
 def scraper():
     '''
     ... scrape data from SoftServe scraper.
@@ -54,11 +96,16 @@ def scraper():
         # make dynamic headers
         url_for_API, headers_for_API = get_dynamic_headers(str(page))
 
-        json_data = GetRequestJson(url=url_for_API, custom_headers=headers_for_API)
+        json_data = get_api_data(url_for_API, headers_for_API)
 
-        if isinstance(json_data, dict) and len(json_data.get('data', [])) > 0:
+        if json_data is None:
+            # the API is not answering right now -> stop with what we have
+            break
 
-            for job in json_data['data']:
+        jobs_on_page = json_data.get('data', [])
+
+        if jobs_on_page:
+            for job in jobs_on_page:
                 #
                 job_type = job.get('remote')
 
@@ -75,7 +122,14 @@ def scraper():
         else:
             flag = False
 
+        # the API tells us how many pages hold results
+        meta = json_data.get('meta') or {}
+        last_page = meta.get('last_page')
+        if last_page and page >= last_page:
+            flag = False
+
         page += 1
+        time.sleep(WAIT_BETWEEN_PAGES)
 
     return job_list
 
