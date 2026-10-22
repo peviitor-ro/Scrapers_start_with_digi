@@ -22,6 +22,7 @@ from __utils import (
     get_job_type,
     Item,
     UpdateAPI,
+    DEFAULT_HEADERS,
 )
 
 # The career site is behind Imperva/Incapsula. From time to time it answers
@@ -34,6 +35,12 @@ REQUEST_TIMEOUT = 60
 
 session = requests.Session()
 
+# Imperva blocks the default "python-requests/x.y" agent with a 403 challenge
+# page, so the browser user agent is set on the session as well.
+session.headers.update({
+    'User-Agent': DEFAULT_HEADERS['User-Agent'],
+})
+
 
 def get_dynamic_headers(page: str):
     '''
@@ -45,11 +52,12 @@ def get_dynamic_headers(page: str):
 
     url = f'https://career.softserveinc.com/en-us/vacancy/search?country[]=romania&page={page}'
 
-    headers = {
+    headers = DEFAULT_HEADERS.copy()
+    headers.update({
         'authority': 'career.softserveinc.com',
         'accept': 'application/json, text/plain, */*',
         'referer': f'https://career.softserveinc.com/en-us/vacancies/country-romania/page-{page}',
-    }
+    })
 
     return url, headers
 
@@ -78,7 +86,8 @@ def get_api_data(url: str, headers: dict):
             return json_data
 
         # Incapsula challenge page (or a broken answer) -> wait and try again
-        time.sleep(WAIT_BETWEEN_ATTEMPTS * (attempt + 1))
+        if attempt < MAX_ATTEMPTS - 1:
+            time.sleep(WAIT_BETWEEN_ATTEMPTS * (attempt + 1))
 
     return None
 

@@ -10,7 +10,7 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 # Company ---> Conectys
-# Link ------> https://careers.conectys.com/careers/\?search_keywords\=\&selected_location\=
+# Link ------> https://careers.conectys.com/open-roles/\?search_keywords\=\&selected_location\=
 #
 #
 from __utils import (
@@ -30,12 +30,29 @@ def scraper():
     cities_for_requests = ['bucharest', 'sibiu']
 
     job_list = []
-    for city_search in cities_for_requests:
-        soup = GetStaticSoup(f"https://careers.conectys.com/careers/?search_keywords=&selected_location={city_search}")
+    added_links = set()
 
-        if len(check_soup := soup.find_all('div', attrs={'class': 'col-md-4 col-sm-6 grid-item'})) > 0:
+    for city_search in cities_for_requests:
+        page = 1
+        while page <= 10:
+            soup = GetStaticSoup(
+                f"https://careers.conectys.com/open-roles/?search_keywords=&selected_location={city_search}&paged={page}")
+
+            check_soup = soup.find_all('div', attrs={'class': 'col-md-4 col-sm-6 grid-item'})
+            if len(check_soup) == 0:
+                break
+
             for job in check_soup:
-                location = job.find('div', attrs={'class': 'job-location'}).text.strip().split(',')[0].strip()
+                job_link = job.find('div', attrs={'class': 'job-info'}).find('a')['href'].strip()
+
+                # the same job can be listed for more than one location
+                if job_link in added_links:
+                    continue
+
+                # location format --> "Bucharest | Romania" / "Bucharest | Romania, Sibiu | Romania"
+                location = job.find('div', attrs={'class': 'job-location'}).text.strip()
+                location = location.split(',')[0].replace('|', ' ').split()
+                location = location[0] if len(location) > 0 else ''
 
                 if location.lower() == 'bucharest':
                     location = 'Bucuresti'
@@ -45,7 +62,7 @@ def scraper():
                 # get jobs items from response
                 job_list.append(Item(
                     job_title=job.find('span', attrs={'class': 'job-title'}).text.strip(),
-                    job_link=job.find('div', attrs={'class': 'job-info'}).find('a')['href'].strip(),
+                    job_link=job_link,
                     company='Conectys',
                     country='Romania',
                     county=location_finish[0] if True in location_finish else None,
@@ -54,6 +71,10 @@ def scraper():
                                 else location,
                     remote='on-site',
                 ).to_dict())
+
+                added_links.add(job_link)
+
+            page += 1
 
     return job_list
 
