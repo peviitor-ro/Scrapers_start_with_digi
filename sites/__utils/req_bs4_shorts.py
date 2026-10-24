@@ -146,10 +146,21 @@ class HackCloudFlare:
         if custom_headers:
             headers.update(custom_headers)
 
-        import cloudscraper
-        scraper = cloudscraper.create_scraper()
-        response = scraper.get(url, timeout=60)
-        return BeautifulSoup(response.text, 'lxml')
+        try:
+            import cfscrape
+            scraper = cfscrape.create_scraper()
+            response = scraper.get(url, headers=headers, timeout=60)
+            return BeautifulSoup(response.text, 'lxml')
+        except Exception:
+            try:
+                import cloudscraper
+                scraper = cloudscraper.create_scraper()
+                response = scraper.get(url, headers=headers, timeout=60)
+                return BeautifulSoup(response.text, 'lxml')
+            except Exception:
+                session.headers.update(headers)
+                response = session.get(url, timeout=60)
+                return BeautifulSoup(response.text, 'lxml')
 
 
 class GetXMLObject:
