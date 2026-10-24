@@ -15,6 +15,7 @@
 #
 from __utils import (
     GetStaticSoup,
+    HackCloudFlare,
     get_county,
     get_job_type,
     Item,
@@ -26,27 +27,60 @@ def scraper():
     '''
     ... scrape data from AppGreat scraper.
     '''
-    soup = GetStaticSoup("https://www.appgr8.com/careers/")
+    soup = HackCloudFlare("https://www.appgr8.com/careers/")
 
     job_list = []
     for job in soup.find_all('a'):
-        if 'positions' in job['href']:
-            soup_2 = GetStaticSoup(job['href'])
+        href = job.get('href', '')
+        if href and '/jobs/' in href and href not in [j.get('job_link') for j in job_list]:
+            # normalize url
+            if href.startswith('/'):
+                job_link = 'https://www.appgr8.com' + href
+            elif href.startswith('http'):
+                job_link = href
+            else:
+                job_link = 'https://www.appgr8.com/' + href
 
-            text_with_location = soup_2.find_all('p')
-            for item in text_with_location:
-                if 'Bucharest' in item.text:
+            try:
+                soup_2 = HackCloudFlare(job_link)
+            except Exception:
+                try:
+                    soup_2 = GetStaticSoup(job_link)
+                except Exception:
+                    continue
 
-                    # get jobs items from response
-                    job_list.append(Item(
-                        job_title=soup_2.find('h4', attrs={'class': 'elementor-heading-title elementor-size-default'}).text,
-                        job_link=job['href'],
-                        company='AppGreat',
-                        country='Romania',
-                        county='Bucuresti',
-                        city='Bucuresti',
-                        remote='remote',
-                    ).to_dict())
+            # look for location info
+            location_found = False
+            for item in soup_2.find_all(['p', 'li', 'span', 'div']):
+                text = item.text
+                if 'Bucharest' in text or 'București' in text or 'Bucuresti' in text:
+                    location_found = True
+                    break
+
+            # get job title
+            job_title = None
+            h1 = soup_2.find('h1')
+            if h1 and h1.text.strip():
+                job_title = h1.text.strip()
+            else:
+                h4 = soup_2.find('h4', attrs={'class': 'elementor-heading-title elementor-size-default'})
+                if h4 and h4.text.strip():
+                    job_title = h4.text.strip()
+                elif job.text.strip() and job.text.strip() not in ['Read More', 'Apply']:
+                    job_title = job.text.strip()
+
+            if not job_title:
+                continue
+
+            job_list.append(Item(
+                job_title=job_title,
+                job_link=job_link,
+                company='AppGreat',
+                country='Romania',
+                county='Bucuresti',
+                city='Bucuresti',
+                remote='remote',
+            ).to_dict())
 
     return job_list
 

@@ -13,6 +13,8 @@
 # Link ------> https://leadlion.ro/cariere/
 #
 #
+from urllib.parse import urljoin
+
 from __utils import (
     GetStaticSoup,
     get_county,
@@ -29,13 +31,18 @@ def scraper():
     soup = GetStaticSoup("https://leadlion.ro/cariere/")
 
     job_list = []
-    for job in soup.select('div.vc_row.wpb_row.vc_inner.vc_row-fluid.job-single.vc_custom_1652085815545.vc_row-has-fill'):
+    for job in soup.select('article'):
 
-        if (link := job.select_one('a')['href']) and 'cariere' in link:
+        title_tag = job.select_one('h3 a')
+        if not title_tag:
+            continue
+
+        link = urljoin('https://leadlion.ro/cariere/', title_tag['href'])
+        if 'cariere' in link:
 
             # get jobs items from response
             job_list.append(Item(
-                job_title=job.select_one('h3.title').text.strip(),
+                job_title=title_tag.text.strip(),
                 job_link=link,
                 company='LeadLion',
                 country='Romania',
