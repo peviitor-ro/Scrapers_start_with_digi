@@ -10,43 +10,84 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 # Company ---> Farmexim
-# Link ------> https://www.farmexim.ro/posturi-vacante-26.html
+# Link ------> https://careers.phoenixgroup.eu/Farmexim/
 #
 #
 from __utils import (
-    GetStaticSoup,
     get_county,
-    get_job_type,
     Item,
     UpdateAPI,
 )
+from __utils.req_bs4_shorts import session
+
+
+JOBS_API_URL = "https://careers.phoenixgroup.eu/services/recruiting/v1/jobs"
+
+
+def get_jobs_from_api():
+    '''
+    ... return all job postings from the Phoenix Group careers API.
+    '''
+    headers = {
+        "Content-Type": "application/json",
+        "Referer": "https://careers.phoenixgroup.eu/Farmexim/search/?locale=ro_RO",
+    }
+
+    jobs = []
+    page = 0
+    while True:
+        payload = {
+            "keywords": "",
+            "locale": "ro_RO",
+            "location": "",
+            "pageNumber": page,
+            "sortBy": "recent",
+        }
+        response = session.post(
+            JOBS_API_URL,
+            headers=headers,
+            json=payload,
+            verify=False,
+            timeout=30,
+        )
+        page_jobs = response.json().get("jobSearchResult", [])
+        if not page_jobs:
+            break
+
+        jobs.extend(page_jobs)
+        page += 1
+
+    return jobs
 
 
 def scraper():
     '''
     ... scrape data from Farmexim scraper.
     '''
-    soup = GetStaticSoup("https://www.farmexim.ro/posturi-vacante-26.html")
-
     job_list = []
-    for job in soup.select('div.service-block-desc'):
-        title_link = job.select_one('a')
-        location = [element for element in\
-                    job.select_one('ul.list-inline').text.split('\n')\
-                    if element.strip()][0].split()[-1]
-        
-        location_finish = get_county(location=location)
+    for job in get_jobs_from_api():
+        job_data = job.get("response", {})
+
+        if "Farmexim" not in job_data.get("sfstd_marketingBrand_obj", []):
+            continue
+
+        location_finish = get_county(
+            location=(job_data.get("jobLocationState") or [None])[0]
+        )
+        cities = [
+            location.removeprefix("Romania-").strip()
+            for location in job_data.get("jobLocationShort", [])
+        ]
 
         # get jobs items from response
         job_list.append(Item(
-            job_title=title_link.text,
-            job_link=f"https://www.farmexim.ro{title_link['href']}",
+            job_title=job_data.get("unifiedStandardTitle"),
+            job_link=(f"https://careers.phoenixgroup.eu/Farmexim/job/"
+                      f"{job_data.get('unifiedUrlTitle')}/{job_data.get('id')}-ro_RO"),
             company='Farmexim',
             country='Romania',
             county=location_finish[0] if True in location_finish else None,
-            city='all' if location.lower() == location_finish[0].lower()\
-                        and True in location_finish and 'bucuresti' != location.lower()\
-                            else location,
+            city=cities[0] if len(cities) == 1 else cities,
             remote='on-site',
         ).to_dict())
 

@@ -24,16 +24,29 @@ def scraper():
 
     job_list = []
     for job in data.get('result', []):
+        job_id = job.get('id')
         ats_location = job.get('atsLocation') or {}
-        country = (ats_location.get('country') or '').strip()
-        if country.lower() != 'romania':
-            continue
+        location = job.get('location') or {}
 
-        city = (ats_location.get('city') or '').strip()
+        country = (ats_location.get('country') or '').strip()
+        if not country:
+            details = GetRequestJson(f"https://wirtek.bamboohr.com/careers/{job_id}/detail")
+            job_opening = details.get('result', {}).get('jobOpening', {}) if details else {}
+            detail_location = job_opening.get('location') or {}
+            ats_location = job_opening.get('atsLocation') or ats_location
+            location = detail_location or location
+            country = (
+                ats_location.get('country')
+                or detail_location.get('addressCountry')
+                or ''
+            ).strip()
+        country = country or 'Romania'
+
+        city = (ats_location.get('city') or location.get('city') or '').strip()
         if city.lower() == 'cluj':
             city = 'Cluj-Napoca'
 
-        county, _ = get_county(city) if city else (None, None)
+        county, county_found = get_county(city) if city else (None, None)
 
         location_type = str(job.get('locationType'))
         remote = {
@@ -44,10 +57,10 @@ def scraper():
 
         job_list.append(Item(
             job_title=job.get('jobOpeningName'),
-            job_link=f"https://wirtek.bamboohr.com/careers/{job.get('id')}",
+            job_link=f"https://wirtek.bamboohr.com/careers/{job_id}",
             company='Wirtek',
-            country='Romania',
-            county=county or '',
+            country=country,
+            county=county if county_found else '',
             city=city,
             remote=remote,
         ).to_dict())

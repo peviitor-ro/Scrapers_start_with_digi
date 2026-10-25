@@ -3,7 +3,7 @@
 # Your custom scraper here ---> Last level!
 #
 # Company ---> BertrandtGroup
-# Link ------> https://bertrandtgroup.onlyfy.jobs/
+# Link ------> https://bertrandt.jobs.hr.cloud.sap/search/
 #
 #
 # Aici va invit sa va creati propriile metode de scraping cu Python,
@@ -12,11 +12,44 @@
 # -> BeautifulSoup
 # -> requests_html etc.
 #
-from __utils import Item, get_county, UpdateAPI
-from __utils import DEFAULT_HEADERS
+import html
+import re
+import urllib.parse
+
 import requests
 from bs4 import BeautifulSoup
-# from requests_html import HTMLSession
+
+from __utils import Item, get_county, UpdateAPI
+from __utils import DEFAULT_HEADERS
+
+
+SITEMAP_URL = 'https://bertrandt.jobs.hr.cloud.sap/sitemap.xml'
+
+CITY_ALIASES = {
+    'bukarest': 'Bucuresti',
+    'bucharest': 'Bucuresti',
+    'bucuresti': 'Bucuresti',
+    'sibiu': 'Sibiu',
+    'hermannstadt': 'Sibiu',
+    'cluj': 'Cluj-Napoca',
+    'cluj-napoca': 'Cluj-Napoca',
+    'klausenburg': 'Cluj-Napoca',
+    'timisoara': 'Timisoara',
+    'temeswar': 'Timisoara',
+    'brasov': 'Brasov',
+    'kronstadt': 'Brasov',
+    'iasi': 'Iasi',
+    'constanta': 'Constanta',
+    'craiova': 'Craiova',
+    'oradea': 'Oradea',
+    'arad': 'Arad',
+    'pitesti': 'Pitesti',
+    'bacau': 'Bacau',
+    'galati': 'Galati',
+    'ploiesti': 'Ploiesti',
+    'suceava': 'Suceava',
+    'targu-mures': 'Targu Mures',
+}
 
 
 def return_soup(url: str):
@@ -29,45 +62,71 @@ def return_soup(url: str):
     return soup
 
 
+def get_city_from_path(job_path: str):
+    """
+    ... map a sitemap job path to its Romanian city, if it is a Romanian job.
+    """
+    normalized_path = urllib.parse.unquote(job_path).lower()
+
+    for alias in sorted(CITY_ALIASES, key=len, reverse=True):
+        if normalized_path == alias or normalized_path.startswith(f'{alias}-'):
+            return CITY_ALIASES[alias]
+
+    return None
+
+
+def get_job_title(soup: BeautifulSoup, fallback_title: str):
+    """
+    ... get the job title from the job page.
+    """
+    title_meta = soup.find('meta', attrs={'property': 'og:title'})
+    if title_meta and title_meta.get('content'):
+        return html.unescape(title_meta['content']).strip()
+
+    title_tag = soup.find('title')
+    if title_tag:
+        title = title_tag.get_text(strip=True)
+        if ' Job Details |' in title:
+            return title.split(' Job Details |', 1)[0].strip()
+
+    return fallback_title
+
+
 def scraper():
     """
     This func() return all data from site.
     """
 
-    # setam un header nou
     session = requests.Session()
 
-    params = {
-        "candidate_center_filter[country]": "RO",
-        "candidate_center_filter[hasCityCluster]": 0,
-        "display_length": 200,
-        "page": 1,
-        "sort": "matching",
-        "sort_dir": "DESC",
-        "candidate_center_filter[city]": "",  # Ensure city filter is cleared if needed
-        "candidate_center_filter[enc_city]": "",
-        "candidate_center_filter[sort]": "matching"
-    }
+    sitemap_response = session.get(SITEMAP_URL, headers=DEFAULT_HEADERS, timeout=30)
+    sitemap_response.raise_for_status()
 
-    # facem un get request pentru a lua toate joburile cu filtrele aplicate
-    last_call = session.get(url='https://bertrandtgroup.onlyfy.jobs/candidate/job/ajax_list', params=params, headers=DEFAULT_HEADERS)
-
-    soup = BeautifulSoup(last_call.text, 'lxml')
-
-    jobs = soup.find_all('div', class_='row')
+    sitemap_urls = [
+        html.unescape(url)
+        for url in re.findall(r'<loc>(.*?)</loc>', sitemap_response.text, re.S)
+    ]
 
     # collect data!
     job_list = []
-    for job in jobs:
-        inner_divs = job.find_all('div', class_='inner')
-        if len(inner_divs) < 2:
+    for job_url in sitemap_urls:
+        if '/job/' not in job_url:
             continue
-        
-        location = inner_divs[1].text.strip()
-        
-        title = inner_divs[0].find('a').text
 
-        if location.lower() in ['bucharest',]:
+        job_path = urllib.parse.unquote(job_url.split('/job/', 1)[1].split('/', 1)[0])
+        location = get_city_from_path(job_path)
+        if not location:
+            continue
+
+        response = session.get(job_url, headers=DEFAULT_HEADERS, timeout=30)
+        if response.status_code != 200:
+            continue
+
+        soup = BeautifulSoup(response.text, 'lxml')
+        fallback_title = job_path.replace('-', ' ').strip()
+        title = get_job_title(soup, fallback_title)
+
+        if location.lower() in ['bucharest', 'bukarest']:
             location = 'Bucuresti'
 
         job_type = 'on-site'
@@ -78,7 +137,7 @@ def scraper():
 
         job_list.append(Item(
             job_title=title,
-            job_link='https://bertrandtgroup.onlyfy.jobs' + inner_divs[0].find('a')['href'],
+            job_link=job_url,
             company='BertrandtGroup',
             country='Romania',
             county=location_finish[0] if True in location_finish else None,
