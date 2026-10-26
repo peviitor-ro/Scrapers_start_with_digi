@@ -17,6 +17,7 @@ import re
 
 from __utils import (
     GetStaticSoup,
+    GetXMLObject,
     get_county,
     get_job_type,
     Item,
@@ -25,11 +26,50 @@ from __utils import (
 
 BASE_URL = "https://seedblink.com"
 CAREERS_URL = f"{BASE_URL}/careers"
+SITEMAP_URL = f"{BASE_URL}/sitemap.xml"
 
 # careers page runs on Webflow now; open positions live in the #open-positions
 # section and each job links to /careers/<job-slug>
 JOB_LINK_SELECTOR = 'a[href^="/careers/"]'
 HEADING_SELECTOR = 'h1, h2, h3, h4, h5, h6'
+
+
+def normalize_job_href(href):
+    '''
+    ... normalize a careers link to its job path.
+    '''
+    href = (href or '').split('#')[0].split('?')[0].strip()
+
+    if href.startswith(BASE_URL):
+        href = href[len(BASE_URL):]
+
+    if href.endswith('/'):
+        href = href.rstrip('/')
+
+    if not href.startswith('/careers/') or href == '/careers':
+        return None
+
+    return href
+
+
+def get_sitemap_job_links():
+    '''
+    ... get job paths from the sitemap (some jobs are not linked on /careers).
+    '''
+    root = GetXMLObject(SITEMAP_URL)
+    if root is None:
+        return []
+
+    job_links = []
+    for node in root.iter():
+        if node.tag.rsplit('}', 1)[-1] != 'loc':
+            continue
+
+        href = normalize_job_href(node.text)
+        if href and href not in job_links:
+            job_links.append(href)
+
+    return job_links
 
 
 def count_job_links(card):
@@ -108,24 +148,31 @@ def scraper():
     # when SeedBlink has no openings, this section only shows an empty state
     section = soup.select_one('#open-positions') or soup
 
-    job_list = []
-    scraped_links = set()
+    page_links = {}
     for link in section.select(JOB_LINK_SELECTOR):
-        href = link.get('href', '').split('#')[0].split('?')[0].strip()
-        if href.endswith('/'):
-            href = href.rstrip('/')
+        href = normalize_job_href(link.get('href'))
+        if href and href not in page_links:
+            page_links[href] = link
 
+    for href in get_sitemap_job_links():
+        page_links.setdefault(href, None)
+
+    job_list = []
+    for href, link in page_links.items():
         slug = href.rsplit('/', 1)[-1]
-        if not slug or href == '/careers' or href in scraped_links:
+        if not slug:
             continue
 
-        scraped_links.add(href)
-
-        card = get_job_card(link) or link
-        title_tag = card.select_one(HEADING_SELECTOR)
+        if link is not None:
+            card = get_job_card(link) or link
+            title_tag = card.select_one(HEADING_SELECTOR)
+        else:
+            job_soup = GetStaticSoup(f"{BASE_URL}{href}")
+            card = job_soup.select_one('.wrapper-careers-left') or job_soup
+            title_tag = card.select_one(HEADING_SELECTOR)
 
         job_title = title_tag.get_text(' ', strip=True) if title_tag \
-                        else link.get_text(' ', strip=True)
+                        else link.get_text(' ', strip=True) if link else ''
         if not job_title:
             job_title = slug.replace('-', ' ').title()
 
