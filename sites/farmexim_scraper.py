@@ -50,7 +50,15 @@ def get_jobs_from_api():
             verify=False,
             timeout=30,
         )
-        page_jobs = response.json().get("jobSearchResult", [])
+        try:
+            page_jobs = response.json().get("jobSearchResult", [])
+        except ValueError:
+            print(
+                "Farmexim jobs API did not return JSON "
+                f"(HTTP {response.status_code}); returning no jobs."
+            )
+            break
+
         if not page_jobs:
             break
 
