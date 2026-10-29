@@ -13,6 +13,8 @@
 # Link ------> https://makitajobs.ro/locuri-de-munca/
 #
 #
+import base64
+import re
 import time
 from __utils import (
     GetStaticSoup,
@@ -21,6 +23,30 @@ from __utils import (
     Item,
     UpdateAPI,
 )
+
+
+def get_location(soup):
+    '''
+    ... extract the job location from the base64 encoded page content.
+    '''
+    for text_node in soup.find_all(string=re.compile('bunch_service_single')):
+        match = re.search(r'text="([^"]+)"', str(text_node))
+        if not match:
+            continue
+
+        encoded = match.group(1)
+        decoded = base64.b64decode(encoded + '=' * (-len(encoded) % 4)).decode('utf-8', errors='replace')
+        text = re.sub(r'<[^>]+>', ' ', decoded)
+
+        address_match = re.search(r'Locul tău de muncă stabil\s*-\s*([^<]+)', text)
+        if address_match:
+            return address_match.group(1).strip().split(',')[-1].strip().split()[-1]
+
+        county_match = re.search(r'Jud\.\s*([^\s<]+)', text)
+        if county_match:
+            return county_match.group(1).strip()
+
+    return None
 
 
 def scraper():
@@ -36,7 +62,7 @@ def scraper():
         location = None
         for _ in range(3):
             try:
-                location = GetStaticSoup(link).find_all('div', attrs={'class': 'text'})[-1].find('p').text.split()[-1].strip()
+                location = get_location(GetStaticSoup(link))
                 break
             except Exception:
                 time.sleep(2)
