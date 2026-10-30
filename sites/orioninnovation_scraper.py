@@ -1,6 +1,7 @@
 from __utils import (
     Item,
     get_county,
+    remove_diacritics,
     UpdateAPI
 )
 
@@ -13,14 +14,34 @@ GREENHOUSE_URL = 'https://boards-api.greenhouse.io/v1/boards/orioninnovation/job
 CAREERS_URL = 'https://www.orioninnovation.com/careers/job/'
 
 
+def normalize_location(location_name):
+    '''
+    ... normalize a location for matching, including Romanian diacritics.
+    '''
+    location_name = remove_diacritics(location_name or '')
+    return ' '.join(location_name.lower().split())
+
+
+def is_romania_location(location_name):
+    '''
+    ... check whether a source location refers to Romania.
+    '''
+    location_lower = normalize_location(location_name)
+    return (
+        'romania' in location_lower
+        or 'bucharest' in location_lower
+        or 'bucuresti' in location_lower
+    )
+
+
 def get_location_data(location_name):
     '''
     ... normalize county and city from a job location.
     '''
     location_name = ' '.join(location_name.split())
-    location_lower = location_name.lower()
+    location_lower = normalize_location(location_name)
 
-    if 'bucharest' in location_lower:
+    if 'bucharest' in location_lower or 'bucuresti' in location_lower:
         city = 'Bucuresti'
     else:
         city = location_name.title()
@@ -66,8 +87,7 @@ def scrape_greenhouse():
     job_list = []
     for job in all_jobs:
         location_name = job.get('location', {}).get('name', '')
-        location_lower = location_name.lower()
-        if 'romania' not in location_lower and 'bucharest' not in location_lower:
+        if not is_romania_location(location_name):
             continue
 
         job_list.append(build_job(
@@ -84,7 +104,7 @@ def get_careers_html():
     ... return the careers page HTML, which is protected by Cloudflare.
     '''
     from selenium import webdriver
-    from selenium.common.exceptions import WebDriverException
+    from selenium.common.exceptions import TimeoutException, WebDriverException
     from selenium.webdriver.chrome.options import Options
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support.ui import WebDriverWait
@@ -121,7 +141,7 @@ def get_careers_html():
                     )
                 )
                 return driver.page_source
-            except WebDriverException:
+            except (TimeoutException, WebDriverException):
                 if attempt == 2:
                     return ''
                 time.sleep(3)
@@ -154,8 +174,7 @@ def scrape_careers_page():
 
         title = title_tag.get_text(' ', strip=True)
         location_name = location_tag.get_text(' ', strip=True)
-        location_lower = location_name.lower()
-        if 'romania' not in location_lower and 'bucharest' not in location_lower:
+        if not is_romania_location(location_name):
             continue
 
         job_list.append(build_job(title, card.get('href', ''), location_name))
