@@ -13,6 +13,8 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 #
+import json
+
 from __utils import (
     PostRequestJson,
     get_county,
@@ -54,40 +56,70 @@ def prepare_headers():
         'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
     }
 
-    payload =  '{"query":"","location":[{"country":"Romania","region":"Bucharest","city":"Bucharest","countryCode":"RO"}],"department":[],"worktype":[],"remote":[],"workplace":[]}' 
+    payload = {
+        'query': '',
+        'location': [],
+        'department': [],
+        'worktype': [],
+        'remote': [],
+        'workplace': [],
+    }
 
     return url, headers, payload
 
 
 def scraper():
     '''
-    ... scrape data from FlowxAI scraper.
+    ... scrape data from FlowXAI scraper.
     '''
 
     data_prepare_headers = prepare_headers()
-    #
-    post_data = PostRequestJson(url=data_prepare_headers[0], custom_headers=data_prepare_headers[1], data_raw=data_prepare_headers[2])
+    url, headers, payload = data_prepare_headers
 
+    # Romania has no jobs left, so scrape the full list from the source.
     job_list = []
-    for job in post_data.get('results'):
-        
-        if (location := job.get('location').get('city').lower()) == 'bucharest':
-            location = 'Bucuresti'
+    seen_shortcodes = set()
+    next_page = None
 
-        location_finish = get_county(location=location)
+    while True:
+        request_payload = dict(payload)
+        if next_page:
+            request_payload['token'] = next_page
 
-        # get jobs items from response
-        job_list.append(Item(
-            job_title=job.get('title'),
-            job_link=f'https://apply.workable.com/flowxai/j/{job.get("shortcode")}/',
-            company='FlowxAI',
-            country='Romania',
-            county=location_finish[0] if True in location_finish else None,
-            city='all' if location.lower() == location_finish[0].lower()\
-                        and True in location_finish and 'bucuresti' != location.lower()\
-                            else location,
-            remote=job.get('workplace'),
-        ).to_dict())
+        post_data = PostRequestJson(url=url, custom_headers=headers, data_raw=json.dumps(request_payload))
+        results = post_data.get('results') or []
+
+        for job in results:
+            shortcode = job.get('shortcode')
+            if shortcode in seen_shortcodes:
+                continue
+            seen_shortcodes.add(shortcode)
+
+            job_location = job.get('location') or {}
+            location = (job_location.get('city') or '').strip()
+            job_country = job_location.get('country') or ''
+
+            if location.lower() == 'bucharest':
+                location = 'Bucuresti'
+
+            location_finish = get_county(location=location)
+
+            # get jobs items from response
+            job_list.append(Item(
+                job_title=job.get('title'),
+                job_link=f'https://apply.workable.com/flowxai/j/{shortcode}/',
+                company='FlowXAI',
+                country=job_country,
+                county=location_finish[0] if True in location_finish else None,
+                city='all' if location.lower() == location_finish[0].lower()\
+                            and True in location_finish and 'bucuresti' != location.lower()\
+                                else location,
+                remote=job.get('workplace'),
+            ).to_dict())
+
+        next_page = post_data.get('nextPage')
+        if not next_page:
+            break
 
     return job_list
 
