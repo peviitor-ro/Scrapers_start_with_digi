@@ -55,11 +55,17 @@ def get_job_links():
             job_links.add(url)
 
     if not job_links:
-        soup = GetStaticSoup("https://jobs.citi.com/search-jobs/Romania/287/2/798549/46/25/50/2")
-        for job in soup.find_all('a'):
-            href = job.get('href')
-            if href and '/job/' in href:
-                job_links.add(href)
+        # fallback: paginate the Romania jobs location page
+        # (the search-jobs url only renders the first page of results)
+        page = 1
+        while True:
+            soup = GetStaticSoup(f"https://jobs.citi.com/location/romania-jobs/287/798549/2/{page}")
+            page_links = [job.get('href') for job in soup.find_all('a')
+                          if job.get('href') and '/job/' in job.get('href')]
+            if not page_links:
+                break
+            job_links.update(page_links)
+            page += 1
 
     return job_links
 
