@@ -15,26 +15,14 @@
 #
 from __utils import (
     GetRequestJson,
-    get_county,
-    get_job_type,
     Item,
     UpdateAPI,
-
-    #
-    GetHeadersDict,
-
-    # for second request
-    GetStaticSoup,
 )
 
 
-def get_w_tag_id():
-    '''
-    ... get w /tag id
-    '''
-    headers_string = GetHeadersDict('https://api.teamtailor.com/v1/jobs?include=department,locations&page\[size\]=30&filter\[feed\]=public&filter\[locations\]=178583&api_version=20161108&api_key=nCvUhI8oZU8a22OS8tNPoJltCnk0IUTRY90ADtLp').get('Etag')
-
-    return headers_string
+API_URL = 'https://api.teamtailor.com/v1/jobs'
+API_KEY = 'nCvUhI8oZU8a22OS8tNPoJltCnk0IUTRY90ADtLp'
+API_VERSION = '20210218'
 
 
 def prepare_get_headers():
@@ -42,36 +30,65 @@ def prepare_get_headers():
     ... prepare get headers for request funcom's API
     '''
 
-    url = 'https://api.teamtailor.com/v1/jobs?include=department,locations&page[size]=30&filter[feed]=public&page[number]=1&filter[locations]=178583&api_version=20161108&api_key=nCvUhI8oZU8a22OS8tNPoJltCnk0IUTRY90ADtLp'
-
     headers = {
         'Accept': '*/*',
         'Accept-Language': 'en-US,en;q=0.7',
         'Connection': 'keep-alive',
-        'If-None-Match': f'{get_w_tag_id()}',
         'Origin': 'https://www.funcom.com',
         'Referer': 'https://www.funcom.com/',
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
     }
 
-    return url, headers
+    return headers
+
+
+def build_jobs_url(page_number: int):
+    '''
+    ... build the jobs API url for a page
+    '''
+
+    return (
+        f'{API_URL}?include=department,locations&page[size]=30&filter[feed]=public'
+        f'&page[number]={page_number}&api_version={API_VERSION}&api_key={API_KEY}'
+    )
+
+
+def is_romania_job(job, locations):
+    '''
+    ... check if a job is located in Romania
+    '''
+
+    job_locations = job.get('relationships', {}).get('locations', {}).get('data') or []
+
+    for job_location in job_locations:
+        location = locations.get(job_location.get('id'), {})
+        location_data = ' '.join(
+            str(location.get(field) or '')
+            for field in ('name', 'city', 'country')
+        ).lower()
+
+        if 'romania' in location_data or 'bucure' in location_data:
+            return True
+
+    return False
 
 
 # use function for better resposnse
-def get_job_type_data(data_string_with_job_type: str):
+def get_job_type_data(remote_status: str):
     '''
-    ... get only job type
+    ... convert teamtailor remote status to peviitor job type
     '''
-    job_type = ''
-    if 'temporarily remote' in data_string_with_job_type:
+
+    remote_status = (remote_status or '').strip().lower()
+
+    if remote_status == 'temporary':
         return 'hybrid'
-    elif 'remote' in data_string_with_job_type and 'hybrid' in data_string_with_job_type:
+    elif remote_status == 'hybrid':
         return ['remote', 'hybrid']
-    elif 'remote' in data_string_with_job_type:
+    elif remote_status == 'fully':
         return 'remote'
     else:
         return 'on-site'
-
 
 
 def scraper():
@@ -79,26 +96,46 @@ def scraper():
     ... scrape data from Funcom scraper.
     '''
 
-    url, headers = prepare_get_headers()
-    json_data = GetRequestJson(url=url, custom_headers=headers)
+    headers = prepare_get_headers()
 
     job_list = []
-    for job in json_data.get('data'):
+    page_number = 1
+    page_count = 1
 
-        # got to the next page and scrape data with BeautifulSoup
-        soup_data = GetStaticSoup(job.get('links').get('careersite-job-url'))
+    while page_number <= page_count:
+        json_data = GetRequestJson(url=build_jobs_url(page_number), custom_headers=headers)
 
-        # get jobs items from response
-        job_list.append(Item(
-            job_title=soup_data.title.text,
-            job_link=job.get('links').get('careersite-job-url'),
-            company='Funcom',
-            country='Romania',
-            county='Bucuresti',
-            city='Bucuresti',
-            remote=get_job_type_data(
-                data_string_with_job_type=str(soup_data.find('section', attrs={'class': 'pb-20 block-px'}).find_all('dd')).lower()),
-        ).to_dict())
+        if not isinstance(json_data, dict):
+            break
+
+        page_count = int(json_data.get('meta', {}).get('page-count') or 0)
+        included = json_data.get('included') or []
+
+        locations = {
+            location.get('id'): location.get('attributes', {})
+            for location in included
+            if location.get('type') == 'locations'
+        }
+
+        for job in json_data.get('data') or []:
+            if not is_romania_job(job, locations):
+                continue
+
+            attributes = job.get('attributes') or {}
+            job_url = job.get('links', {}).get('careersite-job-url')
+
+            # get jobs items from response
+            job_list.append(Item(
+                job_title=attributes.get('title'),
+                job_link=job_url,
+                company='Funcom',
+                country='Romania',
+                county='Bucuresti',
+                city='Bucuresti',
+                remote=get_job_type_data(attributes.get('remote-status')),
+            ).to_dict())
+
+        page_number += 1
 
     return job_list
 

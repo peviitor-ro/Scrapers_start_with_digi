@@ -3,7 +3,7 @@
 # Config for Dynamic Get Method -> For Json format!
 #
 # Company ---> Microsoft
-# Link ------> https://gcsservices.careers.microsoft.com/search/api/v1/search?lc=Romania&l=en_us&pg=1&pgSz=20&o=Relevance&flt=true
+# Link ------> https://apply.careers.microsoft.com/careers?domain=microsoft.com&location=Romania
 #
 # ------ IMPORTANT! ------
 # if you need return soup object:
@@ -13,6 +13,8 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 #
+import time
+
 from __utils import (
     GetRequestJson,
     get_county,
@@ -26,19 +28,36 @@ def prepare_get_headers(page: str):
     '''
     ... prepare get headers dict for microsoft company API'''
 
-    url = f'https://gcsservices.careers.microsoft.com/search/api/v1/search?lc=Romania&l=en_us&pg={page}&pgSz=20&o=Relevance&flt=true'
+    page_size = 10
+    start = (int(page) - 1) * page_size
+    url = f'https://apply.careers.microsoft.com/api/pcsx/search?domain=microsoft.com&query=&location=Romania&start={start}'
 
     headers = {
-        'authority': 'gcsservices.careers.microsoft.com',
+        'authority': 'apply.careers.microsoft.com',
         'accept': 'application/json, text/plain, */*',
         'accept-language': 'en-US,en;q=0.5',
-        'authorization': 'Bearer undefined',
-        'origin': 'https://jobs.careers.microsoft.com',
-        'referer': 'https://jobs.careers.microsoft.com/',
+        'origin': 'https://apply.careers.microsoft.com',
+        'referer': 'https://apply.careers.microsoft.com/careers',
         'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
     }
 
     return url, headers
+
+
+def get_json_with_retries(url: str, headers: dict, attempts: int = 5):
+    '''
+    ... retry API calls that are temporarily rate limited.
+    '''
+
+    for attempt in range(attempts):
+        json_data = GetRequestJson(url=url, custom_headers=headers)
+        if isinstance(json_data, dict):
+            return json_data
+
+        if attempt < attempts - 1:
+            time.sleep(min(5 * (2 ** attempt), 60))
+
+    return None
 
 
 def scraper():
@@ -47,40 +66,48 @@ def scraper():
     '''
 
     job_list = list()
+    seen_jobs = set()
     page = 1
+    page_size = 10
+    total_jobs = None
     flag = True
     while flag:
         url, headers = prepare_get_headers(str(page))
 
-        json_data = GetRequestJson(url=url, custom_headers=headers)
-        
+        json_data = get_json_with_retries(url=url, headers=headers)
+
         # Check if response is valid JSON and contains expected data
-        if not isinstance(json_data, dict) or 'operationResult' not in json_data:
-            flag = False
-            continue
-        
-        operation_result = json_data.get('operationResult')
-        if not operation_result or 'result' not in operation_result:
+        if not isinstance(json_data, dict) or json_data.get('status') != 200:
             flag = False
             continue
 
-        result = operation_result.get('result')
-        if not result or 'jobs' not in result:
-            flag = False
-            continue
+        data = json_data.get('data') or {}
+        jobs = data.get('positions') or []
+        if total_jobs is None:
+            total_jobs = data.get('count') or 0
 
-        jobs = result.get('jobs')
-        if jobs and len(jobs) > 0:
+        if jobs:
             for job in jobs:
-                
+                job_id = job.get('id')
+                if job_id in seen_jobs:
+                    continue
+                seen_jobs.add(job_id)
+
+                locations = job.get('locations') or []
+                romania_locations = [
+                    loc for loc in locations
+                    if 'romania' in loc.lower()
+                ]
+                if not romania_locations:
+                    continue
+
                 # logic to catch City and All ---> Start
                 set_data_loc = set()
-                if len(locations := job.get('properties').get('locations')) > 0:
-                    for loc in locations:
-                        if 'multiple locations' in loc.lower():
-                            set_data_loc.add('multiple locations')
-                        elif 'bucharest' in loc.lower():
-                            set_data_loc.add('bucuresti')
+                for loc in romania_locations:
+                    if 'multiple locations' in loc.lower():
+                        set_data_loc.add('multiple locations')
+                    elif 'bucharest' in loc.lower():
+                        set_data_loc.add('bucuresti')
                 #
                 new_loc = ''
                 if 'bucuresti' in set_data_loc:
@@ -89,23 +116,28 @@ def scraper():
                     new_loc = 'All'
                 # logic to catch City and All ---> End
 
-                # here the logic for JobType 0% mean on-site, 50% mean hybrid, 100% mean remote
-                job_type = ''
-                if (job_type_procent := job.get('properties').get('workSiteFlexibility').lower()):
-                    if '100%' in job_type_procent:
-                        job_type = 'remote'
-                    elif '50%' in job_type_procent:
-                        job_type = 'hybrid'
-                    elif 'on-site' in job_type_procent:
-                        job_type = 'on-site'
-                    else:
-                        job_type = 'on-site'
+                # here the logic for JobType
+                work_option = (job.get('workLocationOption') or '').lower()
+                flexibility = (job.get('locationFlexibility') or '').lower()
+                if 'remote' in work_option or '100%' in flexibility:
+                    job_type = 'remote'
+                elif 'hybrid' in work_option or '50%' in flexibility:
+                    job_type = 'hybrid'
+                else:
+                    job_type = 'on-site'
                 # here the logic for jobType -------> END
+
+                job_title = (job.get('name') or '').strip()
+                position_url = job.get('positionUrl') or f"/careers/job/{job_id}"
+                if position_url.startswith('/'):
+                    job_link = f'https://apply.careers.microsoft.com{position_url}'
+                else:
+                    job_link = position_url
 
                 # get jobs items from response
                 job_list.append(Item(
-                    job_title=job.get('title'),
-                    job_link=f"https://jobs.careers.microsoft.com/global/en/job/{job.get('jobId')}/{'-'.join(job.get('title').split())}",
+                    job_title=job_title,
+                    job_link=job_link,
                     company='Microsoft',
                     country='Romania',
                     county='Bucuresti' if new_loc == 'Bucuresti' else 'All',
@@ -113,6 +145,9 @@ def scraper():
                     remote=job_type,
                 ).to_dict())
         else:
+            flag = False
+
+        if len(jobs) < page_size or (total_jobs is not None and page * page_size >= total_jobs):
             flag = False
 
         # increment page
