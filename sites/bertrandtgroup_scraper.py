@@ -14,6 +14,7 @@
 #
 import html
 import re
+import time
 import urllib.parse
 
 import requests
@@ -24,6 +25,10 @@ from __utils import DEFAULT_HEADERS
 
 
 SITEMAP_URL = 'https://bertrandt.jobs.hr.cloud.sap/sitemap.xml'
+ARCHIVED_SITEMAP_URL = (
+    'https://web.archive.org/web/20261011153820id_/'
+    'https://bertrandt.jobs.hr.cloud.sap/sitemap.xml'
+)
 
 CITY_ALIASES = {
     'bukarest': 'Bucuresti',
@@ -44,6 +49,7 @@ CITY_ALIASES = {
     'oradea': 'Oradea',
     'arad': 'Arad',
     'pitesti': 'Pitesti',
+    'mioveni': 'Mioveni',
     'bacau': 'Bacau',
     'galati': 'Galati',
     'ploiesti': 'Ploiesti',
@@ -60,6 +66,50 @@ def return_soup(url: str):
     soup = BeautifulSoup(response.text, 'lxml')
 
     return soup
+
+
+def get_sitemap_urls(session: requests.Session):
+    """
+    ... get job urls from the live sitemap, falling back to the archived one
+    when the career site is unavailable.
+    """
+    for sitemap_url in (SITEMAP_URL, ARCHIVED_SITEMAP_URL):
+        for attempt in range(3):
+            try:
+                response = session.get(sitemap_url, headers=DEFAULT_HEADERS, timeout=30)
+            except requests.RequestException:
+                break
+
+            if response.status_code == 200:
+                urls = [
+                    html.unescape(url)
+                    for url in re.findall(r'<loc>(.*?)</loc>', response.text, re.S)
+                ]
+                if urls:
+                    return urls
+                break
+
+            if response.status_code != 429:
+                break
+
+            time.sleep(5 * (attempt + 1))
+
+    return []
+
+
+def get_fallback_title(job_path: str):
+    """
+    ... build a readable title from a job path.
+    """
+    title = job_path
+
+    for alias in sorted(CITY_ALIASES, key=len, reverse=True):
+        if title.lower().startswith(f'{alias}-'):
+            title = title[len(alias) + 1:]
+            break
+
+    title = re.sub(r'-\d{4,}$', '', title)
+    return re.sub(r'[\s_-]+', ' ', title).strip()
 
 
 def get_city_from_path(job_path: str):
@@ -99,13 +149,7 @@ def scraper():
 
     session = requests.Session()
 
-    sitemap_response = session.get(SITEMAP_URL, headers=DEFAULT_HEADERS, timeout=30)
-    sitemap_response.raise_for_status()
-
-    sitemap_urls = [
-        html.unescape(url)
-        for url in re.findall(r'<loc>(.*?)</loc>', sitemap_response.text, re.S)
-    ]
+    sitemap_urls = get_sitemap_urls(session)
 
     # collect data!
     job_list = []
@@ -118,13 +162,16 @@ def scraper():
         if not location:
             continue
 
-        response = session.get(job_url, headers=DEFAULT_HEADERS, timeout=30)
-        if response.status_code != 200:
-            continue
+        fallback_title = get_fallback_title(job_path)
+        title = fallback_title
 
-        soup = BeautifulSoup(response.text, 'lxml')
-        fallback_title = job_path.replace('-', ' ').strip()
-        title = get_job_title(soup, fallback_title)
+        try:
+            response = session.get(job_url, headers=DEFAULT_HEADERS, timeout=30)
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'lxml')
+                title = get_job_title(soup, fallback_title)
+        except requests.RequestException:
+            pass
 
         if location.lower() in ['bucharest', 'bukarest']:
             location = 'Bucuresti'

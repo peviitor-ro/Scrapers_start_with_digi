@@ -29,6 +29,7 @@ CAREERS_URL = (
     f"?locations={ROMANIA_LOCATION_ID}"
 )
 API_URL = "https://transperfect.wd5.myworkdayjobs.com/wday/cxs/transperfect/transperfect/jobs"
+RECRUITEE_API_URL = "https://transperfect.recruitee.com/api/offers/"
 
 
 def get_headers():
@@ -65,9 +66,9 @@ def get_location_data(location_text):
     return county, city
 
 
-def scraper():
+def get_workday_jobs():
     '''
-    ... scrape data from TransPerfect scraper.
+    ... get jobs from the Workday API.
     '''
     payload = {
         'appliedFacets': {
@@ -77,10 +78,19 @@ def scraper():
         'offset': 0,
         'searchText': '',
     }
-    response = session.post(API_URL, headers=get_headers(), json=payload, timeout=30).json()
+
+    try:
+        response = session.post(API_URL, headers=get_headers(), json=payload, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+    except (requests.RequestException, ValueError):
+        return []
+
+    if not isinstance(data, dict):
+        return []
 
     job_list = []
-    for job in response.get('jobPostings') or []:
+    for job in data.get('jobPostings') or []:
         county, city = get_location_data(job.get('locationsText', 'Romania'))
 
         job_list.append(Item(
@@ -92,6 +102,78 @@ def scraper():
             city=city,
             remote='on-site',
         ).to_dict())
+
+    return job_list
+
+
+def get_recruitee_jobs():
+    '''
+    ... fallback to the Recruitee board when Workday is unavailable.
+    '''
+    try:
+        response = requests.get(
+            RECRUITEE_API_URL,
+            headers={'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0'},
+            timeout=60,
+        )
+        response.raise_for_status()
+        data = response.json()
+    except (requests.RequestException, ValueError):
+        return []
+
+    job_list = []
+    seen_links = set()
+    for offer in data.get('offers') or []:
+        romanian_locations = [
+            location for location in offer.get('locations') or []
+            if str(location.get('country_code', '')).upper() == 'RO'
+            or str(location.get('country', '')).lower() == 'romania'
+        ]
+        if not romanian_locations:
+            continue
+
+        job_link = offer.get('careers_url')
+        job_title = offer.get('title')
+        if not job_title or not job_link or job_link in seen_links:
+            continue
+
+        seen_links.add(job_link)
+        location = romanian_locations[0]
+        city = (location.get('city') or location.get('name') or 'Bucuresti').strip()
+        if city.lower() == 'bucharest':
+            city = 'Bucuresti'
+
+        county_data = get_county(location=city)
+        county = county_data[0] if True in county_data else ''
+
+        if offer.get('remote'):
+            remote = 'remote'
+        elif offer.get('hybrid'):
+            remote = 'hybrid'
+        else:
+            remote = 'on-site'
+
+        job_list.append(Item(
+            job_title=job_title,
+            job_link=job_link,
+            company='TransPerfect',
+            country='Romania',
+            county=county,
+            city=city,
+            remote=remote,
+        ).to_dict())
+
+    return job_list
+
+
+def scraper():
+    '''
+    ... scrape data from TransPerfect scraper.
+    '''
+    job_list = get_workday_jobs()
+
+    if not job_list:
+        job_list = get_recruitee_jobs()
 
     return job_list
 
