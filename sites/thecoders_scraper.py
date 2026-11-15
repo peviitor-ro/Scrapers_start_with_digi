@@ -13,19 +13,52 @@
 # Link ------> https://thecoders.ro/en/joburi/all/
 #
 #
+from shutil import which
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.ui import WebDriverWait
 from __utils import (
-    GetStaticSoup,
+    GetHtmlSoup,
     get_county,
     Item,
     UpdateAPI,
 )
 
 
-def get_jobs_from_page(page):
+def get_driver():
+    '''
+    ... start a browser that can pass the source website's JS challenge.
+    '''
+    options = Options()
+    options.add_argument('--headless=new')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--window-size=1920,1080')
+    options.add_experimental_option('excludeSwitches', ['enable-automation'])
+    options.add_experimental_option('useAutomationExtension', False)
+    options.add_argument('--disable-blink-features=AutomationControlled')
+    options.add_argument(
+        '--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
+        '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    )
+
+    driver_path = which('chromedriver') or '/usr/bin/chromedriver'
+    driver = webdriver.Chrome(service=Service(driver_path), options=options)
+    driver.set_page_load_timeout(60)
+    return driver
+
+
+def get_jobs_from_page(page, driver):
     '''
     ... collect jobs from a listing page.
     '''
-    soup = GetStaticSoup(f"https://thecoders.ro/en/joburi/all/?page={page}")
+    driver.get(f"https://thecoders.ro/en/joburi/all/?page={page}")
+    WebDriverWait(driver, 30, poll_frequency=0.5).until(
+        lambda browser: browser.title and 'One moment' not in browser.title
+    )
+    soup = GetHtmlSoup(driver.page_source)
 
     job_boxes = soup.find_all('div', class_='inner')
     if not job_boxes:
@@ -74,14 +107,18 @@ def scraper():
     '''
     page = 1
     job_list = []
+    driver = get_driver()
 
-    while True:
-        jobs = get_jobs_from_page(page)
-        if jobs is None:
-            break
+    try:
+        while True:
+            jobs = get_jobs_from_page(page, driver)
+            if jobs is None:
+                break
 
-        job_list.extend(jobs)
-        page += 1
+            job_list.extend(jobs)
+            page += 1
+    finally:
+        driver.quit()
 
     return job_list
 
