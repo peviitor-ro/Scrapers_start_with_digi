@@ -10,44 +10,56 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 # Company ---> ARRK
-# Link ------> https://arrkeurope.onlyfy.jobs/candidate/job/ajax_list?display_length=400&page=1&sort=matching&sort_dir=DESC&search=&_ps_widget_token=tMU6eTWJkBAGWF7DxNep3O83rN2owhZyjUrvVqLojQ704xeU3sRAvmKFfnnzc9WKaZKQVgh459vPDJRviAvJnA8sbU4j0j7jb9r9ZI0OBoT99CuysZwQcMyyu3uv5WrQIFzBb3TBxP-UT-zl7YZN-KMzPnzs,mHgPgtQPsr5xVNp2784JeZZ0VswqwmbAkFqDUzbyCAYV2Q0iBOQhpofKQoRsT1yHksD&parentUrl=https://engineering.arrk.com/jobs-career/current-job-offers&widgetConfig=yl6c10ku&_=1687204199282
+# Link ------> https://engineering.arrk.com/jobs-career/current-job-offers
 #
 #
+from urllib.parse import urljoin
 from __utils import (
     GetStaticSoup,
     get_county,
-    get_job_type,
     Item,
     UpdateAPI,
 )
+
+JOBS_URL = (
+    "https://arrkeurope.onlyfy.jobs/candidate/job/ajax_list"
+    "?widgetConfig=z8xcghls&display_length=400&page=1"
+    "&sort=date&sort_dir=DESC&search="
+)
+
+COUNTRIES = {
+    'munich': 'Germany',
+    'madrid': 'Spain',
+    'kuala lumpur': 'Malaysia',
+    'petaling jaya': 'Malaysia',
+    'hefei': 'China',
+}
 
 
 def scraper():
     '''
     ... scrape data from ARRK scraper.
     '''
-    soup = GetStaticSoup("https://arrkeurope.onlyfy.jobs/candidate/job/ajax_list?display_length=400&page=1&sort=matching&sort_dir=DESC&search=&_ps_widget_token=tMU6eTWJkBAGWF7DxNep3O83rN2owhZyjUrvVqLojQ704xeU3sRAvmKFfnnzc9WKaZKQVgh459vPDJRviAvJnA8sbU4j0j7jb9r9ZI0OBoT99CuysZwQcMyyu3uv5WrQIFzBb3TBxP-UT-zl7YZN-KMzPnzs,mHgPgtQPsr5xVNp2784JeZZ0VswqwmbAkFqDUzbyCAYV2Q0iBOQhpofKQoRsT1yHksD&parentUrl=https://engineering.arrk.com/jobs-career/current-job-offers&widgetConfig=yl6c10ku&_=1687204199282")
+    soup = GetStaticSoup(JOBS_URL)
 
     job_list = []
     for job in soup.select('[class*="row-table"][class*="collapsed"]'):
+        title_tag = job.find('a')
         location = job.find('div', attrs={'class': 'cell-table col-sm-6 col-xs-8'}).text.strip()
+        call_get_county = get_county(location=location)
 
-        if location in ['Cluj', 'Cluj-Napoca', 'Bucharest', 'Bucuresti']:
-
-            call_get_county = get_county(location=location)
-
-            # get jobs items from response
-            job_list.append(Item(
-                job_title=job.find('a').text.strip(),
-                job_link=job.find('a')['href'],
-                company='ARRK',
-                country='Romania',
-                county=call_get_county[0] if True in call_get_county else None,
-                city='all' if location.lower() == call_get_county[0].lower()\
-                    and True in call_get_county and 'bucuresti' != location.lower()\
-                        else location,
-                remote='on-site',
-            ).to_dict())
+        # get jobs items from response
+        job_list.append(Item(
+            job_title=title_tag.text.strip(),
+            job_link=urljoin('https://arrkeurope.onlyfy.jobs/', title_tag['href']),
+            company='ARRK',
+            country=COUNTRIES.get(location.lower(), 'Romania'),
+            county=call_get_county[0] if True in call_get_county else None,
+            city='all' if location.lower() == call_get_county[0].lower()\
+                and True in call_get_county and 'bucuresti' != location.lower()\
+                    else location,
+            remote='on-site',
+        ).to_dict())
 
     return job_list
 

@@ -22,50 +22,66 @@ from __utils import (
 )
 
 
+SEARCH_URL = 'https://jobs.citi.com/search-jobs'
+MAX_PAGES = 10
+
+COUNTRIES = {
+    'united states': 'United States',
+    'united kingdom': 'United Kingdom',
+    'united arab emirates': 'United Arab Emirates',
+    'romania': 'Romania',
+    'india': 'India',
+    'china': 'China',
+    'poland': 'Poland',
+    'canada': 'Canada',
+    'malaysia': 'Malaysia',
+    'costa rica': 'Costa Rica',
+    'philippines': 'Philippines',
+    'bahrain': 'Bahrain',
+    'ireland': 'Ireland',
+    'taiwan': 'Taiwan',
+    'singapore': 'Singapore',
+    'japan': 'Japan',
+    'mexico': 'Mexico',
+    'france': 'France',
+    'spain': 'Spain',
+    'hungary': 'Hungary',
+    'germany': 'Germany',
+    'switzerland': 'Switzerland',
+    'netherlands': 'Netherlands',
+    'brazil': 'Brazil',
+    'hong kong': 'Hong Kong',
+    'australia': 'Australia',
+    'sweden': 'Sweden',
+    'italy': 'Italy',
+}
+
+
+def get_country(location_text):
+    '''
+    ... extract the country from a Citi location string.
+    '''
+    parts = [part.strip() for part in location_text.split(',') if part.strip()]
+
+    for part in reversed(parts):
+        if part.lower() in COUNTRIES:
+            return COUNTRIES[part.lower()]
+
+    return parts[-1] if parts else 'Romania'
+
+
 def get_job_links():
     '''
-    ... collect Citi job links for Romania.
+    ... collect Citi job links from the current search results.
     '''
-    sitemap_soup = GetStaticSoup("https://jobs.citi.com/sitemap.xml")
-    sitemap_urls = [loc.text.strip() for loc in sitemap_soup.find_all('loc')]
-
-    romanian_locations = set()
-    for url in sitemap_urls:
-        if '/location/' not in url:
-            continue
-        location_slug = url.split('/location/', 1)[1].split('/', 1)[0]
-        if location_slug.endswith('-romania-jobs'):
-            romanian_locations.add(location_slug[:-len('-romania-jobs')])
-
-    romanian_locations.update({'romania', 'bucharest', 'bucuresti'})
-
-    def is_romanian_location(city_slug):
-        for location_slug in romanian_locations:
-            if city_slug == location_slug or location_slug.startswith(f'{city_slug}-') \
-                    or location_slug.endswith(f'-{city_slug}') or f'-{city_slug}-' in location_slug:
-                return True
-        return False
-
     job_links = set()
-    for url in sitemap_urls:
-        if '/job/' not in url:
-            continue
-        path = url.split('/job/', 1)[1].split('/')
-        if len(path) > 1 and is_romanian_location(path[0]):
-            job_links.add(url)
 
-    if not job_links:
-        # fallback: paginate the Romania jobs location page
-        # (the search-jobs url only renders the first page of results)
-        page = 1
-        while True:
-            soup = GetStaticSoup(f"https://jobs.citi.com/location/romania-jobs/287/798549/2/{page}")
-            page_links = [job.get('href') for job in soup.find_all('a')
-                          if job.get('href') and '/job/' in job.get('href')]
-            if not page_links:
-                break
-            job_links.update(page_links)
-            page += 1
+    for page in range(1, MAX_PAGES + 1):
+        soup = GetStaticSoup(f"{SEARCH_URL}?p={page}")
+        for job in soup.select('li.sr-job-item a.sr-job-item__link'):
+            href = job.get('href')
+            if href and '/job/' in href:
+                job_links.add(href if href.startswith('http') else f"https://jobs.citi.com{href}")
 
     return job_links
 
@@ -85,11 +101,11 @@ def scraper():
             if not location_div:
                 continue
 
-            location_text = location_div.find('p', class_='job-description__desc-detail').text.strip()
-            if 'romania' not in location_text.lower():
-                continue
-
+            location_detail = location_div.find('p', class_='job-description__desc-detail') \
+                or location_div.find('dd', class_='job-description__desc-detail')
+            location_text = location_detail.text.strip()
             location = location_text.split(',')[0].strip()
+            country = get_country(location_text)
 
             remote_div = second_soup.find('div', class_='job-description__desc-job-info job-remote-type')
             remote = remote_div.find('p', class_='job-description__desc-detail').text.strip() if remote_div else "On-site"
@@ -98,20 +114,26 @@ def scraper():
         except Exception:
             continue
 
-        if location.lower() in ['bucharest']:
-            location = "Bucuresti"
+        if country == 'Romania':
+            if location.lower() in ['bucharest']:
+                location = "Bucuresti"
 
-        location_finish = get_county(location=location)
+            location_finish = get_county(location=location)
+            county = location_finish[0] if True in location_finish else None
+            city = 'all' if location.lower() == location_finish[0].lower()\
+                        and True in location_finish and 'bucuresti' != location.lower()\
+                            else location
+        else:
+            county = None
+            city = location
 
         job_list.append(Item(
             job_title=job_title,
             job_link=job_link,
             company='Citi',
-            country='Romania',
-            county=location_finish[0] if True in location_finish else None,
-            city='all' if location.lower() == location_finish[0].lower()\
-                        and True in location_finish and 'bucuresti' != location.lower()\
-                            else location,
+            country=country,
+            county=county,
+            city=city,
             remote=remote,
         ).to_dict())
 
