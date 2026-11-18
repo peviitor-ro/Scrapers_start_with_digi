@@ -23,30 +23,54 @@ from __utils import (
 
 
 def scraper():
-    '''
+    """
     ... scrape data from RedBeeSoftware scraper.
-    '''
-    soup = GetStaticSoup("https://redbeesoftware.com/career")
+    """
+    base_url = "https://redbeesoftware.com"
+    career_url = f"{base_url}/career"
+    soup = GetStaticSoup(career_url)
 
     job_list = []
-    for job in soup.select('#career_post_list a[href^="/career/"]'):
+    seen = set()
 
-        job_link = f"https://redbeesoftware.com{job['href']}"
+    for anchor in soup.select('a[href*="/career/"]'):
+        href = (anchor.get("href") or "").strip()
+        if not href or href in {"/career", "/career/"}:
+            continue
+        if href.startswith(base_url):
+            href = href[len(base_url):]
+        if not href.startswith("/career/"):
+            continue
+        if href.rstrip("/").endswith("/career"):
+            continue
+        if href.startswith("/_next") or href.endswith(".js") or href.endswith(".css"):
+            continue
 
-        # second request -> get the work regime (remote / on-site)
-        soup_2 = GetStaticSoup(job_link)
-        job_text = soup_2.get_text(" ", strip=True).lower()
+        job_link = href if href.startswith("http") else f"{base_url}{href}"
+        if job_link in seen:
+            continue
+        seen.add(job_link)
 
-        # get jobs items from response
-        job_list.append(Item(
-            job_title=job.select_one('h3').text.strip(),
-            job_link=job_link,
-            company='RedBeeSoftware',
-            country='Romania',
-            county='Cluj',
-            city='Cluj-Napoca',
-            remote='remote' if 'regim de lucru: remote' in job_text else 'on-site',
-        ).to_dict())
+        title_tag = anchor.select_one("h3") or anchor.select_one("h2") or anchor
+        job_title = title_tag.get_text(" ", strip=True)
+        if not job_title:
+            continue
+
+        soup_job = GetStaticSoup(job_link)
+        job_text = soup_job.get_text(" ", strip=True).lower() if soup_job else ""
+        remote = "remote" if "regim de lucru: remote" in job_text else "on-site"
+
+        job_list.append(
+            Item(
+                job_title=job_title,
+                job_link=job_link,
+                company="RedBeeSoftware",
+                country="Romania",
+                county="Cluj",
+                city="Cluj-Napoca",
+                remote=remote,
+            ).to_dict()
+        )
 
     return job_list
 

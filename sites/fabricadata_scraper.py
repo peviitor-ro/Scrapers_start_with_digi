@@ -10,10 +10,10 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 # Company ---> Fabric
-# Link ------> https://blog-qa.fabricdata.com/corporate/careers
+# Link ------> https://ats.rippling.com/fabric-inc/jobs
 #
 #
-from urllib.parse import urljoin
+import json
 
 from __utils import (
     GetStaticSoup,
@@ -23,56 +23,115 @@ from __utils import (
 )
 
 
+def _extract_job_items(data):
+    queries = (
+        data.get('props', {})
+        .get('pageProps', {})
+        .get('dehydratedState', {})
+        .get('queries', [])
+    )
+    for query in queries:
+        key = query.get('queryKey') or []
+        if isinstance(key, list) and key and key[0] == 'board' and 'job-posts' in key:
+            state_data = query.get('state', {}).get('data') or {}
+            if isinstance(state_data, dict):
+                return state_data.get('items') or []
+    return []
+
+
+def _location_is_romania(location):
+    if not isinstance(location, dict):
+        return False
+    country = str(
+        location.get('country')
+        or location.get('countryName')
+        or location.get('countryCode')
+        or ''
+    ).lower()
+    text = ' '.join(
+        str(location.get(k) or '')
+        for k in ('name', 'city', 'state', 'region', 'country', 'countryName')
+    ).lower()
+    return 'romania' in country or 'romania' in text
+
+
+def _city_from_locations(locations):
+    for location in locations:
+        if not _location_is_romania(location):
+            continue
+        city = (
+            location.get('city')
+            or location.get('name')
+            or location.get('label')
+            or ''
+        )
+        if isinstance(city, str) and city.strip():
+            city = city.strip()
+            if city.lower() == 'bucharest':
+                city = 'Bucuresti'
+            return city
+    return ''
+
+
+def _remote_from_job(job):
+    workplace = str(job.get('workplaceType') or job.get('workplace_type') or '').upper()
+    if workplace == 'REMOTE':
+        return 'remote'
+    if workplace == 'HYBRID':
+        return 'hybrid'
+    return 'on-site'
+
+
 def scraper():
     '''
     ... scrape data from Fabric scraper.
     '''
-    careers_url = "https://blog-qa.fabricdata.com/corporate/careers"
+    careers_url = "https://ats.rippling.com/fabric-inc/jobs"
     soup = GetStaticSoup(careers_url)
 
     job_list = []
 
-    # while no position is open, the careers page replaces
-    # the job cards with a "not hiring" message
-    no_jobs_text = [
-        h3.get_text(' ', strip=True).lower()
-        for h3 in soup.find_all('h3')
-    ]
-    if any('not hiring' in text for text in no_jobs_text):
+    script = soup.find('script', attrs={'id': '__NEXT_DATA__'})
+    if not script or not script.string:
         return job_list
 
-    for card in soup.find_all('div', attrs={'class': 'card__content'}):
+    try:
+        data = json.loads(script.string)
+    except Exception:
+        return job_list
 
-        # job title from the card header
-        title_tag = card.find('h3')
-        if title_tag is None:
+    for job in _extract_job_items(data):
+        if not isinstance(job, dict):
             continue
-        job_title = title_tag.get_text(strip=True)
 
-        # location from the card description (e.g. "Bucharest, Romania");
-        # keep only the jobs from Romania
-        description = card.find('div', attrs={'class': 'card__description'})
-        location_text = description.get_text(' ', strip=True) if description else ''
-        if 'romania' not in location_text.lower():
+        locations = job.get('workLocations') or job.get('locations') or job.get('jobLocations') or []
+        if not any(_location_is_romania(loc) for loc in locations):
             continue
-        city = location_text.split(',')[0].strip()
-        if city.lower() == 'bucharest':
-            city = 'Bucuresti'
 
-        # job page link: anchor inside the card or the slug
-        # taken from the card image (careers page style)
-        link_tag = card.find('a', href=True)
-        if link_tag is not None:
-            job_link = urljoin(careers_url, link_tag['href'].strip())
-        else:
-            image = card.find('img')
-            image_name = image.get('src', '').rstrip('/').split('/')[-1].split('.')[0] if image else ''
-            job_link = f'{careers_url}/{image_name}' if image_name else careers_url
+        job_title = (job.get('name') or job.get('title') or '').strip()
+        if not job_title:
+            continue
 
-        # get county by city
-        location_finish = get_county(city)
+        job_id = job.get('uuid') or job.get('id') or job.get('slug') or ''
+        job_link = job.get('url') or job.get('jobUrl') or job.get('applyUrl') or ''
+        if job_link and job_link.startswith('/'):
+            job_link = 'https://ats.rippling.com' + job_link
+        if not job_link and job_id:
+            job_link = f"https://ats.rippling.com/fabric-inc/jobs/{job_id}"
+        if not job_link:
+            job_link = careers_url
 
-        # get jobs items from response
+        city = _city_from_locations(locations)
+        if not city:
+            # fallback: try to read a plain location string
+            for loc in locations:
+                if _location_is_romania(loc):
+                    loc_name = str(loc.get('name') or '')
+                    if loc_name:
+                        city = loc_name.split(',')[0].strip()
+
+        location_finish = get_county(city) if city else (None, None)
+
         job_list.append(Item(
             job_title=job_title,
             job_link=job_link,
@@ -80,7 +139,7 @@ def scraper():
             country='Romania',
             county=location_finish[0] if True in location_finish else None,
             city=city if city else 'all',
-            remote='on-site',
+            remote=_remote_from_job(job),
         ).to_dict())
 
     return job_list
