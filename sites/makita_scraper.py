@@ -13,7 +13,6 @@
 # Link ------> https://makitajobs.ro/locuri-de-munca/
 #
 #
-import base64
 import re
 import time
 from shutil import which
@@ -67,24 +66,18 @@ def get_soup(driver, url, marker):
 
 def get_location(soup):
     '''
-    ... extract the job location from the base64 encoded page content.
+    ... extract the job location from the detail page text.
     '''
-    for text_node in soup.find_all(string=re.compile('bunch_service_single')):
-        match = re.search(r'text="([^"]+)"', str(text_node))
-        if not match:
-            continue
+    for text_node in soup.find_all(string=re.compile('Locul tău de muncă stabil')):
+        text = str(text_node)
 
-        encoded = match.group(1)
-        decoded = base64.b64decode(encoded + '=' * (-len(encoded) % 4)).decode('utf-8', errors='replace')
-        text = re.sub(r'<[^>]+>', ' ', decoded)
-
-        address_match = re.search(r'Locul tău de muncă stabil\s*-\s*([^<]+)', text)
-        if address_match:
-            return address_match.group(1).strip().split(',')[-1].strip().split()[-1]
-
-        county_match = re.search(r'Jud\.\s*([^\s<]+)', text)
+        county_match = re.search(r'Jud\.\s*([^\s,<]+)', text)
         if county_match:
             return county_match.group(1).strip()
+
+        address_match = re.search(r'Locul tău de muncă stabil\s*-\s*([^<\n]+)', text)
+        if address_match:
+            return address_match.group(1).strip().split(',')[-1].strip().split()[-1]
 
     return None
 
@@ -95,16 +88,19 @@ def scraper():
     '''
     driver = get_driver()
     try:
-        soup = get_soup(driver, "https://makitajobs.ro/locuri-de-munca/", 'box-right')
+        soup = get_soup(driver, "https://makitajobs.ro/locuri-de-munca/", 'kc-feature-boxes')
 
         job_list = []
-        for job in soup.find_all('div', attrs={'class': 'box-right'}):
-            link = "https://makitajobs.ro" + job.find('div', attrs={'class': 'content-button'}).find('a')['href']
+        for job in soup.find_all('div', attrs={'class': 'content-title'}):
+            button = job.find_next_sibling('div', attrs={'class': 'content-button'})
+            if button is None or button.find('a') is None:
+                continue
+            link = "https://makitajobs.ro" + button.find('a')['href']
 
             location = None
             for _ in range(3):
                 try:
-                    location = get_location(get_soup(driver, link, 'bunch_service_single'))
+                    location = get_location(get_soup(driver, link, 'solution-single'))
                     break
                 except Exception:
                     time.sleep(2)
@@ -118,7 +114,7 @@ def scraper():
             
             # get jobs items from response
             job_list.append(Item(
-                job_title=job.find('div', attrs={'class': 'content-title'}).text,
+                job_title=job.get_text(strip=True),
                 job_link=link,
                 company='makita',
                 country='România',

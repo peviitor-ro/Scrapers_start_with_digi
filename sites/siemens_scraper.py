@@ -3,7 +3,7 @@
 # Config for Dynamic Get Method -> For Json format!
 #
 # Company ---> Siemens
-# Link ------> https://jobs.siemens.com/careers\?location\=Romania\&pid\=563156119178765\&domain\=siemens.com\&sort_by\=relevance\&triggerGoButton\=true
+# Link ------> https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?search=Romania
 #
 # ------ IMPORTANT! ------
 # if you need return soup object:
@@ -13,69 +13,101 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 #
-import requests
+from bs4 import BeautifulSoup
+
 from __utils.req_bs4_shorts import session
 from __utils import (
-    GetRequestJson,
     get_county,
-    get_job_type,
     remove_diacritics,
     Item,
     UpdateAPI,
-    #
-    GetHeadersDict,
 )
 
 
-def get_ids():
+BASE_URL = 'https://jobs.siemens.com/en_US/externaljobs/SearchJobs/'
+PAGE_SIZE = 6
+
+HEADERS = {
+    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+}
+
+
+def get_search_page(offset: int):
     '''
-    ... Get ids from site: traceID
-    ... Also setups the global session cookies.
-    
-    params: None
-    return: None, traceID: str
-    '''
-
-    url = 'https://jobs.siemens.com/careers?location=Romania&pid=563156118434737&domain=siemens.com&sort_by=relevance&triggerGoButton=true'
-    
-    # Use global session to capture cookies
-    response = session.head(url, allow_redirects=True)
-    
-    # Set manual cookies that were previously hardcoded in header string
-    session.cookies.set('s_cc', 'true', domain='jobs.siemens.com')
-    session.cookies.set('_vscid', '1', domain='jobs.siemens.com')
-
-    traceID = response.headers.get('X-EF-Trace-ID', '')
-
-    return None, traceID
-
-
-# get ids on time, for one session
-_vsID, traceID = get_ids()
-
-
-def make_headers(star_page: str):
-    '''
-    ... make headers ---> for get Siemens's API.
-
-    params: start_page: str
-    return: url, headers
+    ... return the soup object for one page of the Romania job search.
     '''
 
-    url = f'https://jobs.siemens.com/api/apply/v2/jobs?domain=siemens.com&start={star_page}&num=10&location=Romania&pid=563156118434737&sort_by=relevance&triggerGoButton=true'
+    url = f'{BASE_URL}?search=Romania&folderOffset={offset}'
+    response = session.get(url, headers=HEADERS, verify=False, timeout=30)
 
-    headers = {
-        'authority': 'jobs.siemens.com',
-        'accept': '*/*',
-        'content-type': 'application/json',
-        'referer': 'https://jobs.siemens.com/careers?location=Romania&pid=563156118434737&domain=siemens.com&sort_by=relevance&triggerGoButton=true',
-        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-    }
+    if response.status_code != 200:
+        return None
 
-    if traceID:
-        headers['sentry-trace'] = f'{traceID}'
+    return BeautifulSoup(response.text, 'lxml')
 
-    return url, headers
+
+def get_job_details(link: str):
+    '''
+    ... return (locations, work_mode) from a job detail page.
+    '''
+
+    response = session.get(link, headers=HEADERS, verify=False, timeout=30)
+    if response.status_code != 200:
+        return [], ''
+
+    soup = BeautifulSoup(response.text, 'lxml')
+
+    locations = [
+        item.get_text(' ', strip=True)
+        for item in soup.select('.tf_locations ul.list--locations li')
+    ]
+
+    work_mode = ''
+    for field in soup.select('.article__content__view__field'):
+        label = field.select_one('.article__content__view__field__label')
+        if label and label.get_text(strip=True) == 'Work mode':
+            value = field.select_one('.article__content__view__field__value')
+            work_mode = value.get_text(' ', strip=True) if value else ''
+            break
+
+    return locations, work_mode
+
+
+def get_remote(work_mode: str):
+    '''
+    ... map the site work mode to the value used by the scraper output.
+    '''
+
+    mode = work_mode.lower()
+    if 'hybrid' in mode:
+        return 'hybrid'
+    if 'remote' in mode:
+        return 'remote'
+    return 'onsite'
+
+
+def get_romanian_towns(locations):
+    '''
+    ... extract the Romanian cities from the job locations.
+    '''
+
+    towns = []
+    for location in locations:
+        parts = location.rsplit(' - ', 2)
+        if len(parts) < 3 or parts[-1].strip().lower() != 'romania':
+            continue
+
+        city = remove_diacritics(parts[0].strip())
+        if city.lower() in ('bucharest', 'bucuresti'):
+            city = 'Bucuresti'
+        else:
+            city = city.title()
+
+        if city and city not in towns:
+            towns.append(city)
+
+    return towns
 
 
 def scraper():
@@ -83,73 +115,61 @@ def scraper():
     ... scrape data from Siemens scraper.
     '''
 
-    count = 0
-
     job_list = []
-    page = 0 # increment +10 and send str type to function make_headers
-    flag = True
-    while flag:
-        url, headers = make_headers(str(page))
-        response_data = GetRequestJson(url=url, custom_headers=headers)
-        
-        # Validate response
-        if isinstance(response_data, dict):
-            json_job_data = response_data.get('positions')
-        else:
-            json_job_data = None
+    seen_links = set()
+    offset = 0
 
-        if json_job_data and len(json_job_data) > 0:
-            for job in json_job_data:
+    while True:
+        soup = get_search_page(offset)
+        if soup is None:
+            break
 
-                # collect all data about locations
-                location_towns = list()
-                #location_counties = list()
-                if (location := job.get('location').lower().split(',')) and 'romania' in location:
-                    if 'bucharest' in location:
-                        location_towns.append('Bucuresti')
-                        #location_counties.append('Bucuresti')
+        articles = soup.select('article.article--result')
+        if not articles:
+            break
 
-                    # add it to default
-                    location_towns.append(location[0].title())
-                    #location_counties.append(location_counties[1].title())
+        for article in articles:
+            title_tag = article.select_one('h3.article__header__text__title a')
+            if not title_tag:
+                continue
 
-                # data - search data in locations - list with locations from API
-                else:
-                    locations_else = ['cluj', 'bucharest', 'timis', 'iasi', 'sibiu', 'brasov', 'bucuresti', 'craiova',]
-                    for another_loc in job.get('locations'):
-                        for city_ro in locations_else:
-                            if (city_ro := remove_diacritics(city_ro)) and city_ro in another_loc.lower():
-                                # ...
-                                city_ro = remove_diacritics(another_loc.split(',')[0])
-                                if city_ro.lower() == 'bucharest':
-                                    city_ro = 'Bucuresti'
-                                location_towns.append(city_ro)
+            link = title_tag.get('href')
+            if not link or link in seen_links:
+                continue
+            seen_links.add(link)
 
-                # logic to catch towns ---> !
-                if location_towns:
+            job_title = title_tag.get_text(' ', strip=True)
+            if not job_title:
+                continue
 
-                    # get locations --->
-                    location_towns = list(set(location_towns))
-                    job_counties = [get_county(city_ro) for city_ro in location_towns]
-                    get_locations_with_none = [location_finish[0] if True in location_finish else None for location_finish in job_counties]
+            locations, work_mode = get_job_details(link)
+            if not locations:
+                location_tag = article.select_one('.list-item-location')
+                locations = [location_tag.get_text(' ', strip=True)] if location_tag else []
 
-                    # get jobs items from response
-                    job_list.append(Item(
-                        job_title=job.get('name'),
-                        job_link=f"https://jobs.siemens.com/careers?location=Romania&pid={job.get('id')}&domain=siemens.com&sort_by=relevance&triggerGoButton=true",
-                        company='Siemens',
-                        country='Romania',
-                        county=None if any(x is None for x in get_locations_with_none) else (get_locations_with_none[0] if len(get_locations_with_none) == 1 else get_locations_with_none),
-                        city=location_towns[0] if len(location_towns) == 1 else location_towns,
-                        remote=job.get('work_location_option').split('_')[0],
-                    ).to_dict())
+            location_towns = get_romanian_towns(locations)
+            if not location_towns:
+                continue
 
-        else:
-            flag = False
+            job_counties = [get_county(city) for city in location_towns]
+            counties = [county if found else None for county, found in job_counties]
 
-        page += 10
+            job_list.append(Item(
+                job_title=job_title,
+                job_link=link,
+                company='Siemens',
+                country='Romania',
+                county=None if any(county is None for county in counties) else (
+                    counties[0] if len(counties) == 1 else counties
+                ),
+                city=location_towns[0] if len(location_towns) == 1 else location_towns,
+                remote=get_remote(work_mode),
+            ).to_dict())
 
+        if len(articles) < PAGE_SIZE:
+            break
 
+        offset += PAGE_SIZE
 
     return job_list
 

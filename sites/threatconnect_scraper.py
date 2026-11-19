@@ -16,6 +16,9 @@
 # ---> get_data_with_regex(expression: str, object: str)
 #
 #
+import html
+import re
+
 import requests
 
 from __utils import (
@@ -72,31 +75,6 @@ def get_postings(headers, location_ids=None, offset=0):
     return response.get('jobPostings') or [], response.get('total') or 0
 
 
-def get_romania_location_ids(headers):
-    '''
-    ... returns the Workday facet ids of the locations from Romania.
-    '''
-    response = session.post(
-        API_URL,
-        headers=headers,
-        json={'appliedFacets': {}, 'limit': 20, 'offset': 0, 'searchText': ''},
-        timeout=30,
-    ).json()
-
-    location_ids = []
-    for facet in response.get('facets') or []:
-        if facet.get('facetParameter') != 'locationMainGroup':
-            continue
-
-        for group in facet.get('values') or []:
-            for location in group.get('values') or []:
-                descriptor = (location.get('descriptor') or '').lower()
-                if any(marker in descriptor for marker in ROMANIA_MARKERS):
-                    location_ids.append(location.get('id'))
-
-    return location_ids
-
-
 def get_job_info(external_path):
     '''
     ... returns the details of a job posting.
@@ -110,6 +88,54 @@ def get_job_info(external_path):
     return response.get('jobPostingInfo') or {}
 
 
+def get_all_postings(headers):
+    '''
+    ... returns all postings of the board.
+    '''
+    postings, total = get_postings(headers)
+    offset = len(postings)
+
+    while offset < total:
+        more_postings, _ = get_postings(headers, offset=offset)
+        if not more_postings:
+            break
+
+        postings.extend(more_postings)
+        offset += len(more_postings)
+
+    return postings
+
+
+def get_job_text(job_info):
+    '''
+    ... returns a plain-text version of the job description.
+    '''
+    description = job_info.get('jobDescription') or ''
+    return re.sub(r'\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', description))).strip()
+
+
+def is_romania_remote_job(job_info):
+    '''
+    ... returns True if the posting can be performed remotely from Romania.
+    '''
+    job_text = get_job_text(job_info)
+    if 'romania' not in job_text.lower():
+        return False
+
+    locations = [job_info.get('location') or ''] + list(job_info.get('additionalLocations') or [])
+    if not any('remote' in location.lower() for location in locations):
+        return False
+
+    patterns = [
+        r'based remotely in[^.]*romania',
+        r'remotely in[^.]*romania',
+        r'remote in[^.]*romania',
+        r'romania[^\S\r\n-]*[-–,]?[^\S\r\n]*remote',
+        r'remote[^\S\r\n-]*[-–,]?[^\S\r\n]*romania',
+    ]
+    return any(re.search(pattern, job_text, re.IGNORECASE) for pattern in patterns)
+
+
 def get_romanian_locations(job_info):
     '''
     ... returns the Romanian locations of a job posting.
@@ -117,10 +143,18 @@ def get_romanian_locations(job_info):
     locations = [job_info.get('location') or '']
     locations.extend(job_info.get('additionalLocations') or [])
 
-    return [
+    romanian_locations = [
         location for location in locations
         if any(marker in location.lower() for marker in ROMANIA_MARKERS)
     ]
+
+    if romanian_locations:
+        return romanian_locations
+
+    if is_romania_remote_job(job_info):
+        return ['Romania - Remote']
+
+    return []
 
 
 def get_romanian_location(romanian_locations):
@@ -155,21 +189,7 @@ def scraper():
     ... scrape data from ThreatConnect scraper.
     '''
     headers = get_headers()
-
-    location_ids = get_romania_location_ids(headers)
-    if not location_ids:
-        return []
-
-    postings, total = get_postings(headers, location_ids=location_ids)
-
-    offset = len(postings)
-    while offset < total:
-        more_postings, _ = get_postings(headers, location_ids=location_ids, offset=offset)
-        if not more_postings:
-            break
-
-        postings.extend(more_postings)
-        offset += len(more_postings)
+    postings = get_all_postings(headers)
 
     job_list = []
     for job in postings:
