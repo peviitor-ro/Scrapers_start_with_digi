@@ -29,19 +29,25 @@ def scraper():
     soup = GetStaticSoup("https://www.evalueserve.com/jobs/")
 
     job_list = []
-    for job in soup.select('div[class$="Romania"]'):
+    for job in soup.select('div[class*="db-job-title"]'):
+        job = job.parent
 
         # get location
-        location = job.select_one('div.db-location-country > h6').text.split(',')
+        location = job.select_one('div.db-location-country')
+        location_parts = [part.strip() for part in location.get_text(strip=True).split(',')] if location else []
+
+        city = location_parts[0] if location_parts else ''
+        county = location_parts[1] if len(location_parts) > 2 else ''
+        country = location_parts[-1] if location_parts else ''
 
         # get jobs items from response
         job_list.append(Item(
-            job_title=job.select_one('div.db-job-title > h4').text,
-            job_link=job.select_one('div.db-job-link > a')['href'],
+            job_title=job.select_one('div.db-job-title h4').text.strip(),
+            job_link=job.select_one('div.db-job-link a')['href'],
             company='Evalueserve',
-            country='Romania',
-            county=location[1],
-            city=location[0],
+            country=country,
+            county=county,
+            city=city,
             remote='remote',
         ).to_dict())
 
