@@ -14,7 +14,7 @@
 #
 #
 from __utils import (
-    PostRequestJson,
+    GetRequestJson,
     get_county,
     get_job_type,
     Item,
@@ -22,40 +22,29 @@ from __utils import (
     #
     counties,
 )
-#
+import requests
 import re
 
 
 def get_static_headers():
     '''
-    >>>>>>>> Make Post Request for Ajax ---> retrun HTML
+    >>>>>>>> Make GET request for JSON
 
-    params: None
     return: url: str, headers: dict, payload:
     '''
-
-    url = 'https://spyro-soft.com/wp-admin/admin-ajax.php'
+    # params are in the url
+    url = 'https://spyro-soft.com/wp-json/teamtailor/v1/get-jobs?skills=all&locations=1206845&experience=all&page=1&per_page=50'
 
     headers = {
         'authority': 'spyro-soft.com',
         'accept': '*/*',
         'accept-language': 'en-US,en;q=0.5',
-        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
         'origin': 'https://spyro-soft.com',
         'referer': 'https://spyro-soft.com/career?area=all&skills=all&location=romania&experience=all',
         'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
         'x-requested-with': 'XMLHttpRequest',
     }
-
-    data = {
-        'action': 'career_listing',
-        'location[]': 'romania',
-        'search': '',
-        'group': '',
-        'paged': '1',
-    }
-
-    return url, headers, data
+    return url, headers
 
 
 def scraper():
@@ -63,19 +52,13 @@ def scraper():
     ... scrape data from Spyrosoft scraper.
     '''
 
-    url, headers, data_raw = get_static_headers()
-
-    post_data = PostRequestJson(url=url,
-                                custom_headers=headers,
-                                data_raw=data_raw)
+    url, headers = get_static_headers()
 
     job_list = []
-    for job in post_data.select('div.col-sm-6.col-lg-4.CareerThumbnail-col'):
+    for job in GetRequestJson(url=url, custom_headers=headers).get("jobs", []):
 
         # get location ----> and filter for location
-        location = job.select_one('p.CareerThumbnail__city').text.strip().lower()
-
-        # get location with regex
+        location = job['loc'][0]['name_raw'].lower().strip()
         new_loc = None
         for search_city in counties:
             for v in search_city.values():
@@ -90,18 +73,28 @@ def scraper():
         else:
             location_finish = 'all'
 
+        # parse employment type
+        match job['remote_status']:
+                case 'fully':
+                    remoteStat = 'remote'
+                case 'hybrid':
+                    remoteStat = 'hybrid'
+                case 'on-site':
+                    remoteStat = 'on-site'
+                case _:
+                    remoteStat = '-'
+                    
         # get jobs items from response
         job_list.append(Item(
-            job_title=job.select_one('p.CareerThumbnail__title').text.strip(),
-            job_link=job.select_one('a.CareerThumbnail').get('href'),
-            company='Spyrosoft',
-            country='Romania',
-            county='all' if location_finish == 'all' else (location_finish[0] if True in location_finish else None),
-            city='all' if location_finish == 'all' else (location_finish[0] if location_finish != 'all'\
-                                                         and True not in location_finish else new_loc),
-            remote='on-site',
+            job_title = job['title'],
+            job_link = job['url'],
+            company = 'Spyrosoft',
+            country = 'Romania',
+            county = 'all' if location_finish == 'all' else (location_finish[0] if True in location_finish else None),
+            city = 'all' if location_finish == 'all' else (location_finish[0] if location_finish != 'all'\
+                                                        and True not in location_finish else new_loc),
+            remote = remoteStat,
         ).to_dict())
-
     return job_list
 
 
@@ -116,6 +109,7 @@ def main():
     logo_link = "https://spyro-soft.com/wp-content/uploads/2022/06/spyrosoft_color_rgb.png"
 
     jobs = scraper()
+
     # # uncomment if your scraper done
     UpdateAPI().update_jobs(company_name, jobs)
     UpdateAPI().update_logo(company_name, logo_link)
