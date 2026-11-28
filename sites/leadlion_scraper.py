@@ -17,18 +17,25 @@ from urllib.parse import urljoin
 
 from __utils import (
     GetStaticSoup,
-    get_county,
-    get_job_type,
     Item,
     UpdateAPI,
 )
+
+
+CAREERS_URL = "https://leadlion.ro/cariere/"
 
 
 def scraper():
     '''
     ... scrape data from LeadLion scraper.
     '''
-    soup = GetStaticSoup("https://leadlion.ro/cariere/")
+    soup = GetStaticSoup(
+        f"https://r.jina.ai/{CAREERS_URL}",
+        custom_headers={
+            "User-Agent": "curl/8.5.0",
+            "x-respond-with": "html",
+        },
+    )
 
     job_list = []
     for job in soup.select('article'):
@@ -37,7 +44,7 @@ def scraper():
         if not title_tag:
             continue
 
-        link = urljoin('https://leadlion.ro/cariere/', title_tag['href'])
+        link = urljoin(CAREERS_URL, title_tag['href'])
         if 'cariere' in link:
 
             # get jobs items from response

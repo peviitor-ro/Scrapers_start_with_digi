@@ -15,7 +15,43 @@
 #
 from __utils import Item, UpdateAPI
 from bs4 import BeautifulSoup
-import requests
+
+
+def get_soup(url):
+    '''
+    ... load the careers page in a browser to pass its JS challenge.
+    '''
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+    from selenium.webdriver.chrome.service import Service
+    from selenium.webdriver.support.ui import WebDriverWait
+    from shutil import which
+
+    options = Options()
+    options.add_argument('--headless=new')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--disable-blink-features=AutomationControlled')
+    options.add_argument(
+        '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+        'AppleWebKit/537.36 (KHTML, like Gecko) '
+        'Chrome/124.0.0.0 Safari/537.36'
+    )
+    options.add_experimental_option('excludeSwitches', ['enable-automation'])
+    options.add_experimental_option('useAutomationExtension', False)
+
+    driver_path = which('chromedriver') or '/usr/bin/chromedriver'
+    driver = webdriver.Chrome(service=Service(driver_path), options=options)
+    driver.set_page_load_timeout(60)
+    try:
+        driver.get(url)
+        WebDriverWait(driver, 45, poll_frequency=0.5).until(
+            lambda browser: 'One moment' not in browser.page_source
+        )
+        return BeautifulSoup(driver.page_source, 'lxml')
+    finally:
+        driver.quit()
 
 
 def scraper():
@@ -23,16 +59,9 @@ def scraper():
     ... scrape data from WPRiders scraper.
     '''
     url = "https://inside.wpriders.com/careers/"
-    soup = None
     try:
-        response = requests.get(url, headers={
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }, timeout=10)
-        soup = BeautifulSoup(response.text, 'lxml')
+        soup = get_soup(url)
     except Exception:
-        return []
-
-    if soup is None:
         return []
 
     job_list = []

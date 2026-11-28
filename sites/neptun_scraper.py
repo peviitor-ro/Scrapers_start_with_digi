@@ -13,8 +13,14 @@
 # Link ------> https://www.neptun-gears.ro/ro/cariere/
 #
 #
+import time
+
 import requests
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
 from __utils import (
     GetStaticSoup,
     DEFAULT_HEADERS,
@@ -28,18 +34,20 @@ CAREERS_URL = "https://www.neptun-gears.ro/cariere/"
 EJOBS_URL = "https://www.ejobs.ro/company/s-c-neptun-s-a/73778"
 
 
-def _get_jobs_from_careers_page():
+def _extract_jobs_from_soup(soup):
     '''
-    ... get jobs from the company careers page.
+    ... build job items from the careers page soup.
     '''
-    soup = GetStaticSoup(CAREERS_URL)
-
     job_list = []
     jobs_container = soup.select_one('.fusion-text-2 ul')
     if jobs_container:
         for job in jobs_container.select('li'):
+            title = job.get_text(' ', strip=True)
+            if not title:
+                continue
+
             job_list.append(Item(
-                job_title=job.text.strip(),
+                job_title=title,
                 job_link=CAREERS_URL,
                 company='Neptun',
                 country='Romania',
@@ -47,6 +55,50 @@ def _get_jobs_from_careers_page():
                 city='Campina',
                 remote='on-site',
             ).to_dict())
+
+    return job_list
+
+
+def _get_careers_soup_with_browser():
+    '''
+    ... load the careers page in a browser when Cloudflare blocks requests.
+    '''
+    options = Options()
+    options.add_argument('--headless=new')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--disable-blink-features=AutomationControlled')
+    options.add_argument('--window-size=1366,900')
+    options.add_argument(f"--user-agent={DEFAULT_HEADERS['User-Agent']}")
+    options.add_experimental_option('excludeSwitches', ['enable-automation'])
+    options.add_experimental_option('useAutomationExtension', False)
+
+    driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+    try:
+        driver.execute_cdp_cmd(
+            'Page.addScriptToEvaluateOnNewDocument',
+            {'source': "Object.defineProperty(navigator,'webdriver',{get:()=>undefined});"},
+        )
+        driver.get(CAREERS_URL)
+
+        for _ in range(15):
+            if driver.find_elements(By.CSS_SELECTOR, '.fusion-text-2 ul li'):
+                break
+            time.sleep(2)
+
+        return BeautifulSoup(driver.page_source, 'lxml')
+    finally:
+        driver.quit()
+
+
+def _get_jobs_from_careers_page():
+    '''
+    ... get jobs from the company careers page.
+    '''
+    job_list = _extract_jobs_from_soup(GetStaticSoup(CAREERS_URL))
+    if not job_list:
+        job_list = _extract_jobs_from_soup(_get_careers_soup_with_browser())
 
     return job_list
 
@@ -88,7 +140,7 @@ def scraper():
     '''
     try:
         job_list = _get_jobs_from_careers_page()
-    except requests.RequestException:
+    except Exception:
         job_list = []
 
     if not job_list:
